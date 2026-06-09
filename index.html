@@ -57,9 +57,9 @@
     </div>
 
     <script>
-        // อัปเดตลิงก์ใหม่ของคุณเรียบร้อยครับ
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUmUa3LZNeJUWUbS-V36L2F-9-09sh5bDDRCQxGStHyktNOstlmJ0_osKcDo_eDut-zQ/exec"; 
-        // อัปเดตค่า LIFF ID เรียบร้อยครับ
+        // 🔄 อัปเดตลิงก์ตัวใหม่ล่าสุดที่คุณเพิ่งเปิดสิทธิ์ให้เรียบร้อยแล้วครับ
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxItlUVFcdyP1opj7pqH3BRAbc6hDOTz-1uo5CCjiyo2o-42GryBxZ1rUZGy2LybhfWKA/exec"; 
+        // 🔄 ล็อกค่า LIFF ID ของคุณไว้เรียบร้อยครับ
         const LIFF_ID = "2010350342-kxcHYs3F"; 
 
         async function initLiff() {
@@ -120,35 +120,4 @@
 
                 const payload = {
                     employeeName: document.getElementById('empName').value,
-                    projectSite: document.getElementById('projectSite').value,
-                    itemDetail: document.getElementById('itemDetail').value,
-                    amount: parseFloat(document.getElementById('amount').value),
-                    imageName: `${Date.now()}_slip.jpg`,
-                    imageData: compressedBase64
-                };
-
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('🎉 บันทึกข้อมูลและสลิปสำเร็จเรียบร้อยแล้ว!');
-                    liff.closeWindow(); 
-                } else {
-                    alert('❌ เกิดข้อผิดพลาดจากระบบหลังบ้าน: ' + result.error);
-                }
-            } catch (error) {
-                alert('❌ ไม่สามารถเชื่อมต่อระบบหลังบ้านได้ กรุณาเช็คอินเทอร์เน็ต');
-                console.error(error);
-            } finally {
-                btnSubmit.innerText = "ส่งข้อมูลเข้าระบบ";
-                btnSubmit.disabled = false;
-                btnSubmit.classList.replace('bg-slate-400', 'bg-emerald-500');
-            }
-        });
-    </script>
-</body>
-</html>
+                    projectSite: document.getElementById('projectSite').value
