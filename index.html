@@ -10,15 +10,18 @@
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
     <div class="p-4 max-w-md mx-auto w-full">
+        <!-- ส่วนหัว -->
         <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 shadow-sm text-white mb-6">
             <h1 class="text-xl font-bold">บันทึกรายจ่าย & ส่งสลิป</h1>
             <p class="text-xs text-emerald-100 mt-1">กรอกข้อมูลให้ครบถ้วนเพื่ออัปเดตลงระบบส่วนกลาง</p>
         </div>
 
+        <!-- ฟอร์มกรอกข้อมูล -->
         <form id="slipForm" class="bg-white rounded-2xl p-5 shadow-sm space-y-4 border border-slate-100">
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้ส่งข้อมูล (LINE Name)</label>
-                <input type="text" id="empName" readonly class="w-full bg-slate-100 text-slate-500 font-medium p-3 rounded-xl border border-slate-200 outline-none focus:none">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้ส่งข้อมูล (LINE Name) <span class="text-red-500">*</span></label>
+                <!-- ปรับให้มี ID และคลาสเริ่มต้นสำหรับกรณีเปิดสิทธิ์พิมพ์ได้ -->
+                <input type="text" id="empName" readonly required placeholder="กำลังดึงชื่อจาก LINE..." class="w-full bg-slate-100 text-slate-500 font-medium p-3 rounded-xl border border-slate-200 outline-none transition-all">
             </div>
 
             <div>
@@ -57,10 +60,17 @@
     </div>
 
     <script>
-        // 🔄 อัปเดตลิงก์ตัวใหม่ล่าสุดที่คุณเพิ่งเปิดสิทธิ์ให้เรียบร้อยแล้วครับ
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxItlUVFcdyP1opj7pqH3BRAbc6hDOTz-1uo5CCjiyo2o-42GryBxZ1rUZGy2LybhfWKA/exec"; 
-        // 🔄 ล็อกค่า LIFF ID ของคุณไว้เรียบร้อยครับ
         const LIFF_ID = "2010350342-kxcHYs3F"; 
+
+        // ฟังก์ชันปลดล็อกให้พิมพ์ชื่อเองได้ หาก LINE มีปัญหา
+        function enableManualInput() {
+            const empInput = document.getElementById('empName');
+            empInput.removeAttribute('readonly');
+            empInput.classList.remove('bg-slate-100', 'text-slate-500');
+            empInput.classList.add('bg-white', 'text-slate-800', 'focus:border-emerald-500', 'focus:ring-2', 'focus:ring-emerald-200');
+            empInput.placeholder = "พิมพ์ชื่อ-นามสกุลของคุณที่นี่";
+        }
 
         async function initLiff() {
             try {
@@ -69,10 +79,15 @@
                     liff.login();
                 } else {
                     const profile = await liff.getProfile();
-                    document.getElementById('empName').value = profile.displayName;
+                    if (profile && profile.displayName) {
+                        document.getElementById('empName').value = profile.displayName;
+                    } else {
+                        enableManualInput(); // ดึงสำเร็จแต่ชื่อว่าง ปลดล็อกให้พิมพ์เอง
+                    }
                 }
             } catch (err) { 
                 console.error("LIFF Initialization failed", err); 
+                enableManualInput(); // ระบบ LINE เอ๋อ ปลดล็อกให้พิมพ์เองทันที
             }
         }
         initLiff();
