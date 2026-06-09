@@ -3,30 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบันทึกรายจ่ายหน้างาน</title>
+    <title>ระบบบันทึกรายจ่ายหน้างาน (เวอร์ชันทดสอบ)</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
     <div class="p-4 max-w-md mx-auto w-full">
-        <!-- ส่วนหัว -->
-        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 shadow-sm text-white mb-6">
-            <h1 class="text-xl font-bold">บันทึกรายจ่าย & ส่งสลิป</h1>
-            <p class="text-xs text-emerald-100 mt-1">กรอกข้อมูลให้ครบถ้วนเพื่ออัปเดตลงระบบส่วนกลาง</p>
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-5 shadow-sm text-white mb-6">
+            <h1 class="text-xl font-bold">บันทึกรายจ่าย (ข้อความเพียวๆ)</h1>
+            <p class="text-xs text-blue-100 mt-1">เวอร์ชันทดสอบระบบเชื่อมต่อ Google Sheet</p>
         </div>
 
-        <!-- ฟอร์มกรอกข้อมูล -->
         <form id="slipForm" class="bg-white rounded-2xl p-5 shadow-sm space-y-4 border border-slate-100">
             <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้ส่งข้อมูล (LINE Name) <span class="text-red-500">*</span></label>
-                <!-- ปรับให้มี ID และคลาสเริ่มต้นสำหรับกรณีเปิดสิทธิ์พิมพ์ได้ -->
-                <input type="text" id="empName" readonly required placeholder="กำลังดึงชื่อจาก LINE..." class="w-full bg-slate-100 text-slate-500 font-medium p-3 rounded-xl border border-slate-200 outline-none transition-all">
+                <input type="text" id="empName" readonly required placeholder="กำลังดึงชื่อ..." class="w-full bg-slate-100 text-slate-500 font-medium p-3 rounded-xl border border-slate-200 outline-none">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">เลือกหน้างาน / โครงการ <span class="text-red-500">*</span></label>
-                <select id="projectSite" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                <select id="projectSite" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
                     <option value="">-- กรุณาเลือกหน้างาน --</option>
                     <option value="หน้างาน A (พระราม 9)">หน้างาน A (พระราม 9)</option>
                     <option value="หน้างาน B (บางนา)">หน้างาน B (บางนา)</option>
@@ -36,40 +33,31 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">รายการสิ่งของ / รายละเอียด <span class="text-red-500">*</span></label>
-                <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน 5 ถุง, ค่าน้ำมันรถขนของ" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all placeholder:text-slate-400">
+                <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน, ค่าน้ำมัน" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">จำนวนเงินรวม (บาท) <span class="text-red-500">*</span></label>
-                <input type="number" id="amount" placeholder="0.00" step="0.01" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all placeholder:text-slate-400">
+                <input type="number" id="amount" placeholder="0.00" step="0.01" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">แนบรูปภาพสลิปโอนเงิน <span class="text-red-500">*</span></label>
-                <input type="file" id="slipFile" accept="image/*" required class="w-full bg-white p-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
-            </div>
-
-            <button type="submit" id="btnSubmit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-emerald-200 transition-all transform active:scale-[0.98] mt-2">
-                ส่งข้อมูลเข้าระบบ
+            <button type="submit" id="btnSubmit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all mt-2">
+                ส่งข้อมูลเข้า Google Sheet
             </button>
         </form>
     </div>
 
-    <div class="text-center p-4 text-xs text-slate-400">
-        LINE LIFF To Google Sheets Automation v1.0
-    </div>
-
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxCXWki4MaLWEFEyrGtAGiahYy_WBedb79njYuHzyobh2l7nvb0Chv2fV4u0-1pwkuF7Q/exec"; 
+        // ใช้ลิงก์ล่าสุดของคุณ
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxItlUVFcdyP1opj7pqH3BRAbc6hDOTz-1uo5CCjiyo2o-42GryBxZ1rUZGy2LybhfWKA/exec"; 
         const LIFF_ID = "2010350342-kxcHYs3F"; 
 
-        // ฟังก์ชันปลดล็อกให้พิมพ์ชื่อเองได้ หาก LINE มีปัญหา
         function enableManualInput() {
             const empInput = document.getElementById('empName');
             empInput.removeAttribute('readonly');
             empInput.classList.remove('bg-slate-100', 'text-slate-500');
-            empInput.classList.add('bg-white', 'text-slate-800', 'focus:border-emerald-500', 'focus:ring-2', 'focus:ring-emerald-200');
-            empInput.placeholder = "พิมพ์ชื่อ-นามสกุลของคุณที่นี่";
+            empInput.classList.add('bg-white', 'text-slate-800', 'focus:border-blue-500');
+            empInput.placeholder = "พิมพ์ชื่อของคุณที่นี่";
         }
 
         async function initLiff() {
@@ -81,65 +69,28 @@
                     const profile = await liff.getProfile();
                     if (profile && profile.displayName) {
                         document.getElementById('empName').value = profile.displayName;
-                    } else {
-                        enableManualInput(); // ดึงสำเร็จแต่ชื่อว่าง ปลดล็อกให้พิมพ์เอง
-                    }
+                    } else { enableManualInput(); }
                 }
             } catch (err) { 
-                console.error("LIFF Initialization failed", err); 
-                enableManualInput(); // ระบบ LINE เอ๋อ ปลดล็อกให้พิมพ์เองทันที
+                console.error(err); 
+                enableManualInput(); 
             }
         }
         initLiff();
-
-        const resizeAndBase64 = (file) => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1024;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const base64String = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
-                    resolve(base64String);
-                };
-            };
-            reader.onerror = error => reject(error);
-        });
 
         document.getElementById('slipForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const btnSubmit = document.getElementById('btnSubmit');
-            btnSubmit.innerText = "กำลังบันทึกข้อมูลคลาวด์...";
+            btnSubmit.innerText = "กำลังส่งข้อมูล...";
             btnSubmit.disabled = true;
-            btnSubmit.classList.replace('bg-emerald-500', 'bg-slate-400');
 
             try {
-                const file = document.getElementById('slipFile').files[0];
-                const compressedBase64 = await resizeAndBase64(file);
-
                 const payload = {
                     employeeName: document.getElementById('empName').value,
                     projectSite: document.getElementById('projectSite').value,
                     itemDetail: document.getElementById('itemDetail').value,
-                    amount: parseFloat(document.getElementById('amount').value),
-                    imageName: `${Date.now()}_slip.jpg`,
-                    imageData: compressedBase64
+                    amount: parseFloat(document.getElementById('amount').value)
                 };
 
                 const response = await fetch(GAS_WEB_APP_URL, {
@@ -150,18 +101,17 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('🎉 บันทึกข้อมูลและสลิปสำเร็จเรียบร้อยแล้ว!');
+                    alert('🎉 ข้อมูลเด้งเข้า Google Sheet เรียบร้อยแล้ว!');
                     liff.closeWindow(); 
                 } else {
-                    alert('❌ เกิดข้อผิดพลาดจากระบบหลังบ้าน: ' + result.error);
+                    alert('❌ เกิดข้อผิดพลาด: ' + result.error);
                 }
             } catch (error) {
-                alert('❌ ไม่สามารถเชื่อมต่อระบบหลังบ้านได้ กรุณาเช็คอินเทอร์เน็ต');
+                alert('❌ เชื่อมต่อหลังบ้านไม่ได้');
                 console.error(error);
             } finally {
-                btnSubmit.innerText = "ส่งข้อมูลเข้าระบบ";
+                btnSubmit.innerText = "ส่งข้อมูลเข้า Google Sheet";
                 btnSubmit.disabled = false;
-                btnSubmit.classList.replace('bg-slate-400', 'bg-emerald-500');
             }
         });
     </script>
