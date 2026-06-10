@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบันทึกรายจ่ายหน้างาน (Multi-Upload)</title>
+    <title>ระบบบันทึกรายจ่ายหน้างาน</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -12,33 +12,23 @@
     <div class="p-4 max-w-md mx-auto w-full">
         <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 shadow-sm text-white mb-6">
             <h1 class="text-xl font-bold">บันทึกรายจ่าย & ส่งสลิป</h1>
-            <p class="text-xs text-emerald-100 mt-1">กรอกข้อมูลเพื่อบันทึกลง Google Sheet คอลัมน์ใหม่</p>
+            <p class="text-xs text-emerald-100 mt-1">กรอกข้อมูลและแนบรูปภาพให้ครบถ้วน</p>
         </div>
 
         <form id="slipForm" class="bg-white rounded-2xl p-5 shadow-sm space-y-4 border border-slate-100">
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้ส่งข้อมูล (LINE Name) <span class="text-red-500">*</span></label>
-                <input type="text" id="empName" readonly required placeholder="กำลังดึงชื่อจาก LINE..." class="w-full bg-slate-100 text-slate-500 font-medium p-3 rounded-xl border border-slate-200 outline-none">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้ส่งข้อมูล (LINE Name)</label>
+                <input type="text" id="empName" readonly required placeholder="กำลังดึงชื่อจาก LINE..." class="w-full bg-slate-100 text-slate-400 font-medium p-3 rounded-xl border border-slate-200 outline-none">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">เลือกหน้างาน / โครงการ <span class="text-red-500">*</span></label>
-                <select id="projectSite" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
-                    <option value="">-- กรุณาเลือกหน้างาน --</option>
-                    <option value="หน้างาน A (พระราม 9)">หน้างาน A (พระราม 9)</option>
-                    <option value="หน้างาน B (บางนา)">หน้างาน B (บางนา)</option>
-                    <option value="หน้างาน C (ราชพฤกษ์)">หน้างาน C (ราชพฤกษ์)</option>
-                </select>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">รายการสินค้า / รายละเอียดสิ่งของ <span class="text-red-500">*</span></label>
+                <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน 5 ถุง, ค่าน้ำมันรถ" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">รายการสิ่งของ / รายละเอียด <span class="text-red-500">*</span></label>
-                <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน, ค่าน้ำมัน, ค่าแรง" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">จำนวนเงินรวม (บาท) <span class="text-red-500">*</span></label>
-                <input type="number" id="amount" placeholder="0.00" step="0.01" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
+                <input type="number" id="amount" placeholder="0.00" step="0.01" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
             <div>
@@ -53,14 +43,14 @@
     </div>
 
     <script>
-        // 🔄 อัปเดตรหัสลิงก์ใหม่ล่าสุดของคุณเรียบร้อยแล้วครับ
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxCXWki4MaLWEFEyrGtAGiahYy_WBedb79njYuHzyobh2l7nvb0Chv2fV4u0-1pwkuF7Q/exec"; 
+        // 🔄 อัปเดตลิงก์หลังบ้านตัวใหม่ล่าสุดเรียบร้อยแล้ว
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfKLRezPJbcpnOMJ0PcUcJTgJ83anK6DgylXzSVtKG7c95zwDWMipFPwpQcB3--EnOfA/exec"; 
         const LIFF_ID = "2010350342-kxcHYs3F"; 
 
         function enableManualInput() {
             const empInput = document.getElementById('empName');
             empInput.removeAttribute('readonly');
-            empInput.classList.remove('bg-slate-100', 'text-slate-500');
+            empInput.classList.remove('bg-slate-100', 'text-slate-400');
             empInput.classList.add('bg-white', 'text-slate-800', 'focus:border-emerald-500');
             empInput.placeholder = "พิมพ์ชื่อของคุณที่นี่";
         }
@@ -125,7 +115,7 @@
                 const files = fileInput.files;
                 const imagesPayload = [];
 
-                // วนลูปบีบอัดรูปภาพทุกรูปที่เลือก
+                // ประมวลผลรูปภาพทุกรูปที่แนบมา
                 for (let i = 0; i < files.length; i++) {
                     const compressedBase64 = await resizeAndBase64(files[i]);
                     imagesPayload.push({
@@ -136,7 +126,6 @@
 
                 const payload = {
                     employeeName: document.getElementById('empName').value,
-                    projectSite: document.getElementById('projectSite').value,
                     itemDetail: document.getElementById('itemDetail').value,
                     amount: parseFloat(document.getElementById('amount').value),
                     images: imagesPayload
@@ -150,7 +139,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('🎉 บันทึกข้อมูลเรียบร้อย! รูปภาพสลิปเด้งเข้าหน้าตารางแล้วครับ');
+                    alert('🎉 สำเร็จเรียบร้อย! ข้อมูลและรูปภาพทั้งหมดส่งเข้าระบบแล้ว');
                     liff.closeWindow(); 
                 } else {
                     alert('❌ เกิดข้อผิดพลาดจากระบบหลังบ้าน: ' + result.error);
