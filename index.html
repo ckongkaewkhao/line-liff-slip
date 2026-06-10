@@ -22,6 +22,16 @@
             </div>
 
             <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">เลือกหน้างาน / โครงการ <span class="text-red-500">*</span></label>
+                <select id="projectSite" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
+                    <option value="">-- กรุณาเลือกหน้างาน --</option>
+                    <option value="หน้างาน A (พระราม 9)">หน้างาน A (พระราม 9)</option>
+                    <option value="หน้างาน B (บางนา)">หน้างาน B (บางนา)</option>
+                    <option value="หน้างาน C (ราชพฤกษ์)">หน้างาน C (ราชพฤกษ์)</option>
+                </select>
+            </div>
+
+            <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">รายการสินค้า / รายละเอียดสิ่งของ <span class="text-red-500">*</span></label>
                 <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน 5 ถุง, ค่าน้ำมันรถ" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
@@ -43,7 +53,7 @@
     </div>
 
     <script>
-        // 🔄 อัปเดตลิงก์หลังบ้านตัวใหม่ล่าสุดเรียบร้อยแล้ว
+        // ✅ ใส่ลิงก์ล่าสุดของคุณให้เรียบร้อยแล้วครับ
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfKLRezPJbcpnOMJ0PcUcJTgJ83anK6DgylXzSVtKG7c95zwDWMipFPwpQcB3--EnOfA/exec"; 
         const LIFF_ID = "2010350342-kxcHYs3F"; 
 
@@ -115,7 +125,6 @@
                 const files = fileInput.files;
                 const imagesPayload = [];
 
-                // ประมวลผลรูปภาพทุกรูปที่แนบมา
                 for (let i = 0; i < files.length; i++) {
                     const compressedBase64 = await resizeAndBase64(files[i]);
                     imagesPayload.push({
@@ -126,6 +135,7 @@
 
                 const payload = {
                     employeeName: document.getElementById('empName').value,
+                    projectSite: document.getElementById('projectSite').value,
                     itemDetail: document.getElementById('itemDetail').value,
                     amount: parseFloat(document.getElementById('amount').value),
                     images: imagesPayload
