@@ -36,6 +36,7 @@
                     <option value="น้ำมันรถ">น้ำมันรถ</option>
                     <option value="ค่าใช้จ่ายส่วนตัว">ค่าใช้จ่ายส่วนตัว</option>
                     <option value="งานอนาคต">งานอนาคต</option>
+                    <option value="อื่นๆ">อื่นๆ (พิมพ์ระบุหน้างานเอง)</option>
                     <option disabled>──────────</option>
                     <option value="งานเขื่อนปรางหมู่">งานเขื่อนปรางหมู่</option>
                     <option value="งานวางท่อท่าแค">งานวางท่อท่าแค</option>
@@ -57,6 +58,11 @@
                     <option value="งานถนนสายต้นโหนด">งานถนนสายต้นโหนด</option>
                     <option value="งานถนนสายน้ำใต้บ่อ">งานถนนสายน้ำใต้บ่อ</option>
                 </select>
+            </div>
+
+            <div id="otherProjectDiv" class="hidden">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">ระบุชื่อโครงการ / หน้างานใหม่ <span class="text-red-500">*</span></label>
+                <input type="text" id="otherProjectSite" placeholder="พิมพ์ชื่อโครงการใหม่ที่นี่" class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
             <div>
@@ -99,6 +105,20 @@
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+
+        // ระบบเปิด-ปิด ช่องกรอกชื่อโครงการเองเมื่อเลือก "อื่นๆ"
+        document.getElementById('projectSite').addEventListener('change', function() {
+            const otherDiv = document.getElementById('otherProjectDiv');
+            const otherInput = document.getElementById('otherProjectSite');
+            if (this.value === 'อื่นๆ') {
+                otherDiv.classList.remove('hidden');
+                otherInput.setAttribute('required', 'required');
+            } else {
+                otherDiv.classList.add('hidden');
+                otherInput.removeAttribute('required');
+                otherInput.value = '';
+            }
+        });
 
         function enableManualInput() {
             const empInput = document.getElementById('empName');
@@ -176,14 +196,20 @@
                     });
                 }
 
+                // สลับสิทธิ์ดึงค่า: ถ้าเลือก "อื่นๆ" ให้ดึงคำจากกล่องที่พนักงานพิมพ์แทน
+                let finalProjectSite = document.getElementById('projectSite').value;
+                if (finalProjectSite === 'อื่นๆ') {
+                    finalProjectSite = document.getElementById('otherProjectSite').value;
+                }
+
                 const payload = {
                     dateInput: document.getElementById('dateInput').value,
                     employeeName: document.getElementById('empName').value,
-                    projectSite: document.getElementById('projectSite').value,
+                    projectSite: finalProjectSite,
                     boqType: document.getElementById('boqType').value,
                     itemDetail: document.getElementById('itemDetail').value,
                     amount: parseFloat(document.getElementById('amount').value),
-                    remark: document.getElementById('remark').value, // จับค่าหมายเหตุส่งไปหลังบ้าน
+                    remark: document.getElementById('remark').value,
                     images: imagesPayload
                 };
 
