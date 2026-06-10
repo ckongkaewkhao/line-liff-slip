@@ -16,15 +16,27 @@
         </div>
 
         <form id="slipForm" class="bg-white rounded-2xl p-5 shadow-sm space-y-4 border border-slate-100">
+            
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">วันที่ทำรายการ <span class="text-red-500">*</span></label>
+                <input type="date" id="dateInput" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
+            </div>
+
             <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้ส่งข้อมูล (LINE Name)</label>
                 <input type="text" id="empName" readonly required placeholder="กำลังดึงชื่อจาก LINE..." class="w-full bg-slate-100 text-slate-400 font-medium p-3 rounded-xl border border-slate-200 outline-none">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">เลือกหน้างาน / โครงการ <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">หมวดหมู่ / โครงการ <span class="text-red-500">*</span></label>
                 <select id="projectSite" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none">
-                    <option value="">-- กรุณาเลือกหน้างาน --</option>
+                    <option value="">-- กรุณาเลือกรายการ --</option>
+                    <option value="เงินเดือน">เงินเดือน</option>
+                    <option value="ซ่อมรถ">ซ่อมรถ</option>
+                    <option value="น้ำมันรถ">น้ำมันรถ</option>
+                    <option value="ค่าใช้จ่ายส่วนตัว">ค่าใช้จ่ายส่วนตัว</option>
+                    <option value="งานอนาคต">งานอนาคต</option>
+                    <option disabled>──────────</option>
                     <option value="งานเขื่อนปรางหมู่">งานเขื่อนปรางหมู่</option>
                     <option value="งานวางท่อท่าแค">งานวางท่อท่าแค</option>
                     <option value="งานถนนสายประชาสงเคราะห์">งานถนนสายประชาสงเคราะห์</option>
@@ -48,8 +60,13 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">รายการสินค้า / รายละเอียดสิ่งของ <span class="text-red-500">*</span></label>
-                <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน 5 ถุง, ค่าน้ำมันรถ" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">ประเภท BOQ <span class="text-red-500">*</span></label>
+                <input type="text" id="boqType" placeholder="เช่น ค่าวัสดุ, ค่าแรง..." required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">รายละเอียดสิ่งของ <span class="text-red-500">*</span></label>
+                <input type="text" id="itemDetail" placeholder="เช่น ค่าปูน 5 ถุง" required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
             <div>
@@ -58,7 +75,12 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">แนบรูปภาพสลิป / หน้างาน (เลือกได้หลายรูป) <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">หมายเหตุ (เพิ่มเติม)</label>
+                <textarea id="remark" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">แนบรูปภาพสลิป / หน้างาน <span class="text-red-500">*</span></label>
                 <input type="file" id="slipFiles" accept="image/*" multiple required class="w-full bg-white p-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
             </div>
 
@@ -69,9 +91,14 @@
     </div>
 
     <script>
-        // ✅ ใส่ลิงก์ล่าสุดของคุณให้เรียบร้อยแล้วครับ
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfKLRezPJbcpnOMJ0PcUcJTgJ83anK6DgylXzSVtKG7c95zwDWMipFPwpQcB3--EnOfA/exec"; 
         const LIFF_ID = "2010350342-kxcHYs3F"; 
+
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
 
         function enableManualInput() {
             const empInput = document.getElementById('empName');
@@ -150,10 +177,13 @@
                 }
 
                 const payload = {
+                    dateInput: document.getElementById('dateInput').value,
                     employeeName: document.getElementById('empName').value,
                     projectSite: document.getElementById('projectSite').value,
+                    boqType: document.getElementById('boqType').value,
                     itemDetail: document.getElementById('itemDetail').value,
                     amount: parseFloat(document.getElementById('amount').value),
+                    remark: document.getElementById('remark').value, // จับค่าหมายเหตุส่งไปหลังบ้าน
                     images: imagesPayload
                 };
 
