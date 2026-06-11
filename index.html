@@ -36,6 +36,8 @@
                     <option value="น้ำมันรถ">น้ำมันรถ</option>
                     <option value="ค่าใช้จ่ายส่วนตัว">ค่าใช้จ่ายส่วนตัว</option>
                     <option value="งานอนาคต">งานอนาคต</option>
+                    <option value="แพล้นปูน">แพล้นปูน</option>
+                    <option value="สวนทุเรียน">สวนทุเรียน</option>
                     <option value="อื่นๆ">อื่นๆ (พิมพ์ระบุหน้างานเอง)</option>
                     <option disabled>──────────</option>
                     <option value="งานเขื่อนปรางหมู่">งานเขื่อนปรางหมู่</option>
@@ -66,8 +68,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-1">ประเภท BOQ <span class="text-red-500">*</span></label>
-                <input type="text" id="boqType" placeholder="เช่น ค่าวัสดุ, ค่าแรง..." required class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">ประเภท BOQ (ถ้ามี)</label>
+                <input type="text" id="boqType" placeholder="เช่น ค่าวัสดุ, ค่าแรง..." class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
             <div>
@@ -106,7 +108,6 @@
         const dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
 
-        // ระบบเปิด-ปิด ช่องกรอกชื่อโครงการเองเมื่อเลือก "อื่นๆ"
         document.getElementById('projectSite').addEventListener('change', function() {
             const otherDiv = document.getElementById('otherProjectDiv');
             const otherInput = document.getElementById('otherProjectSite');
@@ -196,7 +197,6 @@
                     });
                 }
 
-                // สลับสิทธิ์ดึงค่า: ถ้าเลือก "อื่นๆ" ให้ดึงคำจากกล่องที่พนักงานพิมพ์แทน
                 let finalProjectSite = document.getElementById('projectSite').value;
                 if (finalProjectSite === 'อื่นๆ') {
                     finalProjectSite = document.getElementById('otherProjectSite').value;
