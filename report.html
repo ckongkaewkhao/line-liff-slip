@@ -64,7 +64,8 @@
         }
 
         /* ==========================================
-           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), และซ่อน Header เว็บ
+           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait) 
+           และซ่อนคอลัมน์ "โครงการ" ตอนปริ้นท์
            ========================================== */
         @media print {
             @page { 
@@ -86,13 +87,17 @@
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             #printHeader { display: block !important; margin-bottom: 15px; }
             
+            /* ซ่อนคอลัมน์นี้เฉพาะตอน Print */
+            .web-only-col { display: none !important; }
+            
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px; table-layout: fixed !important; }
             
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; }
-            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 50% !important; }
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 20% !important; text-align: right !important; }
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; }
+            /* จัดความกว้างคอลัมน์ที่เหลือ (ข้ามคอลัมน์ 2 ไป เพราะโดนซ่อน) */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 50% !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 18% !important; } /* หมายเหตุ */
 
             table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; font-size: 13px !important; white-space: nowrap !important; }
             table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 12px !important; white-space: normal !important; word-wrap: break-word !important; vertical-align: top !important; }
@@ -218,7 +223,7 @@
                         <thead>
                             <tr>
                                 <th class="text-center">วันที่</th>
-                                <th>รายละเอียด</th>
+                                <th class="web-only-col">โครงการ</th> <th>รายละเอียด</th>
                                 <th class="text-right">จำนวนเงิน (บาท)</th>
                                 <th>หมายเหตุ</th>
                             </tr>
@@ -270,10 +275,8 @@
             });
         });
 
-        // 🟢 สร้าง URL ใหม่ทุกครั้งที่กดปุ่ม เพื่อทะลวงแคช Google Sheet 100%
         function fetchGoogleSheetData() {
             document.getElementById('kpiTotal').innerText = "กำลังโหลด...";
-            
             const liveUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&_cb=${new Date().getTime()}`;
             
             Papa.parse(liveUrl, {
@@ -304,7 +307,6 @@
                 let detVal = String(row[col.details] || '').trim();
                 let noteVal = String(row[col.note] || '').trim();
                 
-                // 🟢 ปลดล็อกเงื่อนไข: ขอแค่มีชื่อโครงการ มีจำนวนเงิน และไม่ใช่บรรทัดยอดรวม ก็ดึงมาแสดงทั้งหมด
                 if (pVal === '' || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ') || dVal.includes('วันที่')) {
                     continue;
                 }
@@ -312,16 +314,19 @@
                 let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
                 let parsedDate = null;
                 
-                // 🟢 แปลงวันที่ให้ฉลาดขึ้น พิมพ์มาแบบไหนก็พยายามจัดกลุ่มให้
+                // จัดการเรื่องวันที่ ให้ออกมาเป็น วัน/เดือน/ปี (DD/MM/YYYY) เสมอ
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
                     if (parts.length === 3) {
+                        let day = parseInt(parts[0]);
+                        let month = parseInt(parts[1]);
                         let year = parseInt(parts[2]);
                         if (year < 100) year += 2000;
-                        parsedDate = new Date(year, parts[1] - 1, parts[0]);
+                        parsedDate = new Date(year, month - 1, day);
+                        
+                        dVal = String(day).padStart(2, '0') + '/' + String(month).padStart(2, '0') + '/' + year;
                     }
                 }
-                // ถ้าแปลงวันที่ไม่ได้ (เช่น ลืมใส่วันที่) ให้ใส่วันนี้แทนไปก่อน จะได้ไม่หลุดจากตาราง
                 if (!parsedDate || isNaN(parsedDate)) {
                     parsedDate = new Date();
                 }
@@ -334,7 +339,6 @@
 
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
             const projectFilter = document.getElementById('filterProject');
-            // เก็บค่าเก่าไว้เผื่อกำลัง Filter อยู่
             const currentSelected = projectFilter.value; 
             
             projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; 
@@ -409,29 +413,49 @@
                 summaryTableInstance = $('#summaryTable').DataTable({ paging: false, info: false, searching: false, order: [[2, 'desc']], language: { emptyTable: "ไม่มีข้อมูล" }, columnDefs: [ { className: "dt-right", targets: [1, 2] } ] });
             }
 
+            // ===============================================
+            // ตารางรายละเอียดบิล (โชว์โครงการบนเว็บ ซ่อนตอนปริ้น)
+            // ===============================================
             if (detailedTableInstance) {
                 detailedTableInstance.clear();
-                data.forEach(item => detailedTableInstance.row.add([
-                    item.dateText, 
-                    item.details, 
-                    item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }),
-                    item.note
-                ]));
+                data.forEach(item => {
+                    // ฝังรหัสลับเพื่อเรียงวันที่ ปปปป/ดด/วว 
+                    let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
+                    let dateHtml = `<span style="display:none;">${sortKey}</span>${item.dateText}`;
+                    
+                    detailedTableInstance.row.add([
+                        dateHtml, 
+                        item.project,
+                        item.details, 
+                        item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }),
+                        item.note
+                    ]);
+                });
                 detailedTableInstance.draw();
             } else {
                 let tbody = '';
-                data.forEach(item => tbody += `<tr>
-                    <td class="text-center">${item.dateText}</td>
-                    <td class="whitespace-normal">${item.details}</td>
-                    <td class="text-right font-medium">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-                    <td class="text-sm text-slate-500 whitespace-normal">${item.note}</td>
-                </tr>`);
+                data.forEach(item => {
+                    let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
+                    let dateHtml = `<span style="display:none;">${sortKey}</span>${item.dateText}`;
+                    
+                    tbody += `<tr>
+                        <td class="text-center">${dateHtml}</td>
+                        <td class="whitespace-normal web-only-col">${item.project}</td>
+                        <td class="whitespace-normal">${item.details}</td>
+                        <td class="text-right font-medium">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                        <td class="text-sm text-slate-500 whitespace-normal">${item.note}</td>
+                    </tr>`;
+                });
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
-                    pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'desc']],
+                    pageLength: 20, lengthMenu: [10, 20, 50, 100], 
+                    order: [[0, 'desc']], // สั่งเรียงลำดับวันที่
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [2] } ] 
+                    columnDefs: [ 
+                        { className: "dt-right", targets: [3] }, // จำนวนเงิน ตอนนี้อยู่ Index 3
+                        { className: "web-only-col", targets: [1] } // ใส่คลาสซ่อนให้กับคอลัมน์ โครงการ
+                    ]
                 });
                 $('.dataTables_filter input').addClass('g-input w-full md:w-64');
                 $('.dataTables_length select').addClass('g-input ml-2');
