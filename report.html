@@ -28,9 +28,20 @@
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #f1f3f4; font-size: 13px; color: #3c4043; }
         .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; }
 
+        /* ==========================================
+           ตั้งค่า Print สำหรับซ่อน Header/Footer เบราว์เซอร์ และแนวนอน
+           ========================================== */
         @media print {
-            @page { size: A4 portrait; margin: 15mm; }
-            body { background-color: white; overflow: visible !important; }
+            @page { 
+                size: A4 landscape; /* บังคับกระดาษแนวนอน */
+                margin: 0mm; /* ตัดขอบกระดาษเป็น 0 เพื่อเอา Header/Footer เว็บออก */
+            }
+            body { 
+                background-color: white; 
+                overflow: visible !important; 
+                padding: 15mm; /* ขยับเนื้อหาลงมาไม่ให้ชิดขอบกระดาษด้านบนจนเกินไป */
+                -webkit-print-color-adjust: exact;
+            }
             .no-print, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             main { padding: 0 !important; overflow: visible !important; }
             .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
@@ -156,9 +167,10 @@
                         <thead>
                             <tr>
                                 <th class="w-24">วันที่</th>
-                                <th>โครงการ</th>
+                                <th class="w-48">โครงการ</th>
                                 <th>รายละเอียด</th>
                                 <th class="text-right w-32">จำนวนเงิน (บาท)</th>
+                                <th>หมายเหตุ</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -206,69 +218,43 @@
             });
         }
 
-        // =====================================
-        // โค้ด V4 Smart Data Pattern Detection
-        // อ่านจากโครงสร้างข้อมูลแทนการอ่านหัวตาราง
-        // =====================================
         function processData(data) {
             if (data.length < 2) return;
 
-            let col = { date: -1, project: -1, details: -1, amount: -1 };
+            let col = { date: -1, project: -1, details: -1, amount: -1, note: -1 };
+            let headerRow = -1;
             
-            // สแกนข้อมูล 20 แถวแรก เพื่อจับทิศทางของตาราง
+            // ค้นหาบรรทัดที่เป็นหัวตารางที่แท้จริง
             for(let r = 0; r < Math.min(20, data.length); r++) {
-                let row = data[r];
-                let tDate = -1, tAmt = -1;
-                let texts = [];
-
-                for(let c = 0; c < row.length; c++) {
-                    let cell = String(row[c]).trim();
-                    if(!cell) continue;
-
-                    // ค้นหาคอลัมน์ "วันที่" (ฟอร์แมตต้องมี / เช่น 03/01/2026)
-                    if(tDate === -1 && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(cell)) {
-                        tDate = c;
-                        continue;
-                    }
-
-                    // ค้นหาคอลัมน์ "จำนวนเงิน" (ต้องเป็นตัวเลข และไม่ใช่เลข 0)
-                    let numStr = cell.replace(/,/g, '');
-                    if(tAmt === -1 && numStr !== '' && !isNaN(numStr) && Number(numStr) !== 0) {
-                        tAmt = c;
-                        continue;
-                    }
-
-                    // คอลัมน์ที่เหลือที่เป็นข้อความ จะถูกเก็บไว้เป็น โครงการ และ รายละเอียด
-                    if(isNaN(numStr) && !/^\d{1,2}\/\d{1,2}\/\d{4}/.test(cell)) {
-                        texts.push(c);
-                    }
-                }
-
-                // ถ้าในบรรทัดนี้พบทั้ง วันที่, จำนวนเงิน และข้อความอย่างน้อย 2 ช่อง (ถือว่าเจอโครงสร้างที่ถูกต้องแล้ว!)
-                if(tDate !== -1 && tAmt !== -1 && texts.length >= 2) {
-                    col.date = tDate;
-                    col.amount = tAmt;
-                    col.project = texts[0]; // ข้อความแรกคือ โครงการ
-                    col.details = texts[1]; // ข้อความที่สองคือ รายละเอียด
+                let rowStr = data[r].join('').replace(/\s/g, '');
+                if((rowStr.includes('โครงการ') || rowStr.includes('โครง')) && (rowStr.includes('จำนวนเงิน') || rowStr.includes('บาท'))) {
+                    headerRow = r;
                     break;
                 }
             }
 
-            if (col.project === -1 || col.amount === -1) {
-                alert("❌ ระบบ AI ไม่สามารถจับคู่โครงสร้างคอลัมน์ได้ โปรดตรวจสอบให้แน่ใจว่ามีข้อมูลจริงอยู่ใน Google Sheet");
+            if (headerRow !== -1) {
+                const headers = data[headerRow].map(h => String(h).replace(/\s+/g, ' ').trim());
+                col.date = headers.findIndex(h => h.includes("วัน"));
+                col.project = headers.findIndex(h => h.includes("โครงการ") || h.includes("โครง"));
+                col.details = headers.findIndex(h => h.includes("รายละเอียด") || h.includes("สิ่งของ"));
+                col.amount = headers.findIndex(h => h.includes("เงิน") || h.includes("บาท"));
+                col.note = headers.findIndex(h => h.includes("หมายเหตุ"));
+            } else {
+                alert("❌ ระบบไม่พบหัวตารางใน Google Sheet");
                 return;
             }
 
             rawData = [];
-            // เริ่มเก็บข้อมูลทั้งหมด
-            for (let i = 0; i < data.length; i++) {
+            for (let i = headerRow + 1; i < data.length; i++) {
                 let row = data[i];
                 let dVal = col.date !== -1 ? String(row[col.date] || '').trim() : '';
                 let pVal = col.project !== -1 ? String(row[col.project] || '').trim() : '';
                 let aVal = col.amount !== -1 ? String(row[col.amount] || '').trim() : '';
+                let detVal = col.details !== -1 ? String(row[col.details] || '').trim() : '';
+                let noteVal = col.note !== -1 ? String(row[col.note] || '').trim() : '';
                 
-                // ระบบป้องกัน: ถ้าบรรทัดไหนไม่มีวันที่แบบ DD/MM/YYYY จะถูกข้ามทันที (ช่วยข้ามหัวตารางและยอดรวมได้ 100%)
-                if (!/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dVal) || !pVal || aVal === '') {
+                if (!/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dVal) || !pVal || aVal === '' || pVal.includes('ยอดรวม')) {
                     continue;
                 }
 
@@ -278,11 +264,10 @@
                     let parts = dVal.split('/');
                     if (parts.length === 3) parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 }
-                let detVal = col.details !== -1 ? String(row[col.details] || '-').trim() : '-';
 
                 rawData.push({
                     id: i, dateText: dVal, dateObj: parsedDate,
-                    project: pVal, details: detVal, amount: cleanAmount
+                    project: pVal, details: detVal, amount: cleanAmount, note: noteVal
                 });
             }
 
@@ -361,26 +346,35 @@
 
             if (detailedTableInstance) {
                 detailedTableInstance.clear();
-                data.forEach(item => detailedTableInstance.row.add([item.dateText, item.project, item.details, item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })]));
+                data.forEach(item => detailedTableInstance.row.add([
+                    item.dateText, 
+                    item.project, 
+                    item.details, 
+                    item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }),
+                    item.note
+                ]));
                 detailedTableInstance.draw();
             } else {
                 let tbody = '';
-                data.forEach(item => tbody += `<tr><td>${item.dateText}</td><td>${item.project}</td><td class="max-w-md truncate" title="${item.details}">${item.details}</td><td class="text-right">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td></tr>`);
+                data.forEach(item => tbody += `<tr>
+                    <td>${item.dateText}</td>
+                    <td>${item.project}</td>
+                    <td class="max-w-md truncate" title="${item.details}">${item.details}</td>
+                    <td class="text-right">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-sm">${item.note}</td>
+                </tr>`);
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'desc']],
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [3] } ]
+                    columnDefs: [ { className: "dt-right", targets: [3] } ] // คอลัมน์ "จำนวนเงิน" อยู่ช่องที่ 3 (เริ่มจาก 0)
                 });
                 $('.dataTables_filter input').addClass('g-input w-full md:w-64');
                 $('.dataTables_length select').addClass('g-input ml-2');
             }
         }
 
-        // ==========================================
-        // ฟังก์ชันสั่งพิมพ์รายงาน (หน้าตาแบบที่คุณต้องการ)
-        // ==========================================
         function exportFormalReport() {
             const projVal = $('#filterProject').val();
             const startVal = $('#filterStartDate').val();
@@ -398,11 +392,11 @@
 
             if (detailedTableInstance) {
                 const currentLen = detailedTableInstance.page.len();
-                detailedTableInstance.page.len(-1).draw(); // กางตารางออกทั้งหมด
+                detailedTableInstance.page.len(-1).draw();
 
                 setTimeout(() => {
                     window.print();
-                    detailedTableInstance.page.len(currentLen).draw(); // คืนค่าตารางกลับเหมือนเดิม
+                    detailedTableInstance.page.len(currentLen).draw();
                 }, 500);
             }
         }
