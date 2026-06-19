@@ -29,7 +29,6 @@
         body { font-family: 'Roboto', 'Sarabun', sans-serif; background-color: #f1f3f4; color: #3c4043; overflow-x: hidden; }
         .ls-card { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: none; transition: box-shadow 0.2s; }
         
-        /* บังคับหัวตารางให้อยู่กึ่งกลางเสมอ */
         table.dataTable thead th { 
             background-color: #ffffff; 
             color: #5f6368; 
@@ -45,9 +44,6 @@
         .g-input:focus { border-color: #1a73e8; }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
 
-        /* ==========================================
-           ปรับแต่งตาราง: ลบสีสลับบรรทัด และลูกศรหัวตาราง
-           ========================================== */
         table.dataTable.display tbody tr.odd, 
         table.dataTable.display tbody tr.even {
             background-color: #ffffff !important; 
@@ -74,9 +70,6 @@
             background-image: none !important;
         }
 
-        /* ==========================================
-           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait) 
-           ========================================== */
         @media print {
             @page { 
                 size: A4 portrait;
@@ -86,7 +79,6 @@
                 background-color: white; 
                 overflow: visible !important; 
                 margin: 0 !important;
-                /* ปรับขอบกระดาษ: บน-ล่าง 12mm, ซ้าย-ขวา 10mm (ประหยัดพื้นที่ แต่ขอบสวย) */
                 padding: 12mm 10mm 12mm 10mm !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -98,17 +90,15 @@
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             #printHeader { display: block !important; margin-bottom: 20px; }
             
-            /* ซ่อนคอลัมน์นี้เฉพาะตอน Print */
             .web-only-col { display: none !important; }
             
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px; table-layout: fixed !important; }
             
-            /* ปรับความกว้างคอลัมน์ใหม่ (ลดหมายเหตุ เพิ่มรายละเอียด) */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 56% !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; text-align: right !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; } /* หมายเหตุ (เล็กลง) */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; }
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 56% !important; } 
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; text-align: right !important; }
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; } 
 
             table.dataTable thead th { 
                 border: 1px solid #000 !important; 
@@ -118,7 +108,7 @@
                 padding: 8px !important; 
                 font-size: 13px !important; 
                 white-space: nowrap !important; 
-                text-align: center !important; /* บังคับหัวตารางอยู่ตรงกลางตอนปริ้นท์ */
+                text-align: center !important; 
             }
             table.dataTable tbody td { 
                 border: 1px solid #000 !important; 
@@ -216,22 +206,22 @@
             </div>
 
             <div id="printHeader" class="hidden mb-4 text-black font-['Sarabun']">
-                <!-- หัวข้อรายงานอยู่ตรงกลาง -->
                 <h1 class="text-center text-xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
                 
-                <!-- ข้อมูลจัดช่องไฟสวยงาม และเอาเส้นใต้ของจำนวนเงินออก -->
-                <div class="space-y-2 text-[15px] ml-2">
-                    <div class="flex">
-                        <div class="w-24 font-bold">โครงการ :</div>
-                        <div id="printProjectName">ทุกโครงการ</div>
-                    </div>
-                    <div class="flex">
-                        <div class="w-24 font-bold">Budget :</div>
-                        <div id="printBudgetName">แสดงทุกหมวดหมู่ (อิงตามข้อมูลที่ Filter)</div>
-                    </div>
-                    <div class="flex">
-                        <div class="w-24 font-bold">รวมเป็นเงิน :</div>
-                        <div id="printTotalAmount" class="font-bold">0.00 บาท</div>
+                <div class="flex justify-center">
+                    <div class="space-y-2 text-[15px]">
+                        <div class="flex">
+                            <div class="w-24 font-bold">โครงการ :</div>
+                            <div id="printProjectName">ทุกโครงการ</div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-24 font-bold">Budget :</div>
+                            <div id="printBudgetName">แสดงทุกหมวดหมู่ (อิงตามข้อมูลที่ Filter)</div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-24 font-bold">รวมเป็นเงิน :</div>
+                            <div id="printTotalAmount" class="font-bold">0.00 บาท</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,7 +235,7 @@
                         <thead>
                             <tr>
                                 <th>วันที่</th>
-                                <th class="web-only-col">โครงการ</th> <!-- โชว์บนเว็บ ซ่อนตอนปริ้น -->
+                                <th class="web-only-col">โครงการ</th>
                                 <th>รายละเอียด</th>
                                 <th>จำนวนเงิน (บาท)</th>
                                 <th>หมายเหตุ</th>
