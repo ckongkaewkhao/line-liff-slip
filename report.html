@@ -29,17 +29,17 @@
         .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; }
 
         /* ==========================================
-           ตั้งค่า Print สำหรับ A4 แนวนอน, ขอบบน 2cm และตารางพอดีหน้า
+           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), ขอบบน 2cm
            ========================================== */
         @media print {
             @page { 
-                size: A4 landscape; /* บังคับ A4 แนวนอน */
-                margin: 0 !important; /* ตัดขอบของ Browser ทิ้งให้หมด เพื่อซ่อนลิ้งก์และวันที่ */
+                size: A4 portrait; /* เปลี่ยนกลับเป็นแนวตั้ง */
+                margin: 0 !important; /* ซ่อน Header/Footer ของ Browser */
             }
             body { 
                 background-color: white; 
                 overflow: visible !important; 
-                padding: 20mm 10mm 15mm 10mm !important; /* เว้นขอบจำลอง: บน 20mm (2ซม.), ขวา 10mm, ล่าง 15mm, ซ้าย 10mm */
+                padding: 20mm 15mm 15mm 15mm !important; /* ขอบบน 20mm (2ซม.), ขวา 15, ล่าง 15, ซ้าย 15 */
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -47,26 +47,24 @@
             main { padding: 0 !important; overflow: visible !important; }
             .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
             
-            /* ล้างกรอบเงาเพื่อปริ้น */
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             #printHeader { display: block !important; margin-bottom: 15px; }
             
-            /* ควบคุมความกว้างตารางให้ลง A4 เป๊ะๆ */
+            /* ควบคุมตาราง 4 คอลัมน์ สำหรับแนวตั้ง */
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { 
                 border-collapse: collapse !important; 
                 width: 100% !important; 
                 max-width: 100% !important; 
                 margin-top: 10px; 
-                table-layout: fixed !important; /* บังคับไม่ให้ตารางขยายเกินหน้ากระดาษ */
+                table-layout: fixed !important; 
             }
             
-            /* กำหนดสัดส่วน 5 คอลัมน์ แนวนอน */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 10% !important; text-align: center !important; } /* วันที่ */
-            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 22% !important; } /* โครงการ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 35% !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 15% !important; text-align: right !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 18% !important; } /* หมายเหตุ */
+            /* สัดส่วนความกว้าง 4 คอลัมน์ (รวม 100%) */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
+            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 50% !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 18% !important; text-align: right !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; } /* หมายเหตุ */
 
             table.dataTable thead th { 
                 border: 1px solid #000 !important; 
@@ -82,7 +80,7 @@
                 color: #000 !important; 
                 padding: 6px 8px !important; 
                 font-size: 12px !important;
-                white-space: normal !important; /* สำคัญ: ยอมให้ข้อความยาวๆ ตัดขึ้นบรรทัดใหม่ */
+                white-space: normal !important; 
                 word-wrap: break-word !important;
                 vertical-align: top !important;
             }
@@ -199,12 +197,10 @@
                     <h3 class="text-base font-medium text-[#202124]">รายละเอียดรายการธุรกรรม</h3>
                 </div>
                 <div class="p-4 bg-white overflow-x-auto">
-                    <!-- เอาคลาส nowrap ออก เพื่อให้ข้อความตัดขึ้นบรรทัดใหม่ได้เมื่อจอกราฟหรือปริ้น -->
                     <table id="detailedTable" class="w-full text-left display" style="width:100%">
                         <thead>
                             <tr>
                                 <th>วันที่</th>
-                                <th>โครงการ</th>
                                 <th>รายละเอียด</th>
                                 <th class="text-right">จำนวนเงิน (บาท)</th>
                                 <th>หมายเหตุ</th>
@@ -221,7 +217,7 @@
     <script>
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
         const SHEET_NAME = 'รายการโอนเงิน'; 
-        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&t=${new Date().getTime()}`;
 
         let rawData = [];
         let summaryTableInstance = null;
@@ -294,7 +290,7 @@
                 let detVal = col.details !== -1 && row[col.details] !== undefined ? String(row[col.details]).trim() : '';
                 let noteVal = col.note !== -1 && row[col.note] !== undefined ? String(row[col.note]).trim() : '';
                 
-                if (!pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
+                if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(dVal) || !pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
                     continue;
                 }
 
@@ -302,7 +298,11 @@
                 let parsedDate = null;
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
-                    if (parts.length === 3) parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    if (parts.length === 3) {
+                        let year = parseInt(parts[2]);
+                        if (year < 100) year += 2000;
+                        parsedDate = new Date(year, parts[1] - 1, parts[0]);
+                    }
                 }
 
                 rawData.push({
@@ -388,7 +388,6 @@
                 detailedTableInstance.clear();
                 data.forEach(item => detailedTableInstance.row.add([
                     item.dateText, 
-                    item.project, 
                     item.details, 
                     item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }),
                     item.note
@@ -398,17 +397,16 @@
                 let tbody = '';
                 data.forEach(item => tbody += `<tr>
                     <td>${item.dateText}</td>
-                    <td>${item.project}</td>
-                    <td>${item.details}</td>
-                    <td>${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-                    <td>${item.note}</td>
+                    <td class="whitespace-normal">${item.details}</td>
+                    <td class="text-right">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-sm text-slate-500">${item.note}</td>
                 </tr>`);
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'desc']],
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [3] } ]
+                    columnDefs: [ { className: "dt-right", targets: [2] } ] // จำนวนเงิน ตอนนี้อยู่ index 2 (คอลัมน์ที่ 3)
                 });
                 $('.dataTables_filter input').addClass('g-input w-full md:w-64');
                 $('.dataTables_length select').addClass('g-input ml-2');
