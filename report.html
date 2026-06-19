@@ -70,14 +70,13 @@
            ========================================== */
         @media print {
             @page { 
-                size: A4 portrait; /* กำหนดเป็นแนวตั้ง */
+                size: A4 portrait; 
                 margin: 15mm; 
             }
             body { 
                 background-color: white; 
                 overflow: visible !important; 
             }
-            /* ซ่อนองค์ประกอบที่ไม่อยากให้ปริ้น */
             .no-print, 
             .print-hidden-section, 
             .dataTables_length, 
@@ -86,17 +85,14 @@
             .dataTables_paginate { 
                 display: none !important; 
             }
-            /* ทำให้ส่วนที่เหลือจัดเรียงแบบหน้ากระดาษพิมพ์ */
             main { padding: 0 !important; overflow: visible !important; }
             .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
             
-            /* แสดงหัวกระดาษแบบฟอร์มเอกสารเฉพาะตอนปริ้น */
             #printHeader {
                 display: block !important;
             }
 
-            /* สไตล์ตารางตอนปริ้น */
             table.dataTable { border-collapse: collapse !important; width: 100% !important; }
             table.dataTable thead th { 
                 border: 1px solid #000 !important; 
@@ -150,15 +146,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="ls-card p-5 text-center">
                         <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">ยอดเงินใช้จ่ายรวมทั้งหมด</h3>
-                        <div id="kpiTotal" class="text-3xl font-normal text-[#202124]">0 ฿</div>
+                        <div id="kpiTotal" class="text-3xl font-normal text-[#202124]">กำลังโหลด...</div>
                     </div>
                     <div class="ls-card p-5 text-center">
                         <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">จำนวนโครงการ</h3>
-                        <div id="kpiProjects" class="text-3xl font-normal text-[#1a73e8]">0</div>
+                        <div id="kpiProjects" class="text-3xl font-normal text-[#1a73e8]">-</div>
                     </div>
                     <div class="ls-card p-5 text-center">
                         <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">จำนวนรายการ</h3>
-                        <div id="kpiTransactions" class="text-3xl font-normal text-[#0f9d58]">0</div>
+                        <div id="kpiTransactions" class="text-3xl font-normal text-[#0f9d58]">-</div>
                     </div>
                 </div>
 
@@ -241,9 +237,14 @@
     </main>
 
     <script>
-        // ตั้งค่าการเชื่อมต่อ Google Sheets
+        // ==========================================
+        // 1. ตั้งค่าการเชื่อมต่อ Google Sheets 
+        // ==========================================
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
+        
+        // 👇 แก้ชื่อแท็บเป็น รายการโอนเงิน (อิงจากแท็บมุมล่างซ้าย)
         const SHEET_NAME = 'รายการโอนเงิน'; 
+        
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let rawData = [];
@@ -270,8 +271,24 @@
                 download: true,
                 header: false,
                 skipEmptyLines: true,
-                complete: function(results) { processData(results.data); },
-                error: function(err) { alert("ไม่สามารถดึงข้อมูลได้"); }
+                complete: function(results) { 
+                    if (!results.data || results.data.length === 0) {
+                        alert("ดึงข้อมูลสำเร็จ แต่ไม่พบข้อมูลในตารางครับ");
+                        return;
+                    }
+
+                    // เช็คว่าติดหน้า Login ของ Google เพราะลืมแชร์สิทธิ์หรือไม่
+                    let firstRowStr = results.data[0].join('');
+                    if(firstRowStr.includes('<!DOCTYPEhtml>') || firstRowStr.includes('<html')) {
+                        alert("❌ ข้อมูลถูกบล็อก!\n\nโปรดไปที่ Google Sheet กดปุ่ม 'แชร์' (มุมขวาบน) > เปลี่ยนเป็น 'ทุกคนที่มีลิงก์ (Anyone with the link)' > สิทธิ์ Viewer");
+                        return;
+                    }
+
+                    processData(results.data); 
+                },
+                error: function(err) { 
+                    alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต"); 
+                }
             });
         }
 
@@ -279,6 +296,7 @@
             if (data.length < 2) return;
 
             let headerIndex = 0;
+            // ค้นหาแถวที่มีคำว่า โครงการ และ วันที่ อัตโนมัติ (จะเจอที่แถวที่ 2 ตามรูปของคุณพอดี)
             for(let i=0; i < Math.min(10, data.length); i++) {
                 let rowStr = data[i].join('').replace(/\s/g, '');
                 if(rowStr.includes('โครงการ') && rowStr.includes('วันที่')) { headerIndex = i; break; }
@@ -291,6 +309,13 @@
                 details: headers.findIndex(h => h.includes("รายละเอียด")),
                 amount: headers.findIndex(h => h.includes("จำนวนเงิน"))
             };
+
+            // เช็คว่าหาคอลัมน์เจอไหม
+            if (col.project === -1 || col.amount === -1) {
+                alert(`❌ ไม่พบคอลัมน์ 'โครงการ' หรือ 'จำนวนเงิน' ในแท็บที่ชื่อ "${SHEET_NAME}"\n\nถ้าคุณตั้งชื่อแท็บผิด ให้ไปแก้ตัวแปร SHEET_NAME ในบรรทัดที่ 192 ของโค้ดครับ`);
+                document.getElementById('kpiTotal').innerText = "ข้อมูลผิดพลาด";
+                return;
+            }
 
             rawData = data.slice(headerIndex + 1).filter(row => {
                 const projectVal = String(row[col.project] || '').trim();
@@ -311,6 +336,10 @@
                     amount: cleanAmount
                 };
             });
+
+            if(rawData.length === 0) {
+                alert("ไม่พบข้อมูลที่จะนำมาแสดง โปรดตรวจสอบว่ามีข้อมูลใต้หัวตารางหรือไม่");
+            }
 
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
             const projectFilter = document.getElementById('filterProject');
@@ -407,7 +436,6 @@
         // ฟังก์ชันสั่งพิมพ์ออกรายงานเป็นฟอร์แมตเอกสาร
         // ==========================================
         function exportFormalReport() {
-            // 1. ดึงค่า Filter ปัจจุบันมายัดใส่หัวกระดาษ (พิมพ์)
             const projVal = $('#filterProject').val();
             const startVal = $('#filterStartDate').val();
             const endVal = $('#filterEndDate').val();
@@ -416,7 +444,6 @@
             $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
             $('#printTotalAmount').text(totalText);
 
-            // จัดการข้อความ Budget/วันที่
             let dateRangeText = "ค่าใช้จ่ายตามจริงทั้งหมด";
             if (startVal || endVal) {
                 dateRangeText = `สรุปยอดตั้งแต่วันที่: ${startVal || '-'} ถึงวันที่: ${endVal || '-'}`;
@@ -424,15 +451,11 @@
             $('#printBudgetName').text(dateRangeText);
 
             if (detailedTableInstance) {
-                // 2. ขยายตารางให้แสดงผลทุกบรรทัดในหน้าเดียว (เพื่อไม่ให้ PDF โดนตัดเฉพาะหน้า 1)
                 const currentLen = detailedTableInstance.page.len();
                 detailedTableInstance.page.len(-1).draw();
 
-                // 3. สั่ง Print (ตั้งเวลาดีเลย์นิดนึงให้หน้าเว็บ Render ทัน)
                 setTimeout(() => {
                     window.print();
-                    
-                    // 4. คืนค่าตารางกลับมาเป็นแบ่งหน้าเหมือนเดิม
                     detailedTableInstance.page.len(currentLen).draw();
                 }, 500);
             }
