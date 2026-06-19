@@ -514,7 +514,7 @@
                 });
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
-                    pageLength: 20, lengthMenu: [10, 20, 50, 100, 500], 
+                    pageLength: 20, lengthMenu: [10, 20, 50, 100, 500,5000], 
                     order: [[0, 'asc']], 
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-6 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-6 gap-4 text-sm text-[#86868b] no-print"ip>',
