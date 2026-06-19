@@ -29,7 +29,6 @@
             overflow-x: hidden;
         }
 
-        /* Looker Studio Card Style */
         .ls-card {
             background-color: #ffffff;
             border: 1px solid #dadce0;
@@ -38,7 +37,6 @@
             transition: box-shadow 0.2s;
         }
 
-        /* DataTables Customization */
         table.dataTable thead th {
             background-color: #ffffff;
             color: #5f6368;
@@ -54,7 +52,6 @@
             color: #3c4043;
         }
 
-        /* Google Style Inputs */
         .g-input {
             border: 1px solid #dadce0;
             border-radius: 4px;
@@ -65,47 +62,17 @@
             outline: none;
         }
 
-        /* ==========================================
-           ตั้งค่าหน้ากระดาษสำหรับเวลาปริ้น (PDF Export)
-           ========================================== */
         @media print {
-            @page { 
-                size: A4 portrait; 
-                margin: 15mm; 
-            }
-            body { 
-                background-color: white; 
-                overflow: visible !important; 
-            }
-            .no-print, 
-            .print-hidden-section, 
-            .dataTables_length, 
-            .dataTables_filter, 
-            .dataTables_info, 
-            .dataTables_paginate { 
-                display: none !important; 
-            }
+            @page { size: A4 portrait; margin: 15mm; }
+            body { background-color: white; overflow: visible !important; }
+            .no-print, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             main { padding: 0 !important; overflow: visible !important; }
             .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
-            
-            #printHeader {
-                display: block !important;
-            }
-
+            #printHeader { display: block !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; }
-            table.dataTable thead th { 
-                border: 1px solid #000 !important; 
-                background-color: #fff !important; 
-                color: #000 !important; 
-                font-weight: bold !important; 
-                padding: 8px !important;
-            }
-            table.dataTable tbody td { 
-                border: 1px solid #000 !important; 
-                color: #000 !important; 
-                padding: 6px 8px !important;
-            }
+            table.dataTable thead th { border: 1px solid #000 !important; background-color: #fff !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; }
+            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; }
         }
     </style>
 </head>
@@ -237,14 +204,8 @@
     </main>
 
     <script>
-        // ==========================================
-        // 1. ตั้งค่าการเชื่อมต่อ Google Sheets 
-        // ==========================================
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
-        
-        // 👇 แก้ชื่อแท็บเป็น รายการโอนเงิน (อิงจากแท็บมุมล่างซ้าย)
         const SHEET_NAME = 'รายการโอนเงิน'; 
-        
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let rawData = [];
@@ -276,19 +237,14 @@
                         alert("ดึงข้อมูลสำเร็จ แต่ไม่พบข้อมูลในตารางครับ");
                         return;
                     }
-
-                    // เช็คว่าติดหน้า Login ของ Google เพราะลืมแชร์สิทธิ์หรือไม่
                     let firstRowStr = results.data[0].join('');
                     if(firstRowStr.includes('<!DOCTYPEhtml>') || firstRowStr.includes('<html')) {
                         alert("❌ ข้อมูลถูกบล็อก!\n\nโปรดไปที่ Google Sheet กดปุ่ม 'แชร์' (มุมขวาบน) > เปลี่ยนเป็น 'ทุกคนที่มีลิงก์ (Anyone with the link)' > สิทธิ์ Viewer");
                         return;
                     }
-
                     processData(results.data); 
                 },
-                error: function(err) { 
-                    alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต"); 
-                }
+                error: function(err) { alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต"); }
             });
         }
 
@@ -296,23 +252,26 @@
             if (data.length < 2) return;
 
             let headerIndex = 0;
-            // ค้นหาแถวที่มีคำว่า โครงการ และ วันที่ อัตโนมัติ (จะเจอที่แถวที่ 2 ตามรูปของคุณพอดี)
             for(let i=0; i < Math.min(10, data.length); i++) {
                 let rowStr = data[i].join('').replace(/\s/g, '');
-                if(rowStr.includes('โครงการ') && rowStr.includes('วันที่')) { headerIndex = i; break; }
+                // เปลี่ยนมาจับคำสั้นๆ หลีกเลี่ยง สระอำ หรือตัวอักษรแปลกๆ
+                if(rowStr.includes('โครง') && rowStr.includes('วัน')) { headerIndex = i; break; }
             }
 
             const headers = data[headerIndex].map(h => String(h).replace(/\s+/g, ' ').trim());
+            
+            // ⭐ อัปเดต: ค้นหาคำบางส่วนแทน เพื่อแก้ปัญหา สระอำ (ำ) หรือเว้นวรรค
             const col = {
-                date: headers.findIndex(h => h.includes("วันที่")),
-                project: headers.findIndex(h => h.includes("โครงการ")),
-                details: headers.findIndex(h => h.includes("รายละเอียด")),
-                amount: headers.findIndex(h => h.includes("จำนวนเงิน"))
+                date: headers.findIndex(h => h.includes("วัน")),
+                project: headers.findIndex(h => h.includes("โครง")),
+                details: headers.findIndex(h => h.includes("ละเอียด") || h.includes("สิ่งของ")),
+                amount: headers.findIndex(h => h.includes("เงิน") || h.includes("บาท"))
             };
 
-            // เช็คว่าหาคอลัมน์เจอไหม
+            // แสดงหัวตารางที่เจอจริงๆ กรณีที่หาคอลัมน์ไม่พบ
             if (col.project === -1 || col.amount === -1) {
-                alert(`❌ ไม่พบคอลัมน์ 'โครงการ' หรือ 'จำนวนเงิน' ในแท็บที่ชื่อ "${SHEET_NAME}"\n\nถ้าคุณตั้งชื่อแท็บผิด ให้ไปแก้ตัวแปร SHEET_NAME ในบรรทัดที่ 192 ของโค้ดครับ`);
+                let foundHeaders = headers.filter(h => h !== "").join(", ");
+                alert(`❌ ไม่พบคอลัมน์หลัก!\n\nระบบอ่านหัวตารางจาก Google Sheet ได้คำเหล่านี้:\n[ ${foundHeaders} ]\n\nแต่หาคอลัมน์ 'โครง...' หรือ '...เงิน' ไม่เจอครับ`);
                 document.getElementById('kpiTotal').innerText = "ข้อมูลผิดพลาด";
                 return;
             }
@@ -320,7 +279,8 @@
             rawData = data.slice(headerIndex + 1).filter(row => {
                 const projectVal = String(row[col.project] || '').trim();
                 const amountVal = String(row[col.amount] || '').trim();
-                return projectVal && projectVal !== 'โครงการ' && !projectVal.includes('ยอดรวม') && amountVal;
+                // กรองข้อมูลว่าง หรือแถวที่เป็นยอดรวม
+                return projectVal && !projectVal.includes('ยอดรวม') && !projectVal.includes('โครงการ') && amountVal !== '';
             }).map((row, idx) => {
                 let cleanAmount = parseFloat(String(row[col.amount]).replace(/,/g, '')) || 0;
                 let dateStr = String(row[col.date] || '-').trim();
@@ -343,6 +303,7 @@
 
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
             const projectFilter = document.getElementById('filterProject');
+            projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; // รีเซ็ต Dropdown
             uniqueProjects.forEach(proj => projectFilter.appendChild(new Option(proj, proj)));
 
             applyGlobalFilters();
@@ -432,9 +393,6 @@
             }
         }
 
-        // ==========================================
-        // ฟังก์ชันสั่งพิมพ์ออกรายงานเป็นฟอร์แมตเอกสาร
-        // ==========================================
         function exportFormalReport() {
             const projVal = $('#filterProject').val();
             const startVal = $('#filterStartDate').val();
