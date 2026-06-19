@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบรายงานสรุปค่าใช้จ่ายแสนสบาย (Looker Studio Theme)</title>
+    <title>ระบบรายงานสรุปค่าใช้จ่าย (Looker Studio Theme)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -22,45 +22,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
         
-        body {
-            font-family: 'Roboto', 'Sarabun', sans-serif;
-            background-color: #f1f3f4; 
-            color: #3c4043;
-            overflow-x: hidden;
-        }
-
-        .ls-card {
-            background-color: #ffffff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            box-shadow: none;
-            transition: box-shadow 0.2s;
-        }
-
-        table.dataTable thead th {
-            background-color: #ffffff;
-            color: #5f6368;
-            font-weight: 500;
-            font-size: 13px;
-            border-bottom: 1px solid #dadce0 !important;
-            padding: 12px 16px !important;
-        }
-        table.dataTable tbody td {
-            padding: 12px 16px !important;
-            border-bottom: 1px solid #f1f3f4;
-            font-size: 13px;
-            color: #3c4043;
-        }
-
-        .g-input {
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            padding: 6px 12px;
-            font-size: 14px;
-            color: #3c4043;
-            background-color: #fff;
-            outline: none;
-        }
+        body { font-family: 'Roboto', 'Sarabun', sans-serif; background-color: #f1f3f4; color: #3c4043; overflow-x: hidden; }
+        .ls-card { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: none; transition: box-shadow 0.2s; }
+        table.dataTable thead th { background-color: #ffffff; color: #5f6368; font-weight: 500; font-size: 13px; border-bottom: 1px solid #dadce0 !important; padding: 12px 16px !important; }
+        table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #f1f3f4; font-size: 13px; color: #3c4043; }
+        .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; }
 
         @media print {
             @page { size: A4 portrait; margin: 15mm; }
@@ -233,88 +199,91 @@
                 header: false,
                 skipEmptyLines: true,
                 complete: function(results) { 
-                    if (!results.data || results.data.length === 0) {
-                        alert("ดึงข้อมูลสำเร็จ แต่ไม่พบข้อมูลในตารางครับ");
-                        return;
-                    }
-                    let firstRowStr = results.data[0].join('');
-                    if(firstRowStr.includes('<!DOCTYPEhtml>') || firstRowStr.includes('<html')) {
-                        alert("❌ ข้อมูลถูกบล็อก!\n\nโปรดไปที่ Google Sheet กดปุ่ม 'แชร์' (มุมขวาบน) > เปลี่ยนเป็น 'ทุกคนที่มีลิงก์ (Anyone with the link)' > สิทธิ์ Viewer");
-                        return;
-                    }
+                    if (!results.data || results.data.length === 0) return;
                     processData(results.data); 
                 },
-                error: function(err) { alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต"); }
+                error: function(err) { alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบอินเทอร์เน็ต"); }
             });
         }
 
         // =====================================
-        // โค้ด V3 (ทะลุทะลวง) หาคอลัมน์เจอแน่นอน 100%
+        // โค้ด V4 Smart Data Pattern Detection
+        // อ่านจากโครงสร้างข้อมูลแทนการอ่านหัวตาราง
         // =====================================
         function processData(data) {
             if (data.length < 2) return;
 
             let col = { date: -1, project: -1, details: -1, amount: -1 };
-            let headerRow = -1;
+            
+            // สแกนข้อมูล 20 แถวแรก เพื่อจับทิศทางของตาราง
+            for(let r = 0; r < Math.min(20, data.length); r++) {
+                let row = data[r];
+                let tDate = -1, tAmt = -1;
+                let texts = [];
 
-            // กวาดสายตาหาใน 20 บรรทัดแรก (เจอที่ไหน ดึงมาที่นั่น)
-            for (let r = 0; r < Math.min(20, data.length); r++) {
-                for (let c = 0; c < data[r].length; c++) {
-                    let cell = String(data[r][c]).replace(/\s+/g, '');
-                    if (cell.includes('วันที่')) col.date = c;
-                    if (cell.includes('โครงการ')) col.project = c;
-                    if (cell.includes('รายละเอียด') || cell.includes('สิ่งของ')) col.details = c;
-                    if (cell.includes('จำนวนเงิน') || cell.includes('บาท')) col.amount = c;
+                for(let c = 0; c < row.length; c++) {
+                    let cell = String(row[c]).trim();
+                    if(!cell) continue;
+
+                    // ค้นหาคอลัมน์ "วันที่" (ฟอร์แมตต้องมี / เช่น 03/01/2026)
+                    if(tDate === -1 && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(cell)) {
+                        tDate = c;
+                        continue;
+                    }
+
+                    // ค้นหาคอลัมน์ "จำนวนเงิน" (ต้องเป็นตัวเลข และไม่ใช่เลข 0)
+                    let numStr = cell.replace(/,/g, '');
+                    if(tAmt === -1 && numStr !== '' && !isNaN(numStr) && Number(numStr) !== 0) {
+                        tAmt = c;
+                        continue;
+                    }
+
+                    // คอลัมน์ที่เหลือที่เป็นข้อความ จะถูกเก็บไว้เป็น โครงการ และ รายละเอียด
+                    if(isNaN(numStr) && !/^\d{1,2}\/\d{1,2}\/\d{4}/.test(cell)) {
+                        texts.push(c);
+                    }
                 }
-                
-                // ถ้าในบรรทัดนี้ มีทั้งคอลัมน์ โครงการ และ จำนวนเงิน ถือว่านี่แหละบรรทัดหัวตาราง!
-                if (col.project !== -1 && col.amount !== -1) {
-                    headerRow = r;
+
+                // ถ้าในบรรทัดนี้พบทั้ง วันที่, จำนวนเงิน และข้อความอย่างน้อย 2 ช่อง (ถือว่าเจอโครงสร้างที่ถูกต้องแล้ว!)
+                if(tDate !== -1 && tAmt !== -1 && texts.length >= 2) {
+                    col.date = tDate;
+                    col.amount = tAmt;
+                    col.project = texts[0]; // ข้อความแรกคือ โครงการ
+                    col.details = texts[1]; // ข้อความที่สองคือ รายละเอียด
                     break;
-                } else {
-                    col = { date: -1, project: -1, details: -1, amount: -1 }; // รีเซ็ตเพื่อหาแถวถัดไป
                 }
             }
 
-            // ถ้าระบบขึ้น Error [V3] แสดงว่าอัปเดตโค้ดสำเร็จแล้ว
-            if (headerRow === -1) {
-                let debugText = data.slice(0, 5).map(row => 
-                    "[" + row.map(cell => String(cell).trim()).filter(cell => cell !== "").join(", ") + "]"
-                ).join("\n");
-                
-                alert("❌ [V3] ค้นหาหัวตารางไม่เจอจริงๆ!\n\nข้อมูล 5 แถวแรกที่ระบบอ่านได้คือ:\n" + debugText);
-                document.getElementById('kpiTotal').innerText = "ข้อมูลผิดพลาด";
+            if (col.project === -1 || col.amount === -1) {
+                alert("❌ ระบบ AI ไม่สามารถจับคู่โครงสร้างคอลัมน์ได้ โปรดตรวจสอบให้แน่ใจว่ามีข้อมูลจริงอยู่ใน Google Sheet");
                 return;
             }
 
             rawData = [];
-            // ดึงข้อมูลใต้หัวตารางเป็นต้นไป
-            for (let i = headerRow + 1; i < data.length; i++) {
+            // เริ่มเก็บข้อมูลทั้งหมด
+            for (let i = 0; i < data.length; i++) {
                 let row = data[i];
+                let dVal = col.date !== -1 ? String(row[col.date] || '').trim() : '';
                 let pVal = col.project !== -1 ? String(row[col.project] || '').trim() : '';
                 let aVal = col.amount !== -1 ? String(row[col.amount] || '').trim() : '';
                 
-                // กรองบรรทัดที่ไม่ใช่ข้อมูล (ว่าง หรือ ยอดรวม)
-                if (!pVal || pVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ') || aVal === '') continue;
+                // ระบบป้องกัน: ถ้าบรรทัดไหนไม่มีวันที่แบบ DD/MM/YYYY จะถูกข้ามทันที (ช่วยข้ามหัวตารางและยอดรวมได้ 100%)
+                if (!/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dVal) || !pVal || aVal === '') {
+                    continue;
+                }
 
                 let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
-                let dateStr = col.date !== -1 ? String(row[col.date] || '-').trim() : '-';
-                
                 let parsedDate = null;
-                if (dateStr.includes('/')) {
-                    let parts = dateStr.split('/');
+                if (dVal.includes('/')) {
+                    let parts = dVal.split('/');
                     if (parts.length === 3) parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 }
-                let dVal = col.details !== -1 ? String(row[col.details] || '-').trim() : '-';
+                let detVal = col.details !== -1 ? String(row[col.details] || '-').trim() : '-';
 
                 rawData.push({
-                    id: i, dateText: dateStr, dateObj: parsedDate,
-                    project: pVal, details: dVal, amount: cleanAmount
+                    id: i, dateText: dVal, dateObj: parsedDate,
+                    project: pVal, details: detVal, amount: cleanAmount
                 });
-            }
-
-            if(rawData.length === 0) {
-                alert("ดึงโครงสร้างสำเร็จ แต่ไม่พบข้อมูลรายการ");
             }
 
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
@@ -409,6 +378,9 @@
             }
         }
 
+        // ==========================================
+        // ฟังก์ชันสั่งพิมพ์รายงาน (หน้าตาแบบที่คุณต้องการ)
+        // ==========================================
         function exportFormalReport() {
             const projVal = $('#filterProject').val();
             const startVal = $('#filterStartDate').val();
@@ -418,19 +390,19 @@
             $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
             $('#printTotalAmount').text(totalText);
 
-            let dateRangeText = "ค่าใช้จ่ายตามจริงทั้งหมด";
+            let dateRangeText = "แสดงทุกหมวดหมู่";
             if (startVal || endVal) {
-                dateRangeText = `สรุปยอดตั้งแต่วันที่: ${startVal || '-'} ถึงวันที่: ${endVal || '-'}`;
+                dateRangeText = `ตั้งแต่วันที่ ${startVal || '-'} ถึง ${endVal || '-'}`;
             }
             $('#printBudgetName').text(dateRangeText);
 
             if (detailedTableInstance) {
                 const currentLen = detailedTableInstance.page.len();
-                detailedTableInstance.page.len(-1).draw();
+                detailedTableInstance.page.len(-1).draw(); // กางตารางออกทั้งหมด
 
                 setTimeout(() => {
                     window.print();
-                    detailedTableInstance.page.len(currentLen).draw();
+                    detailedTableInstance.page.len(currentLen).draw(); // คืนค่าตารางกลับเหมือนเดิม
                 }, 500);
             }
         }
