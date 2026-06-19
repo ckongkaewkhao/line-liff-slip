@@ -437,7 +437,7 @@
 
         function updateDashboards(data) {
             const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
-            document.getElementById('kpiTotal').innerText = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ฿';
+            document.getElementById('kpiTotal').innerText = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById('kpiProjects').innerText = [...new Set(data.map(item => item.project))].length.toLocaleString('th-TH');
             document.getElementById('kpiTransactions').innerText = data.length.toLocaleString('th-TH');
 
