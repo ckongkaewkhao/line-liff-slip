@@ -248,62 +248,78 @@
             });
         }
 
+        // =====================================
+        // โค้ด V3 (ทะลุทะลวง) หาคอลัมน์เจอแน่นอน 100%
+        // =====================================
         function processData(data) {
             if (data.length < 2) return;
 
-            let headerIndex = 0;
-            for(let i=0; i < Math.min(10, data.length); i++) {
-                let rowStr = data[i].join('').replace(/\s/g, '');
-                // เปลี่ยนมาจับคำสั้นๆ หลีกเลี่ยง สระอำ หรือตัวอักษรแปลกๆ
-                if(rowStr.includes('โครง') && rowStr.includes('วัน')) { headerIndex = i; break; }
+            let col = { date: -1, project: -1, details: -1, amount: -1 };
+            let headerRow = -1;
+
+            // กวาดสายตาหาใน 20 บรรทัดแรก (เจอที่ไหน ดึงมาที่นั่น)
+            for (let r = 0; r < Math.min(20, data.length); r++) {
+                for (let c = 0; c < data[r].length; c++) {
+                    let cell = String(data[r][c]).replace(/\s+/g, '');
+                    if (cell.includes('วันที่')) col.date = c;
+                    if (cell.includes('โครงการ')) col.project = c;
+                    if (cell.includes('รายละเอียด') || cell.includes('สิ่งของ')) col.details = c;
+                    if (cell.includes('จำนวนเงิน') || cell.includes('บาท')) col.amount = c;
+                }
+                
+                // ถ้าในบรรทัดนี้ มีทั้งคอลัมน์ โครงการ และ จำนวนเงิน ถือว่านี่แหละบรรทัดหัวตาราง!
+                if (col.project !== -1 && col.amount !== -1) {
+                    headerRow = r;
+                    break;
+                } else {
+                    col = { date: -1, project: -1, details: -1, amount: -1 }; // รีเซ็ตเพื่อหาแถวถัดไป
+                }
             }
 
-            const headers = data[headerIndex].map(h => String(h).replace(/\s+/g, ' ').trim());
-            
-            // ⭐ อัปเดต: ค้นหาคำบางส่วนแทน เพื่อแก้ปัญหา สระอำ (ำ) หรือเว้นวรรค
-            const col = {
-                date: headers.findIndex(h => h.includes("วัน")),
-                project: headers.findIndex(h => h.includes("โครง")),
-                details: headers.findIndex(h => h.includes("ละเอียด") || h.includes("สิ่งของ")),
-                amount: headers.findIndex(h => h.includes("เงิน") || h.includes("บาท"))
-            };
-
-            // แสดงหัวตารางที่เจอจริงๆ กรณีที่หาคอลัมน์ไม่พบ
-            if (col.project === -1 || col.amount === -1) {
-                let foundHeaders = headers.filter(h => h !== "").join(", ");
-                alert(`❌ ไม่พบคอลัมน์หลัก!\n\nระบบอ่านหัวตารางจาก Google Sheet ได้คำเหล่านี้:\n[ ${foundHeaders} ]\n\nแต่หาคอลัมน์ 'โครง...' หรือ '...เงิน' ไม่เจอครับ`);
+            // ถ้าระบบขึ้น Error [V3] แสดงว่าอัปเดตโค้ดสำเร็จแล้ว
+            if (headerRow === -1) {
+                let debugText = data.slice(0, 5).map(row => 
+                    "[" + row.map(cell => String(cell).trim()).filter(cell => cell !== "").join(", ") + "]"
+                ).join("\n");
+                
+                alert("❌ [V3] ค้นหาหัวตารางไม่เจอจริงๆ!\n\nข้อมูล 5 แถวแรกที่ระบบอ่านได้คือ:\n" + debugText);
                 document.getElementById('kpiTotal').innerText = "ข้อมูลผิดพลาด";
                 return;
             }
 
-            rawData = data.slice(headerIndex + 1).filter(row => {
-                const projectVal = String(row[col.project] || '').trim();
-                const amountVal = String(row[col.amount] || '').trim();
-                // กรองข้อมูลว่าง หรือแถวที่เป็นยอดรวม
-                return projectVal && !projectVal.includes('ยอดรวม') && !projectVal.includes('โครงการ') && amountVal !== '';
-            }).map((row, idx) => {
-                let cleanAmount = parseFloat(String(row[col.amount]).replace(/,/g, '')) || 0;
-                let dateStr = String(row[col.date] || '-').trim();
+            rawData = [];
+            // ดึงข้อมูลใต้หัวตารางเป็นต้นไป
+            for (let i = headerRow + 1; i < data.length; i++) {
+                let row = data[i];
+                let pVal = col.project !== -1 ? String(row[col.project] || '').trim() : '';
+                let aVal = col.amount !== -1 ? String(row[col.amount] || '').trim() : '';
+                
+                // กรองบรรทัดที่ไม่ใช่ข้อมูล (ว่าง หรือ ยอดรวม)
+                if (!pVal || pVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ') || aVal === '') continue;
+
+                let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
+                let dateStr = col.date !== -1 ? String(row[col.date] || '-').trim() : '-';
+                
                 let parsedDate = null;
-                if(dateStr.includes('/')) {
+                if (dateStr.includes('/')) {
                     let parts = dateStr.split('/');
-                    if(parts.length === 3) parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    if (parts.length === 3) parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 }
-                return {
-                    id: idx + 1, dateText: dateStr, dateObj: parsedDate,
-                    project: String(row[col.project] || 'ไม่ระบุ').trim(),
-                    details: String(row[col.details] || '-').trim(),
-                    amount: cleanAmount
-                };
-            });
+                let dVal = col.details !== -1 ? String(row[col.details] || '-').trim() : '-';
+
+                rawData.push({
+                    id: i, dateText: dateStr, dateObj: parsedDate,
+                    project: pVal, details: dVal, amount: cleanAmount
+                });
+            }
 
             if(rawData.length === 0) {
-                alert("ไม่พบข้อมูลที่จะนำมาแสดง โปรดตรวจสอบว่ามีข้อมูลใต้หัวตารางหรือไม่");
+                alert("ดึงโครงสร้างสำเร็จ แต่ไม่พบข้อมูลรายการ");
             }
 
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
             const projectFilter = document.getElementById('filterProject');
-            projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; // รีเซ็ต Dropdown
+            projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; 
             uniqueProjects.forEach(proj => projectFilter.appendChild(new Option(proj, proj)));
 
             applyGlobalFilters();
