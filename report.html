@@ -87,15 +87,11 @@
         }
         table.dataTable thead th, table.dataTable thead td { padding-right: 16px !important; background-image: none !important; }
 
-        /* ==========================================
-           ลูกเล่นใหม่: Sticky Header สำหรับตารางขวามือ
-           ========================================== */
         #summaryTable thead th {
             position: sticky;
             top: 0;
             z-index: 10;
             background-color: #ffffff;
-            /* ใช้เงาแทนขอบตารางปกติ เพื่อไม่ให้ขาดตอนเวลาเลื่อน */
             box-shadow: inset 0 -1px 0 #d2d2d7;
             border-bottom: none !important;
         }
@@ -137,7 +133,8 @@
                 background-color: white; overflow: visible !important; margin: 0 !important;
                 padding: 12mm 10mm 12mm 10mm !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
-            .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
+            /* ซ่อน Dashboard (print-hidden-section) ตอนปริ้นท์ */
+            .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             main { padding: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; }
             
             .apple-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; }
@@ -213,7 +210,6 @@
                     </div>
                 </div>
 
-                <!-- ตั้งค่าความสูงของกราฟและตารางให้คงที่เท่ากันที่ 450px -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="apple-card p-6 flex flex-col lg:h-[450px]">
                         <div class="flex justify-between items-center mb-6 shrink-0">
@@ -227,7 +223,6 @@
                         <div class="p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0">
                             <h3 class="text-lg font-semibold text-[#1d1d1f]">สรุปยอดรวมแต่ละโครงการ</h3>
                         </div>
-                        <!-- เพิ่ม overflow-y-auto เพื่อให้ตาราง Scroll ขึ้นลงได้ -->
                         <div class="px-2 pb-2 flex-1 overflow-y-auto bg-white">
                             <table id="summaryTable" class="w-full text-left display" style="width:100%">
                                 <thead>
