@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAENSABAI - รายงานสรุปค่าใช้จ่าย</title>
+    <title>SAENSABAI 1978 - รายงานสรุปค่าใช้จ่าย</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
-        /* ฟอนต์สไตล์ Apple */
+        /* ฟอนต์สไตล์ Apple สำหรับหน้าเว็บ */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         
         body { 
@@ -46,7 +43,7 @@
         .g-input { 
             border: 1px solid #d2d2d7; 
             border-radius: 12px; 
-            padding: 10px 16px; /* ขยาย padding ให้เหมาะกับการจิ้มบนมือถือ */
+            padding: 10px 16px; 
             font-size: 14px; 
             color: #1d1d1f; 
             background-color: #ffffff; 
@@ -70,83 +67,49 @@
             padding: 16px !important; 
             text-align: center !important; 
         }
-        table.dataTable tbody td { 
-            padding: 16px !important; 
-            border-bottom: 1px solid #e5e5ea; 
-            font-size: 14px; 
-            color: #1d1d1f; 
-        }
+        table.dataTable tbody td { padding: 16px !important; border-bottom: 1px solid #e5e5ea; font-size: 14px; color: #1d1d1f; }
         table.dataTable.display tbody tr.odd, table.dataTable.display tbody tr.even { background-color: #ffffff !important; }
         table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.display tbody tr.even > .sorting_1 { background-color: #ffffff !important; }
         table.dataTable.display tbody tr:hover { background-color: #f5f5f7 !important; }
         
         table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting:after, 
         table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_asc:after, 
-        table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after {
-            display: none !important; content: none !important;
-        }
+        table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after { display: none !important; content: none !important; }
         table.dataTable thead th, table.dataTable thead td { padding-right: 16px !important; background-image: none !important; }
 
-        #summaryTable thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #ffffff;
-            box-shadow: inset 0 -1px 0 #d2d2d7;
-            border-bottom: none !important;
-        }
+        #summaryTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; }
 
-        .glass-nav {
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
+        .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
 
-        .btn-primary {
-            background-color: #0071e3;
-            color: white;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            text-align: center;
-            justify-content: center;
-        }
+        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; text-align: center; justify-content: center; }
         .btn-primary:hover { background-color: #0077ED; transform: scale(1.02); }
-        .btn-secondary {
-            background-color: #e8e8ed;
-            color: #1d1d1f;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            text-align: center;
-            justify-content: center;
-        }
+        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; text-align: center; justify-content: center; }
         .btn-secondary:hover { background-color: #d2d2d7; }
-
-        /* ปรับสไตล์ Scrollbar แบบ iOS ให้ตาราง */
-        .ios-scroll {
-            -webkit-overflow-scrolling: touch;
-        }
+        .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
            ตั้งค่าล๊อก Print สำหรับข้าม Platform (Mac/Windows)
            ========================================== */
         @media print {
-            @page { size: A4 portrait; margin: 15mm 12mm !important; }
-            body { 
-                background-color: white !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; 
-                font-family: 'Sarabun', sans-serif !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+            @page { 
+                size: A4 portrait; 
+                margin: 1.5cm !important; /* ล็อกขอบกระดาษ 1.5 ซม. ทุกด้านจากระบบ Print */
             }
+            body, html { 
+                background-color: white !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                width: 100% !important;
+                /* บังคับฟอนต์ตอนปริ้นท์ให้เหมือนกันทุกเครื่อง */
+                font-family: 'Sarabun', sans-serif !important; 
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+            }
+            
             .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
-            main { padding: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; }
+            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; }
+            
             .apple-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; }
             #printHeader { display: block !important; margin-bottom: 20px !important; }
             .web-only-col { display: none !important; }
@@ -154,13 +117,40 @@
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px !important; table-layout: fixed !important; }
             
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; white-space: nowrap !important; }
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 54% !important; } 
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; text-align: right !important; }
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; } 
+            /* ล็อกความกว้างคอลัมน์ใหม่ เพื่อป้องกันข้อความตกบรรทัด */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { 
+                width: 14% !important; 
+                text-align: center !important; 
+                white-space: nowrap !important; /* บังคับห้ามตัดคำในช่องวันที่ */
+            }
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 50% !important; } 
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { 
+                width: 18% !important; 
+                text-align: right !important; 
+                white-space: nowrap !important; /* บังคับห้ามตัดคำในช่องจำนวนเงิน */
+            }
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 18% !important; } 
 
-            table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; font-size: 13pt !important; text-align: center !important; position: static !important; box-shadow: none !important; }
-            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 12pt !important; white-space: normal !important; word-wrap: break-word !important; vertical-align: top !important; }
+            table.dataTable thead th { 
+                border: 1px solid #000 !important; 
+                background-color: #f8f9fa !important; 
+                color: #000 !important; 
+                font-weight: bold !important; 
+                padding: 8px !important; 
+                font-size: 11pt !important; /* ใช้หน่วย pt (Point) เพื่อล็อกขนาดตัวหนังสือให้เท่ากันทุกเครื่อง */
+                text-align: center !important; 
+                position: static !important; 
+                box-shadow: none !important; 
+            }
+            table.dataTable tbody td { 
+                border: 1px solid #000 !important; 
+                color: #000 !important; 
+                padding: 6px 8px !important; 
+                font-size: 11pt !important; /* ล็อกขนาดเนื้อหาในตารางเป็น 11pt */
+                white-space: normal !important; 
+                word-wrap: break-word !important; 
+                vertical-align: top !important; 
+            }
         }
     </style>
 </head>
@@ -187,7 +177,6 @@
     </nav>
 
     <div class="bg-white/60 px-4 md:px-8 py-4 no-print shrink-0 flex flex-col xl:flex-row items-stretch xl:items-center gap-4 shadow-sm border-b border-[#dadce0]">
-        
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full xl:w-auto">
             <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider min-w-[80px]">วันที่:</span>
             <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -196,16 +185,13 @@
                 <input type="text" id="filterEndDate" class="g-input flex-1 sm:w-36 text-center" placeholder="สิ้นสุด">
             </div>
         </div>
-        
         <div class="hidden xl:block h-8 w-px bg-[#d2d2d7]"></div>
-        
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full xl:w-auto">
             <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider min-w-[80px]">โครงการ:</span>
             <select id="filterProject" class="g-input w-full sm:min-w-[250px] cursor-pointer">
                 <option value="">-- แสดงทั้งหมด --</option>
             </select>
         </div>
-
         <div class="flex items-center justify-end gap-4 xl:ml-auto w-full xl:w-auto pt-2 xl:pt-0">
             <button id="resetFilters" class="text-sm text-[#0071e3] hover:text-[#0077ED] font-medium transition-colors w-full text-right xl:text-left">
                 ล้างตัวกรองทั้งหมด
@@ -264,7 +250,7 @@
             <div id="printHeader" class="hidden mb-4 text-black font-['Sarabun']">
                 <h1 class="text-center text-xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
                 <div class="flex justify-center">
-                    <div class="space-y-2 text-[15px]">
+                    <div class="space-y-2 text-[15pt]">
                         <div class="flex">
                             <div class="w-24 font-bold">โครงการ :</div>
                             <div id="printProjectName">ทุกโครงการ</div>
@@ -320,13 +306,12 @@
             Chart.register(ChartDataLabels);
             fetchGoogleSheetData();
 
-            // ลบ readonly บนมือถือเพื่อประสบการณ์กดปฏิทินที่ดีขึ้น
             flatpickr("#filterStartDate", {
                 dateFormat: "Y-m-d",       
                 altInput: true,
                 altFormat: "d/m/Y",        
                 locale: "th",
-                disableMobile: "true", /* บังคับใช้ Flatpickr แทน Native บนมือถือ */
+                disableMobile: "true", 
                 onChange: function() { applyGlobalFilters(); }
             });
             
