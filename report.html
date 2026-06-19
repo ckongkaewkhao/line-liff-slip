@@ -32,21 +32,50 @@
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #f1f3f4; font-size: 13px; color: #3c4043; }
         .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; transition: border-color 0.2s; }
         .g-input:focus { border-color: #1a73e8; }
-        .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } /* สีพื้นหลังช่องปฏิทิน */
+        .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
+
+        /* ==========================================
+           ปรับแต่งตาราง: ลบสีสลับบรรทัด และลูกศรหัวตาราง
+           ========================================== */
+        table.dataTable.display tbody tr.odd, 
+        table.dataTable.display tbody tr.even {
+            background-color: #ffffff !important; 
+        }
+        table.dataTable.display tbody tr.odd > .sorting_1, 
+        table.dataTable.display tbody tr.even > .sorting_1 {
+            background-color: #ffffff !important; 
+        }
+        table.dataTable.display tbody tr:hover {
+            background-color: #f8f9fa !important; 
+        }
+        
+        table.dataTable thead > tr > th.sorting:before, 
+        table.dataTable thead > tr > th.sorting:after, 
+        table.dataTable thead > tr > th.sorting_asc:before, 
+        table.dataTable thead > tr > th.sorting_asc:after, 
+        table.dataTable thead > tr > th.sorting_desc:before, 
+        table.dataTable thead > tr > th.sorting_desc:after {
+            display: none !important;
+            content: none !important;
+        }
+        table.dataTable thead th, table.dataTable thead td {
+            padding-right: 16px !important; 
+            background-image: none !important;
+        }
 
         /* ==========================================
            ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), และซ่อน Header เว็บ
            ========================================== */
         @media print {
             @page { 
-                size: A4 portrait; /* บังคับแนวตั้ง */
-                margin: 0mm !important; /* ระยะขอบกระดาษ 0 เพื่อซ่อน Header/Footer ของ Chrome */
+                size: A4 portrait;
+                margin: 0mm !important;
             }
             body { 
                 background-color: white; 
                 overflow: visible !important; 
                 margin: 0 !important;
-                padding: 15mm 15mm 15mm 15mm !important; /* ดันเนื้อหาลงมา 1.5 ซม. ให้พอดีสวยงาม */
+                padding: 15mm 15mm 15mm 15mm !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -57,15 +86,13 @@
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             #printHeader { display: block !important; margin-bottom: 15px; }
             
-            /* ควบคุมตาราง 4 คอลัมน์ แนวตั้ง */
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px; table-layout: fixed !important; }
             
-            /* กำหนดความกว้าง 4 คอลัมน์ให้พอดีหน้า A4 */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
-            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 50% !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } /* หมายเหตุ */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; }
+            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 50% !important; }
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 20% !important; text-align: right !important; }
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; }
 
             table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; font-size: 13px !important; white-space: nowrap !important; }
             table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 12px !important; white-space: normal !important; word-wrap: break-word !important; vertical-align: top !important; }
@@ -99,7 +126,12 @@
                 <option value="">-- แสดงทั้งหมด --</option>
             </select>
         </div>
-        <button id="resetFilters" class="text-sm text-[#1a73e8] hover:underline font-medium ml-auto">ล้างตัวกรอง</button>
+        <div class="flex items-center gap-4 ml-auto">
+            <button onclick="fetchGoogleSheetData()" class="text-sm bg-white border border-[#dadce0] text-[#1a73e8] hover:bg-[#f8f9fa] px-3 py-1.5 rounded font-medium transition-colors flex items-center gap-1 shadow-sm">
+                🔄 โหลดข้อมูลใหม่
+            </button>
+            <button id="resetFilters" class="text-sm text-[#1a73e8] hover:underline font-medium">ล้างตัวกรอง</button>
+        </div>
     </div>
 
     <main class="flex-1 overflow-y-auto p-4 md:p-6 print:p-0">
@@ -152,8 +184,8 @@
 
             <div id="printHeader" class="hidden mb-6 text-black font-['Sarabun']">
                 <div class="flex justify-between items-end text-sm mb-2">
-                    <div>BY SAENSABAI</div>
-                    <div>Project Budget Report</div>
+                    <div>created by CONSOL</div>
+                    <div>Project Budget Report by PU</div>
                 </div>
                 
                 <hr class="border-t-[1.5px] border-black mb-6">
@@ -185,7 +217,7 @@
                     <table id="detailedTable" class="w-full text-left display" style="width:100%">
                         <thead>
                             <tr>
-                                <th>วันที่</th>
+                                <th class="text-center">วันที่</th>
                                 <th>รายละเอียด</th>
                                 <th class="text-right">จำนวนเงิน (บาท)</th>
                                 <th>หมายเหตุ</th>
@@ -202,9 +234,6 @@
     <script>
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
         const SHEET_NAME = 'รายการโอนเงิน'; 
-        
-        // ต่อท้ายเวลาปัจจุบันทะลวง Cache Google
-        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&t=${new Date().getTime()}`;
 
         let rawData = [];
         let summaryTableInstance = null;
@@ -216,11 +245,10 @@
             Chart.register(ChartDataLabels);
             fetchGoogleSheetData();
 
-            // เปิดใช้งานปฏิทิน Flatpickr (วัน/เดือน/ปี) แบบภาษาไทย
             flatpickr("#filterStartDate", {
-                dateFormat: "Y-m-d",       // ค่าที่ซ่อนไว้ใช้คำนวณ (ปี-เดือน-วัน)
+                dateFormat: "Y-m-d",       
                 altInput: true,
-                altFormat: "d/m/Y",        // ค่าที่โชว์ให้คนดู (วัน/เดือน/ปี)
+                altFormat: "d/m/Y",        
                 locale: "th",
                 onChange: function() { applyGlobalFilters(); }
             });
@@ -235,7 +263,6 @@
 
             $('#filterProject').on('change', applyGlobalFilters);
             $('#resetFilters').on('click', function() {
-                // ล้างค่าของตัวปฏิทิน
                 document.querySelector('#filterStartDate')._flatpickr.clear();
                 document.querySelector('#filterEndDate')._flatpickr.clear();
                 $('#filterProject').val('');
@@ -243,8 +270,13 @@
             });
         });
 
+        // 🟢 สร้าง URL ใหม่ทุกครั้งที่กดปุ่ม เพื่อทะลวงแคช Google Sheet 100%
         function fetchGoogleSheetData() {
-            Papa.parse(CSV_URL, {
+            document.getElementById('kpiTotal').innerText = "กำลังโหลด...";
+            
+            const liveUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&_cb=${new Date().getTime()}`;
+            
+            Papa.parse(liveUrl, {
                 download: true,
                 header: false,
                 skipEmptyLines: true,
@@ -256,25 +288,12 @@
             });
         }
 
-        // =====================================
-        // บังคับอ่านข้อมูลตามตำแหน่งคอลัมน์ (ตัดปัญหาไม่เจอหัวตาราง)
-        // =====================================
         function processData(data) {
             if (data.length < 2) return;
 
-            // ตั้งค่าล็อกพิกัดตาม Google Sheet ของคุณเป๊ะๆ 
-            // B=1, E=4, G=6, H=7, I=8 (นับเริ่มต้นจาก A=0)
-            const col = {
-                date: 1,      // วันที่
-                project: 4,   // โครงการ
-                details: 6,   // รายละเอียด
-                amount: 7,    // จำนวนเงิน
-                note: 8       // หมายเหตุ
-            };
-
+            const col = { date: 1, project: 4, details: 6, amount: 7, note: 8 };
             rawData = [];
             
-            // เริ่มอ่านข้อมูลตั้งแต่แถวที่ 2 (index 1) ลงไป
             for (let i = 1; i < data.length; i++) {
                 let row = data[i];
                 if (!row) continue;
@@ -285,15 +304,15 @@
                 let detVal = String(row[col.details] || '').trim();
                 let noteVal = String(row[col.note] || '').trim();
                 
-                // กรองข้อมูล: บรรทัดที่ไม่มีโครงการ หรือไม่มียอดเงิน หรือเป็นยอดรวม จะข้ามไป
-                if (!pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
+                // 🟢 ปลดล็อกเงื่อนไข: ขอแค่มีชื่อโครงการ มีจำนวนเงิน และไม่ใช่บรรทัดยอดรวม ก็ดึงมาแสดงทั้งหมด
+                if (pVal === '' || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ') || dVal.includes('วันที่')) {
                     continue;
                 }
 
                 let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
                 let parsedDate = null;
                 
-                // แปลงวันที่ (รองรับทั้งปีเต็มเช่น 2026 และปีย่อเช่น 26)
+                // 🟢 แปลงวันที่ให้ฉลาดขึ้น พิมพ์มาแบบไหนก็พยายามจัดกลุ่มให้
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
                     if (parts.length === 3) {
@@ -302,18 +321,25 @@
                         parsedDate = new Date(year, parts[1] - 1, parts[0]);
                     }
                 }
+                // ถ้าแปลงวันที่ไม่ได้ (เช่น ลืมใส่วันที่) ให้ใส่วันนี้แทนไปก่อน จะได้ไม่หลุดจากตาราง
+                if (!parsedDate || isNaN(parsedDate)) {
+                    parsedDate = new Date();
+                }
 
                 rawData.push({
-                    id: i, dateText: dVal, dateObj: parsedDate,
+                    id: i, dateText: dVal !== '' ? dVal : '-', dateObj: parsedDate,
                     project: pVal, details: detVal, amount: cleanAmount, note: noteVal
                 });
             }
 
-            // นำชื่อโครงการไปใส่ใน Dropdown ให้เลือก
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
             const projectFilter = document.getElementById('filterProject');
+            // เก็บค่าเก่าไว้เผื่อกำลัง Filter อยู่
+            const currentSelected = projectFilter.value; 
+            
             projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; 
             uniqueProjects.forEach(proj => projectFilter.appendChild(new Option(proj, proj)));
+            projectFilter.value = currentSelected;
 
             applyGlobalFilters();
         }
@@ -383,7 +409,6 @@
                 summaryTableInstance = $('#summaryTable').DataTable({ paging: false, info: false, searching: false, order: [[2, 'desc']], language: { emptyTable: "ไม่มีข้อมูล" }, columnDefs: [ { className: "dt-right", targets: [1, 2] } ] });
             }
 
-            // ตารางรายละเอียดบิล 4 คอลัมน์
             if (detailedTableInstance) {
                 detailedTableInstance.clear();
                 data.forEach(item => detailedTableInstance.row.add([
@@ -406,7 +431,7 @@
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'desc']],
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [2] } ] // จำนวนเงินอยู่ช่องที่ 3 (index 2)
+                    columnDefs: [ { className: "dt-right", targets: [2] } ] 
                 });
                 $('.dataTables_filter input').addClass('g-input w-full md:w-64');
                 $('.dataTables_length select').addClass('g-input ml-2');
@@ -430,11 +455,11 @@
 
             if (detailedTableInstance) {
                 const currentLen = detailedTableInstance.page.len();
-                detailedTableInstance.page.len(-1).draw(); // กางตารางออกแบบรวดเดียวทั้งหมด
+                detailedTableInstance.page.len(-1).draw(); 
 
                 setTimeout(() => {
                     window.print();
-                    detailedTableInstance.page.len(currentLen).draw(); // คืนค่าตารางหน้าละ 20 บรรทัด
+                    detailedTableInstance.page.len(currentLen).draw(); 
                 }, 500);
             }
         }
