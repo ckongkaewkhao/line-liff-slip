@@ -64,8 +64,7 @@
         }
 
         /* ==========================================
-           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait) 
-           และซ่อนคอลัมน์ "โครงการ" ตอนปริ้นท์
+           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), และซ่อน Header เว็บ
            ========================================== */
         @media print {
             @page { 
@@ -76,7 +75,7 @@
                 background-color: white; 
                 overflow: visible !important; 
                 margin: 0 !important;
-                padding: 15mm 15mm 15mm 15mm !important;
+                padding: 15mm 15mm 15mm 15mm !important; 
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -188,14 +187,7 @@
             </div>
 
             <div id="printHeader" class="hidden mb-6 text-black font-['Sarabun']">
-                <div class="flex justify-between items-end text-sm mb-2">
-                    <div>created by CONSOL</div>
-                    <div>Project Budget Report by PU</div>
-                </div>
-                
-                <hr class="border-t-[1.5px] border-black mb-6">
-                
-                <h1 class="text-center text-xl font-bold mb-8">รายงานงบประมาณโครงการ</h1>
+                <h1 class="text-center text-xl font-bold mb-8 mt-4">รายงานงบประมาณโครงการ</h1>
                 
                 <div class="space-y-2 text-[15px]">
                     <div class="flex">
@@ -223,7 +215,8 @@
                         <thead>
                             <tr>
                                 <th class="text-center">วันที่</th>
-                                <th class="web-only-col">โครงการ</th> <th>รายละเอียด</th>
+                                <th class="web-only-col">โครงการ</th>
+                                <th>รายละเอียด</th>
                                 <th class="text-right">จำนวนเงิน (บาท)</th>
                                 <th>หมายเหตุ</th>
                             </tr>
@@ -239,6 +232,8 @@
     <script>
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
         const SHEET_NAME = 'รายการโอนเงิน'; 
+        
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&t=${new Date().getTime()}`;
 
         let rawData = [];
         let summaryTableInstance = null;
@@ -296,7 +291,6 @@
 
             const col = { date: 1, project: 4, details: 6, amount: 7, note: 8 };
             
-            // ค้นหาว่าหัวตารางอยู่บรรทัดไหนแน่ๆ เพื่อไม่ให้พลาดไปดึงบรรทัดหัวตารางมาคำนวณ
             let headerRow = 1; 
             for (let r = 0; r < Math.min(10, data.length); r++) {
                 let text = data[r].join('').replace(/\s/g, '');
@@ -308,23 +302,21 @@
 
             rawData = [];
             
-            // 🟢 ปลดล็อกความเข้มงวด: ดึงข้อมูลตามจริง อ่านตั้งแต่ใต้หัวตารางลงมา
             for (let i = headerRow + 1; i < data.length; i++) {
                 let row = data[i];
                 if (!row) continue;
                 
                 let aVal = String(row[col.amount] || '').trim();
-                if (aVal === '') continue; // ถ้าไม่มีตัวเลขจำนวนเงิน ถือว่าไม่ใช่รายการ ให้ข้ามไป
+                if (aVal === '') continue; 
 
                 let cleanAmount = parseFloat(aVal.replace(/,/g, ''));
-                if (isNaN(cleanAmount)) continue; // ถ้าช่องจำนวนเงินพิมพ์มาเป็นตัวอักษรแปลกๆ ให้ข้ามไป
+                if (isNaN(cleanAmount)) continue; 
 
                 let dVal = String(row[col.date] || '').trim();
                 let pVal = String(row[col.project] || '').trim();
                 let detVal = String(row[col.details] || '').trim();
                 let noteVal = String(row[col.note] || '').trim();
                 
-                // ถ้ารายการนี้มีเงิน แต่ผู้ใช้ลืมใส่โครงการ ให้เราตั้งชื่ออัตโนมัติ จะได้ไม่หาย
                 if (pVal === '') {
                     pVal = 'ไม่ระบุโครงการ'; 
                 }
@@ -342,7 +334,6 @@
                     }
                 }
                 
-                // ถ้าวันที่ไม่ได้ใส่ หรือใส่มาผิดรูปแบบ ให้ตีเป็นวันที่ปัจจุบันไปเลย (ยังไงยอดเงินก็สำคัญกว่า)
                 if (!parsedDate || isNaN(parsedDate)) {
                     parsedDate = new Date();
                 }
@@ -461,7 +452,7 @@
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], 
-                    order: [[0, 'desc']], 
+                    order: [[0, 'asc']], // ⭐ อัปเดต: เปลี่ยนเป็น 'asc' เรียงจากเก่าไปใหม่ เสมอ
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
                     columnDefs: [ 
