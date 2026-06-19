@@ -10,14 +10,18 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
@@ -28,6 +32,7 @@
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #f1f3f4; font-size: 13px; color: #3c4043; }
         .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; transition: border-color 0.2s; }
         .g-input:focus { border-color: #1a73e8; }
+        .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } /* สีพื้นหลังช่องปฏิทิน */
 
         /* ==========================================
            ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), และซ่อน Header เว็บ
@@ -84,9 +89,9 @@
     <div class="bg-white border-b border-[#dadce0] px-6 py-3 no-print shrink-0 flex flex-wrap items-center gap-6 shadow-sm">
         <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-[#5f6368]">วันที่:</span>
-            <input type="date" id="filterStartDate" class="g-input w-36">
+            <input type="text" id="filterStartDate" class="g-input w-36" placeholder="วัน/เดือน/ปี">
             <span class="text-[#5f6368]">-</span>
-            <input type="date" id="filterEndDate" class="g-input w-36">
+            <input type="text" id="filterEndDate" class="g-input w-36" placeholder="วัน/เดือน/ปี">
         </div>
         <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-[#5f6368]">โครงการ:</span>
@@ -211,10 +216,28 @@
             Chart.register(ChartDataLabels);
             fetchGoogleSheetData();
 
-            $('#filterStartDate, #filterEndDate, #filterProject').on('change', applyGlobalFilters);
+            // เปิดใช้งานปฏิทิน Flatpickr (วัน/เดือน/ปี) แบบภาษาไทย
+            flatpickr("#filterStartDate", {
+                dateFormat: "Y-m-d",       // ค่าที่ซ่อนไว้ใช้คำนวณ (ปี-เดือน-วัน)
+                altInput: true,
+                altFormat: "d/m/Y",        // ค่าที่โชว์ให้คนดู (วัน/เดือน/ปี)
+                locale: "th",
+                onChange: function() { applyGlobalFilters(); }
+            });
+            
+            flatpickr("#filterEndDate", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                locale: "th",
+                onChange: function() { applyGlobalFilters(); }
+            });
+
+            $('#filterProject').on('change', applyGlobalFilters);
             $('#resetFilters').on('click', function() {
-                $('#filterStartDate').val('');
-                $('#filterEndDate').val('');
+                // ล้างค่าของตัวปฏิทิน
+                document.querySelector('#filterStartDate')._flatpickr.clear();
+                document.querySelector('#filterEndDate')._flatpickr.clear();
                 $('#filterProject').val('');
                 applyGlobalFilters();
             });
@@ -233,74 +256,51 @@
             });
         }
 
+        // =====================================
+        // บังคับอ่านข้อมูลตามตำแหน่งคอลัมน์ (ตัดปัญหาไม่เจอหัวตาราง)
+        // =====================================
         function processData(data) {
             if (data.length < 2) return;
 
-            let col = { date: -1, project: -1, details: -1, amount: -1, note: -1 };
-            
-            // ชั้นที่ 1: ค้นหาคอลัมน์จากข้อความหัวตารางแบบยืดหยุ่นสูง
-            for(let r = 0; r < Math.min(20, data.length); r++) {
-                let row = data[r];
-                for(let c = 0; c < row.length; c++) {
-                    let cell = String(row[c]).replace(/\s+/g, '');
-                    if (cell.includes('วัน') && col.date === -1) col.date = c;
-                    if (cell.includes('โครง') && col.project === -1) col.project = c;
-                    if ((cell.includes('ละเอียด') || cell.includes('สิ่งของ')) && col.details === -1) col.details = c;
-                    if ((cell.includes('เงิน') || cell.includes('บาท')) && col.amount === -1) col.amount = c;
-                    if ((cell.includes('หมายเหตุ') || cell.includes('เหตุ')) && col.note === -1) col.note = c;
-                }
-                if (col.date !== -1 && col.project !== -1 && col.amount !== -1) break;
-            }
-
-            // ชั้นที่ 2: Smart Detection หากข้อความหัวตารางโดนทับ ให้ตรวจจับจากลักษณะข้อมูลจริงแทน
-            if (col.date === -1 || col.amount === -1) {
-                for (let r = 0; r < Math.min(20, data.length); r++) {
-                    let row = data[r];
-                    let fDate = -1, fAmt = -1;
-                    for (let c = 0; c < row.length; c++) {
-                        let cell = String(row[c]).trim();
-                        if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(cell)) fDate = c;
-                        let num = cell.replace(/,/g, '');
-                        if (num !== '' && !isNaN(num) && parseFloat(num) > 50 && !cell.includes('/')) fAmt = c;
-                    }
-                    if (fDate !== -1 && fAmt !== -1) {
-                        col.date = fDate;
-                        col.amount = fAmt;
-                        break;
-                    }
-                }
-            }
-
-            // ชั้นที่ 3: Fallback ล็อกตำแหน่งดึงข้อมูลตามพิกัดจริงของ Google Sheet (กรณีตรวจจับพลาด)
-            if (col.date === -1) col.date = 1;     // Column B
-            if (col.project === -1) col.project = 4; // Column E
-            if (col.details === -1) col.details = 6; // Column G
-            if (col.amount === -1) col.amount = 7;   // Column H
-            if (col.note === -1) col.note = 8;       // Column I
+            // ตั้งค่าล็อกพิกัดตาม Google Sheet ของคุณเป๊ะๆ 
+            // B=1, E=4, G=6, H=7, I=8 (นับเริ่มต้นจาก A=0)
+            const col = {
+                date: 1,      // วันที่
+                project: 4,   // โครงการ
+                details: 6,   // รายละเอียด
+                amount: 7,    // จำนวนเงิน
+                note: 8       // หมายเหตุ
+            };
 
             rawData = [];
-            for (let i = 0; i < data.length; i++) {
+            
+            // เริ่มอ่านข้อมูลตั้งแต่แถวที่ 2 (index 1) ลงไป
+            for (let i = 1; i < data.length; i++) {
                 let row = data[i];
-                if (!row || row.length <= Math.max(col.date, col.amount)) continue;
-
+                if (!row) continue;
+                
                 let dVal = String(row[col.date] || '').trim();
                 let pVal = String(row[col.project] || '').trim();
                 let aVal = String(row[col.amount] || '').trim();
-                let detVal = col.details !== -1 && row[col.details] !== undefined ? String(row[col.details]).trim() : '-';
-                let noteVal = col.note !== -1 && row[col.note] !== undefined ? String(row[col.note]).trim() : '-';
+                let detVal = String(row[col.details] || '').trim();
+                let noteVal = String(row[col.note] || '').trim();
                 
-                // ตรวจสอบแถวข้อมูลจริง (ต้องมีรูปแบบวันที่ แบบ ค.ศ. สั้นหรือยาวก็ได้ และต้องมียอดเงิน)
-                if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(dVal) || !pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
+                // กรองข้อมูล: บรรทัดที่ไม่มีโครงการ หรือไม่มียอดเงิน หรือเป็นยอดรวม จะข้ามไป
+                if (!pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
                     continue;
                 }
 
                 let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
                 let parsedDate = null;
-                let parts = dVal.split('/');
-                if (parts.length === 3) {
-                    let year = parseInt(parts[2]);
-                    if (year < 100) year += 2000;
-                    parsedDate = new Date(year, parts[1] - 1, parts[0]);
+                
+                // แปลงวันที่ (รองรับทั้งปีเต็มเช่น 2026 และปีย่อเช่น 26)
+                if (dVal.includes('/')) {
+                    let parts = dVal.split('/');
+                    if (parts.length === 3) {
+                        let year = parseInt(parts[2]);
+                        if (year < 100) year += 2000;
+                        parsedDate = new Date(year, parts[1] - 1, parts[0]);
+                    }
                 }
 
                 rawData.push({
@@ -309,6 +309,7 @@
                 });
             }
 
+            // นำชื่อโครงการไปใส่ใน Dropdown ให้เลือก
             const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
             const projectFilter = document.getElementById('filterProject');
             projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; 
@@ -382,7 +383,7 @@
                 summaryTableInstance = $('#summaryTable').DataTable({ paging: false, info: false, searching: false, order: [[2, 'desc']], language: { emptyTable: "ไม่มีข้อมูล" }, columnDefs: [ { className: "dt-right", targets: [1, 2] } ] });
             }
 
-            // ตาราง 4 คอลัมน์
+            // ตารางรายละเอียดบิล 4 คอลัมน์
             if (detailedTableInstance) {
                 detailedTableInstance.clear();
                 data.forEach(item => detailedTableInstance.row.add([
@@ -397,7 +398,7 @@
                 data.forEach(item => tbody += `<tr>
                     <td class="text-center">${item.dateText}</td>
                     <td class="whitespace-normal">${item.details}</td>
-                    <td class="text-right">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-right font-medium">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
                     <td class="text-sm text-slate-500 whitespace-normal">${item.note}</td>
                 </tr>`);
                 $('#detailedTable tbody').html(tbody);
@@ -414,8 +415,8 @@
 
         function exportFormalReport() {
             const projVal = $('#filterProject').val();
-            const startVal = $('#filterStartDate').val();
-            const endVal = $('#filterEndDate').val();
+            const startVal = document.querySelector('#filterStartDate')._flatpickr.input.value; 
+            const endVal = document.querySelector('#filterEndDate')._flatpickr.input.value; 
             const totalText = $('#kpiTotal').text();
 
             $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
@@ -429,11 +430,11 @@
 
             if (detailedTableInstance) {
                 const currentLen = detailedTableInstance.page.len();
-                detailedTableInstance.page.len(-1).draw();
+                detailedTableInstance.page.len(-1).draw(); // กางตารางออกแบบรวดเดียวทั้งหมด
 
                 setTimeout(() => {
                     window.print();
-                    detailedTableInstance.page.len(currentLen).draw();
+                    detailedTableInstance.page.len(currentLen).draw(); // คืนค่าตารางหน้าละ 20 บรรทัด
                 }, 500);
             }
         }
