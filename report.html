@@ -28,7 +28,18 @@
         
         body { font-family: 'Roboto', 'Sarabun', sans-serif; background-color: #f1f3f4; color: #3c4043; overflow-x: hidden; }
         .ls-card { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: none; transition: box-shadow 0.2s; }
-        table.dataTable thead th { background-color: #ffffff; color: #5f6368; font-weight: 500; font-size: 13px; border-bottom: 1px solid #dadce0 !important; padding: 12px 16px !important; }
+        
+        /* บังคับหัวตารางให้อยู่กึ่งกลางเสมอ */
+        table.dataTable thead th { 
+            background-color: #ffffff; 
+            color: #5f6368; 
+            font-weight: 500; 
+            font-size: 13px; 
+            border-bottom: 1px solid #dadce0 !important; 
+            padding: 12px 16px !important; 
+            text-align: center !important; 
+        }
+        
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #f1f3f4; font-size: 13px; color: #3c4043; }
         .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; transition: border-color 0.2s; }
         .g-input:focus { border-color: #1a73e8; }
@@ -64,7 +75,7 @@
         }
 
         /* ==========================================
-           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), และซ่อน Header เว็บ
+           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait) 
            ========================================== */
         @media print {
             @page { 
@@ -75,7 +86,8 @@
                 background-color: white; 
                 overflow: visible !important; 
                 margin: 0 !important;
-                padding: 15mm 15mm 15mm 15mm !important; 
+                /* ปรับขอบกระดาษ: บน-ล่าง 12mm, ซ้าย-ขวา 10mm (ประหยัดพื้นที่ แต่ขอบสวย) */
+                padding: 12mm 10mm 12mm 10mm !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -84,7 +96,7 @@
             .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
             
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
-            #printHeader { display: block !important; margin-bottom: 15px; }
+            #printHeader { display: block !important; margin-bottom: 20px; }
             
             /* ซ่อนคอลัมน์นี้เฉพาะตอน Print */
             .web-only-col { display: none !important; }
@@ -92,14 +104,31 @@
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px; table-layout: fixed !important; }
             
-            /* จัดความกว้างคอลัมน์ที่เหลือ (ข้ามคอลัมน์ 2 ไป เพราะโดนซ่อนด้วยคลาส .web-only-col) */
+            /* ปรับความกว้างคอลัมน์ใหม่ (ลดหมายเหตุ เพิ่มรายละเอียด) */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 50% !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 18% !important; } /* หมายเหตุ */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 56% !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; text-align: right !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; } /* หมายเหตุ (เล็กลง) */
 
-            table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; font-size: 13px !important; white-space: nowrap !important; }
-            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 12px !important; white-space: normal !important; word-wrap: break-word !important; vertical-align: top !important; }
+            table.dataTable thead th { 
+                border: 1px solid #000 !important; 
+                background-color: #f8f9fa !important; 
+                color: #000 !important; 
+                font-weight: bold !important; 
+                padding: 8px !important; 
+                font-size: 13px !important; 
+                white-space: nowrap !important; 
+                text-align: center !important; /* บังคับหัวตารางอยู่ตรงกลางตอนปริ้นท์ */
+            }
+            table.dataTable tbody td { 
+                border: 1px solid #000 !important; 
+                color: #000 !important; 
+                padding: 6px 8px !important; 
+                font-size: 12px !important; 
+                white-space: normal !important; 
+                word-wrap: break-word !important; 
+                vertical-align: top !important; 
+            }
         }
     </style>
 </head>
@@ -186,10 +215,12 @@
                 </div>
             </div>
 
-            <div id="printHeader" class="hidden mb-6 text-black font-['Sarabun']">
-                <h1 class="text-center text-xl font-bold mb-8 mt-4">รายงานงบประมาณโครงการ</h1>
+            <div id="printHeader" class="hidden mb-4 text-black font-['Sarabun']">
+                <!-- หัวข้อรายงานอยู่ตรงกลาง -->
+                <h1 class="text-center text-xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
                 
-                <div class="space-y-2 text-[15px]">
+                <!-- ข้อมูลจัดช่องไฟสวยงาม และเอาเส้นใต้ของจำนวนเงินออก -->
+                <div class="space-y-2 text-[15px] ml-2">
                     <div class="flex">
                         <div class="w-24 font-bold">โครงการ :</div>
                         <div id="printProjectName">ทุกโครงการ</div>
@@ -200,10 +231,9 @@
                     </div>
                     <div class="flex">
                         <div class="w-24 font-bold">รวมเป็นเงิน :</div>
-                        <div id="printTotalAmount" class="font-bold underline decoration-double">0.00 บาท</div>
+                        <div id="printTotalAmount" class="font-bold">0.00 บาท</div>
                     </div>
                 </div>
-                <div class="mb-4"></div>
             </div>
 
             <div class="ls-card p-0 overflow-hidden" id="reportTableSection">
@@ -214,10 +244,10 @@
                     <table id="detailedTable" class="w-full text-left display" style="width:100%">
                         <thead>
                             <tr>
-                                <th class="text-center">วันที่</th>
-                                <th class="web-only-col">โครงการ</th>
+                                <th>วันที่</th>
+                                <th class="web-only-col">โครงการ</th> <!-- โชว์บนเว็บ ซ่อนตอนปริ้น -->
                                 <th>รายละเอียด</th>
-                                <th class="text-right">จำนวนเงิน (บาท)</th>
+                                <th>จำนวนเงิน (บาท)</th>
                                 <th>หมายเหตุ</th>
                             </tr>
                         </thead>
@@ -452,7 +482,7 @@
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], 
-                    order: [[0, 'asc']], // ⭐ อัปเดต: เปลี่ยนเป็น 'asc' เรียงจากเก่าไปใหม่ เสมอ
+                    order: [[0, 'asc']], 
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
                     columnDefs: [ 
