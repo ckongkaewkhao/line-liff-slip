@@ -401,4 +401,15 @@
             $('#printBudgetName').text(dateRangeText);
 
             if (detailedTableInstance) {
-                const currentLen =
+                const currentLen = detailedTableInstance.page.len();
+                detailedTableInstance.page.len(-1).draw();
+
+                setTimeout(() => {
+                    window.print();
+                    detailedTableInstance.page.len(currentLen).draw();
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
