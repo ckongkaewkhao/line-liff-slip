@@ -29,27 +29,30 @@
         .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; }
 
         /* ==========================================
-           ตั้งค่า Print สำหรับซ่อน Header/Footer เบราว์เซอร์ และแนวนอน
+           ตั้งค่า Print สำหรับซ่อน Header/Footer เบราว์เซอร์ และบังคับแนวนอน
            ========================================== */
         @media print {
             @page { 
-                size: A4 landscape; /* บังคับกระดาษแนวนอน */
-                margin: 0mm; /* ตัดขอบกระดาษเป็น 0 เพื่อเอา Header/Footer เว็บออก */
+                size: A4 landscape; /* บังคับกระดาษเป็นแนวนอน */
+                margin: 0 !important; /* ระยะขอบ 0 เพื่อบังคับซ่อน Header/Footer ของ Browser */
             }
             body { 
                 background-color: white; 
                 overflow: visible !important; 
-                padding: 15mm; /* ขยับเนื้อหาลงมาไม่ให้ชิดขอบกระดาษด้านบนจนเกินไป */
+                padding: 15mm 20mm !important; /* ใส่ขอบกระดาษจำลองด้านในแทน เพื่อไม่ให้เนื้อหาชิดขอบเกินไป */
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
             .no-print, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             main { padding: 0 !important; overflow: visible !important; }
             .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
             #printHeader { display: block !important; }
-            table.dataTable { border-collapse: collapse !important; width: 100% !important; }
-            table.dataTable thead th { border: 1px solid #000 !important; background-color: #fff !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; }
-            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; }
+            
+            /* สไตล์ตารางตอนปริ้น */
+            table.dataTable { border-collapse: collapse !important; width: 100% !important; margin-top: 10px; }
+            table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 10px !important; }
+            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 8px 10px !important; }
         }
     </style>
 </head>
@@ -182,9 +185,10 @@
     </main>
 
     <script>
+        // เปลี่ยนมาใช้ลิงก์ Export CSV โดยตรง เพื่อป้องกัน Google API ตัดข้อมูลทิ้ง
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
         const SHEET_NAME = 'รายการโอนเงิน'; 
-        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let rawData = [];
         let summaryTableInstance = null;
@@ -224,10 +228,12 @@
             let col = { date: -1, project: -1, details: -1, amount: -1, note: -1 };
             let headerRow = -1;
             
-            // ค้นหาบรรทัดที่เป็นหัวตารางที่แท้จริง
+            // ค้นหาแถวหัวตารางแบบเช็คทีละเซลล์ (แม่นยำ 100%)
             for(let r = 0; r < Math.min(20, data.length); r++) {
-                let rowStr = data[r].join('').replace(/\s/g, '');
-                if((rowStr.includes('โครงการ') || rowStr.includes('โครง')) && (rowStr.includes('จำนวนเงิน') || rowStr.includes('บาท'))) {
+                let hasProj = data[r].some(cell => String(cell).replace(/\s/g, '').includes('โครง'));
+                let hasAmt = data[r].some(cell => String(cell).replace(/\s/g, '').includes('เงิน') || String(cell).replace(/\s/g, '').includes('บาท'));
+                
+                if(hasProj && hasAmt) {
                     headerRow = r;
                     break;
                 }
@@ -236,25 +242,29 @@
             if (headerRow !== -1) {
                 const headers = data[headerRow].map(h => String(h).replace(/\s+/g, ' ').trim());
                 col.date = headers.findIndex(h => h.includes("วัน"));
-                col.project = headers.findIndex(h => h.includes("โครงการ") || h.includes("โครง"));
-                col.details = headers.findIndex(h => h.includes("รายละเอียด") || h.includes("สิ่งของ"));
+                col.project = headers.findIndex(h => h.includes("โครง"));
+                col.details = headers.findIndex(h => h.includes("ละเอียด") || h.includes("สิ่งของ"));
                 col.amount = headers.findIndex(h => h.includes("เงิน") || h.includes("บาท"));
-                col.note = headers.findIndex(h => h.includes("หมายเหตุ"));
+                col.note = headers.findIndex(h => h.includes("หมายเหตุ") || h.includes("เหตุ"));
             } else {
-                alert("❌ ระบบไม่พบหัวตารางใน Google Sheet");
+                let debugMsg = data.slice(0, 3).map(row => "[" + row.join(", ") + "]").join("\n");
+                alert("❌ ระบบไม่พบหัวตาราง!\n\nข้อมูลที่อ่านได้ 3 แถวแรก:\n" + debugMsg);
                 return;
             }
 
             rawData = [];
             for (let i = headerRow + 1; i < data.length; i++) {
                 let row = data[i];
-                let dVal = col.date !== -1 ? String(row[col.date] || '').trim() : '';
-                let pVal = col.project !== -1 ? String(row[col.project] || '').trim() : '';
-                let aVal = col.amount !== -1 ? String(row[col.amount] || '').trim() : '';
-                let detVal = col.details !== -1 ? String(row[col.details] || '').trim() : '';
-                let noteVal = col.note !== -1 ? String(row[col.note] || '').trim() : '';
                 
-                if (!/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dVal) || !pVal || aVal === '' || pVal.includes('ยอดรวม')) {
+                // ดึงข้อมูล ป้องกัน error ถ้าช่องว่าง
+                let dVal = col.date !== -1 && row[col.date] !== undefined ? String(row[col.date]).trim() : '';
+                let pVal = col.project !== -1 && row[col.project] !== undefined ? String(row[col.project]).trim() : '';
+                let aVal = col.amount !== -1 && row[col.amount] !== undefined ? String(row[col.amount]).trim() : '';
+                let detVal = col.details !== -1 && row[col.details] !== undefined ? String(row[col.details]).trim() : '';
+                let noteVal = col.note !== -1 && row[col.note] !== undefined ? String(row[col.note]).trim() : '';
+                
+                // กรองบรรทัดที่ไม่ใช่ข้อมูลทิ้ง
+                if (!pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
                     continue;
                 }
 
@@ -359,16 +369,16 @@
                 data.forEach(item => tbody += `<tr>
                     <td>${item.dateText}</td>
                     <td>${item.project}</td>
-                    <td class="max-w-md truncate" title="${item.details}">${item.details}</td>
+                    <td class="max-w-md truncate whitespace-normal" title="${item.details}">${item.details}</td>
                     <td class="text-right">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-                    <td class="text-sm">${item.note}</td>
+                    <td class="text-sm text-slate-500">${item.note}</td>
                 </tr>`);
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'desc']],
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [3] } ] // คอลัมน์ "จำนวนเงิน" อยู่ช่องที่ 3 (เริ่มจาก 0)
+                    columnDefs: [ { className: "dt-right", targets: [3] } ]
                 });
                 $('.dataTables_filter input').addClass('g-input w-full md:w-64');
                 $('.dataTables_length select').addClass('g-input ml-2');
@@ -391,15 +401,4 @@
             $('#printBudgetName').text(dateRangeText);
 
             if (detailedTableInstance) {
-                const currentLen = detailedTableInstance.page.len();
-                detailedTableInstance.page.len(-1).draw();
-
-                setTimeout(() => {
-                    window.print();
-                    detailedTableInstance.page.len(currentLen).draw();
-                }, 500);
-            }
-        }
-    </script>
-</body>
-</html>
+                const currentLen =
