@@ -30,17 +30,18 @@
         .g-input:focus { border-color: #1a73e8; }
 
         /* ==========================================
-           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), ขอบบน 2cm
+           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait), และซ่อน Header เว็บ
            ========================================== */
         @media print {
             @page { 
-                size: A4 portrait;
-                margin: 0 !important;
+                size: A4 portrait; /* บังคับแนวตั้ง */
+                margin: 0mm !important; /* ระยะขอบกระดาษ 0 เพื่อซ่อน Header/Footer ของ Chrome */
             }
             body { 
                 background-color: white; 
                 overflow: visible !important; 
-                padding: 20mm 15mm 15mm 15mm !important; 
+                margin: 0 !important;
+                padding: 15mm 15mm 15mm 15mm !important; /* ดันเนื้อหาลงมา 1.5 ซม. ให้พอดีสวยงาม */
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -51,16 +52,391 @@
             .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             #printHeader { display: block !important; margin-bottom: 15px; }
             
+            /* ควบคุมตาราง 4 คอลัมน์ แนวตั้ง */
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
-            table.dataTable { 
-                border-collapse: collapse !important; 
-                width: 100% !important; 
-                max-width: 100% !important; 
-                margin-top: 10px; 
-                table-layout: fixed !important; 
-            }
+            table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px; table-layout: fixed !important; }
             
-            /* 4 คอลัมน์ แนวตั้ง */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; }
-            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 50% !important; }
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 18% !important;
+            /* กำหนดความกว้าง 4 คอลัมน์ให้พอดีหน้า A4 */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
+            table.dataTable th:nth-child(2), table.dataTable td:nth-child(2) { width: 50% !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } /* หมายเหตุ */
+
+            table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; font-size: 13px !important; white-space: nowrap !important; }
+            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 12px !important; white-space: normal !important; word-wrap: break-word !important; vertical-align: top !important; }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <nav class="bg-white border-b border-[#dadce0] px-6 py-3 flex items-center justify-between no-print z-10 shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">S</div>
+            <h1 class="text-[20px] text-[#3c4043] font-medium tracking-wide">ระบบรายงานสรุปค่าใช้จ่าย</h1>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="exportFormalReport()" class="text-[#1a73e8] hover:bg-[#f8f9fa] border border-[#dadce0] px-4 py-2 rounded font-medium text-sm transition-colors flex items-center gap-2">
+                🖨️ ออกรายงาน (PDF)
+            </button>
+        </div>
+    </nav>
+
+    <div class="bg-white border-b border-[#dadce0] px-6 py-3 no-print shrink-0 flex flex-wrap items-center gap-6 shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-[#5f6368]">วันที่:</span>
+            <input type="date" id="filterStartDate" class="g-input w-36">
+            <span class="text-[#5f6368]">-</span>
+            <input type="date" id="filterEndDate" class="g-input w-36">
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-[#5f6368]">โครงการ:</span>
+            <select id="filterProject" class="g-input min-w-[200px]">
+                <option value="">-- แสดงทั้งหมด --</option>
+            </select>
+        </div>
+        <button id="resetFilters" class="text-sm text-[#1a73e8] hover:underline font-medium ml-auto">ล้างตัวกรอง</button>
+    </div>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 print:p-0">
+        <div class="max-w-[1400px] mx-auto space-y-6">
+            
+            <div class="print-hidden-section space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="ls-card p-5 text-center">
+                        <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">ยอดเงินใช้จ่ายรวมทั้งหมด</h3>
+                        <div id="kpiTotal" class="text-3xl font-normal text-[#202124]">กำลังโหลด...</div>
+                    </div>
+                    <div class="ls-card p-5 text-center">
+                        <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">จำนวนโครงการ</h3>
+                        <div id="kpiProjects" class="text-3xl font-normal text-[#1a73e8]">-</div>
+                    </div>
+                    <div class="ls-card p-5 text-center">
+                        <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">จำนวนรายการ</h3>
+                        <div id="kpiTransactions" class="text-3xl font-normal text-[#0f9d58]">-</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="ls-card p-5 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-medium text-[#202124]">สัดส่วนการใช้จ่ายแยกตามโครงการ</h3>
+                        </div>
+                        <div class="flex-1 relative min-h-[300px] flex items-center justify-center">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="ls-card p-0 flex flex-col overflow-hidden">
+                        <div class="p-5 border-b border-[#dadce0] flex justify-between items-center bg-white">
+                            <h3 class="text-base font-medium text-[#202124]">สรุปยอดรวมแต่ละโครงการ</h3>
+                        </div>
+                        <div class="p-2 flex-1 overflow-x-auto bg-white">
+                            <table id="summaryTable" class="w-full text-left display" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>โครงการ</th>
+                                        <th class="text-right">จำนวนบิล</th>
+                                        <th class="text-right">จำนวนเงิน (บาท)</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="printHeader" class="hidden mb-6 text-black font-['Sarabun']">
+                <div class="flex justify-between items-end text-sm mb-2">
+                    <div>created by CONSOL</div>
+                    <div>Project Budget Report by PU</div>
+                </div>
+                
+                <hr class="border-t-[1.5px] border-black mb-6">
+                
+                <h1 class="text-center text-xl font-bold mb-8">รายงานงบประมาณโครงการ</h1>
+                
+                <div class="space-y-2 text-[15px]">
+                    <div class="flex">
+                        <div class="w-24 font-bold">โครงการ :</div>
+                        <div id="printProjectName">ทุกโครงการ</div>
+                    </div>
+                    <div class="flex">
+                        <div class="w-24 font-bold">Budget :</div>
+                        <div id="printBudgetName">แสดงทุกหมวดหมู่ (อิงตามข้อมูลที่ Filter)</div>
+                    </div>
+                    <div class="flex">
+                        <div class="w-24 font-bold">รวมเป็นเงิน :</div>
+                        <div id="printTotalAmount" class="font-bold underline decoration-double">0.00 บาท</div>
+                    </div>
+                </div>
+                <div class="mb-4"></div>
+            </div>
+
+            <div class="ls-card p-0 overflow-hidden" id="reportTableSection">
+                <div class="p-5 border-b border-[#dadce0] flex justify-between items-center bg-white no-print">
+                    <h3 class="text-base font-medium text-[#202124]">รายละเอียดรายการธุรกรรม</h3>
+                </div>
+                <div class="p-4 bg-white overflow-x-auto">
+                    <table id="detailedTable" class="w-full text-left display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>รายละเอียด</th>
+                                <th class="text-right">จำนวนเงิน (บาท)</th>
+                                <th>หมายเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
+        const SHEET_NAME = 'รายการโอนเงิน'; 
+        
+        // ต่อท้ายเวลาปัจจุบันทะลวง Cache Google
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&t=${new Date().getTime()}`;
+
+        let rawData = [];
+        let summaryTableInstance = null;
+        let detailedTableInstance = null;
+        let chartInstance = null;
+        const googleColors = ['#4285F4', '#DB4437', '#F4B400', '#0F9D58', '#AB47BC', '#00ACC1', '#FF7043', '#9E9D24', '#5C6BC0', '#F06292'];
+
+        $(document).ready(function() {
+            Chart.register(ChartDataLabels);
+            fetchGoogleSheetData();
+
+            $('#filterStartDate, #filterEndDate, #filterProject').on('change', applyGlobalFilters);
+            $('#resetFilters').on('click', function() {
+                $('#filterStartDate').val('');
+                $('#filterEndDate').val('');
+                $('#filterProject').val('');
+                applyGlobalFilters();
+            });
+        });
+
+        function fetchGoogleSheetData() {
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: false,
+                skipEmptyLines: true,
+                complete: function(results) { 
+                    if (!results.data || results.data.length === 0) return;
+                    processData(results.data); 
+                },
+                error: function(err) { alert("ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบอินเทอร์เน็ต"); }
+            });
+        }
+
+        function processData(data) {
+            if (data.length < 2) return;
+
+            let col = { date: -1, project: -1, details: -1, amount: -1, note: -1 };
+            
+            // ชั้นที่ 1: ค้นหาคอลัมน์จากข้อความหัวตารางแบบยืดหยุ่นสูง
+            for(let r = 0; r < Math.min(20, data.length); r++) {
+                let row = data[r];
+                for(let c = 0; c < row.length; c++) {
+                    let cell = String(row[c]).replace(/\s+/g, '');
+                    if (cell.includes('วัน') && col.date === -1) col.date = c;
+                    if (cell.includes('โครง') && col.project === -1) col.project = c;
+                    if ((cell.includes('ละเอียด') || cell.includes('สิ่งของ')) && col.details === -1) col.details = c;
+                    if ((cell.includes('เงิน') || cell.includes('บาท')) && col.amount === -1) col.amount = c;
+                    if ((cell.includes('หมายเหตุ') || cell.includes('เหตุ')) && col.note === -1) col.note = c;
+                }
+                if (col.date !== -1 && col.project !== -1 && col.amount !== -1) break;
+            }
+
+            // ชั้นที่ 2: Smart Detection หากข้อความหัวตารางโดนทับ ให้ตรวจจับจากลักษณะข้อมูลจริงแทน
+            if (col.date === -1 || col.amount === -1) {
+                for (let r = 0; r < Math.min(20, data.length); r++) {
+                    let row = data[r];
+                    let fDate = -1, fAmt = -1;
+                    for (let c = 0; c < row.length; c++) {
+                        let cell = String(row[c]).trim();
+                        if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(cell)) fDate = c;
+                        let num = cell.replace(/,/g, '');
+                        if (num !== '' && !isNaN(num) && parseFloat(num) > 50 && !cell.includes('/')) fAmt = c;
+                    }
+                    if (fDate !== -1 && fAmt !== -1) {
+                        col.date = fDate;
+                        col.amount = fAmt;
+                        break;
+                    }
+                }
+            }
+
+            // ชั้นที่ 3: Fallback ล็อกตำแหน่งดึงข้อมูลตามพิกัดจริงของ Google Sheet (กรณีตรวจจับพลาด)
+            if (col.date === -1) col.date = 1;     // Column B
+            if (col.project === -1) col.project = 4; // Column E
+            if (col.details === -1) col.details = 6; // Column G
+            if (col.amount === -1) col.amount = 7;   // Column H
+            if (col.note === -1) col.note = 8;       // Column I
+
+            rawData = [];
+            for (let i = 0; i < data.length; i++) {
+                let row = data[i];
+                if (!row || row.length <= Math.max(col.date, col.amount)) continue;
+
+                let dVal = String(row[col.date] || '').trim();
+                let pVal = String(row[col.project] || '').trim();
+                let aVal = String(row[col.amount] || '').trim();
+                let detVal = col.details !== -1 && row[col.details] !== undefined ? String(row[col.details]).trim() : '-';
+                let noteVal = col.note !== -1 && row[col.note] !== undefined ? String(row[col.note]).trim() : '-';
+                
+                // ตรวจสอบแถวข้อมูลจริง (ต้องมีรูปแบบวันที่ แบบ ค.ศ. สั้นหรือยาวก็ได้ และต้องมียอดเงิน)
+                if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(dVal) || !pVal || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ')) {
+                    continue;
+                }
+
+                let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
+                let parsedDate = null;
+                let parts = dVal.split('/');
+                if (parts.length === 3) {
+                    let year = parseInt(parts[2]);
+                    if (year < 100) year += 2000;
+                    parsedDate = new Date(year, parts[1] - 1, parts[0]);
+                }
+
+                rawData.push({
+                    id: i, dateText: dVal, dateObj: parsedDate,
+                    project: pVal, details: detVal, amount: cleanAmount, note: noteVal
+                });
+            }
+
+            const uniqueProjects = [...new Set(rawData.map(item => item.project))].sort();
+            const projectFilter = document.getElementById('filterProject');
+            projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; 
+            uniqueProjects.forEach(proj => projectFilter.appendChild(new Option(proj, proj)));
+
+            applyGlobalFilters();
+        }
+
+        function applyGlobalFilters() {
+            const startDateVal = $('#filterStartDate').val();
+            const endDateVal = $('#filterEndDate').val();
+            const projectVal = $('#filterProject').val();
+
+            let filteredData = rawData.filter(item => {
+                let isMatch = true;
+                if (projectVal && item.project !== projectVal) isMatch = false;
+                if (item.dateObj) {
+                    if (startDateVal) { let sDate = new Date(startDateVal); sDate.setHours(0,0,0,0); if (item.dateObj < sDate) isMatch = false; }
+                    if (endDateVal) { let eDate = new Date(endDateVal); eDate.setHours(23,59,59,999); if (item.dateObj > eDate) isMatch = false; }
+                }
+                return isMatch;
+            });
+            updateDashboards(filteredData);
+        }
+
+        function updateDashboards(data) {
+            const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
+            document.getElementById('kpiTotal').innerText = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ฿';
+            document.getElementById('kpiProjects').innerText = [...new Set(data.map(item => item.project))].length.toLocaleString('th-TH');
+            document.getElementById('kpiTransactions').innerText = data.length.toLocaleString('th-TH');
+
+            const projectStats = {};
+            data.forEach(item => {
+                if(!projectStats[item.project]) projectStats[item.project] = { sum: 0, count: 0 };
+                projectStats[item.project].sum += item.amount;
+                projectStats[item.project].count += 1;
+            });
+            const projectArray = Object.keys(projectStats).map(proj => ({ name: proj, sum: projectStats[proj].sum, count: projectStats[proj].count })).sort((a, b) => b.sum - a.sum);
+
+            let chartLabels = projectArray.map(p => p.name);
+            let chartData = projectArray.map(p => p.sum);
+
+            if (projectArray.length > 10 && !$('#filterProject').val()) {
+                const top = projectArray.slice(0, 9);
+                chartLabels = top.map(p => p.name); chartLabels.push('อื่นๆ');
+                chartData = top.map(p => p.sum); chartData.push(projectArray.slice(9).reduce((acc, curr) => acc + curr.sum, 0));
+            }
+
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: googleColors, borderWidth: 1, borderColor: '#ffffff', hoverOffset: 4 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: {
+                        legend: { position: 'right', labels: { font: { family: 'Roboto, Sarabun', size: 12 }, usePointStyle: true, boxWidth: 8, color: '#3c4043' } },
+                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: 'Roboto', size: 11, weight: '500' }, textShadowColor: 'rgba(0,0,0,0.3)', textShadowBlur: 3 },
+                        tooltip: { callbacks: { label: (c) => ` ${c.raw.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` } }
+                    }
+                }
+            });
+
+            if (summaryTableInstance) {
+                summaryTableInstance.clear();
+                projectArray.forEach(p => summaryTableInstance.row.add([p.name, p.count.toLocaleString('th-TH'), p.sum.toLocaleString('th-TH', { minimumFractionDigits: 2 })]));
+                summaryTableInstance.draw();
+            } else {
+                let tbody = '';
+                projectArray.forEach(p => tbody += `<tr><td>${p.name}</td><td class="text-right">${p.count.toLocaleString('th-TH')}</td><td class="text-right">${p.sum.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td></tr>`);
+                $('#summaryTable tbody').html(tbody);
+                summaryTableInstance = $('#summaryTable').DataTable({ paging: false, info: false, searching: false, order: [[2, 'desc']], language: { emptyTable: "ไม่มีข้อมูล" }, columnDefs: [ { className: "dt-right", targets: [1, 2] } ] });
+            }
+
+            // ตาราง 4 คอลัมน์
+            if (detailedTableInstance) {
+                detailedTableInstance.clear();
+                data.forEach(item => detailedTableInstance.row.add([
+                    item.dateText, 
+                    item.details, 
+                    item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }),
+                    item.note
+                ]));
+                detailedTableInstance.draw();
+            } else {
+                let tbody = '';
+                data.forEach(item => tbody += `<tr>
+                    <td class="text-center">${item.dateText}</td>
+                    <td class="whitespace-normal">${item.details}</td>
+                    <td class="text-right">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-sm text-slate-500 whitespace-normal">${item.note}</td>
+                </tr>`);
+                $('#detailedTable tbody').html(tbody);
+                detailedTableInstance = $('#detailedTable').DataTable({
+                    pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'desc']],
+                    language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
+                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
+                    columnDefs: [ { className: "dt-right", targets: [2] } ] // จำนวนเงินอยู่ช่องที่ 3 (index 2)
+                });
+                $('.dataTables_filter input').addClass('g-input w-full md:w-64');
+                $('.dataTables_length select').addClass('g-input ml-2');
+            }
+        }
+
+        function exportFormalReport() {
+            const projVal = $('#filterProject').val();
+            const startVal = $('#filterStartDate').val();
+            const endVal = $('#filterEndDate').val();
+            const totalText = $('#kpiTotal').text();
+
+            $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
+            $('#printTotalAmount').text(totalText);
+
+            let dateRangeText = "แสดงทุกหมวดหมู่";
+            if (startVal || endVal) {
+                dateRangeText = `ตั้งแต่วันที่ ${startVal || '-'} ถึง ${endVal || '-'}`;
+            }
+            $('#printBudgetName').text(dateRangeText);
+
+            if (detailedTableInstance) {
+                const currentLen = detailedTableInstance.page.len();
+                detailedTableInstance.page.len(-1).draw();
+
+                setTimeout(() => {
+                    window.print();
+                    detailedTableInstance.page.len(currentLen).draw();
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
