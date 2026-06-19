@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบรายงานสรุปค่าใช้จ่าย (Looker Studio Theme)</title>
+    <title>SAENSABAI - รายงานสรุปค่าใช้จ่าย</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -24,72 +24,120 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
+        /* ฟอนต์สไตล์ Apple (ใช้ System Font นำหน้า) */
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         
-        body { font-family: 'Roboto', 'Sarabun', sans-serif; background-color: #f1f3f4; color: #3c4043; overflow-x: hidden; }
-        .ls-card { background-color: #ffffff; border: 1px solid #dadce0; border-radius: 8px; box-shadow: none; transition: box-shadow 0.2s; }
-        
-        table.dataTable thead th { 
-            background-color: #ffffff; 
-            color: #5f6368; 
-            font-weight: 500; 
-            font-size: 13px; 
-            border-bottom: 1px solid #dadce0 !important; 
-            padding: 12px 16px !important; 
-            text-align: center !important; 
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Sarabun", sans-serif; 
+            background-color: #f5f5f7; /* สีพื้นหลังเอกลักษณ์ Apple */
+            color: #1d1d1f; 
+            overflow-x: hidden; 
         }
         
-        table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #f1f3f4; font-size: 13px; color: #3c4043; }
-        .g-input { border: 1px solid #dadce0; border-radius: 4px; padding: 6px 12px; font-size: 14px; color: #3c4043; background-color: #fff; outline: none; transition: border-color 0.2s; }
-        .g-input:focus { border-color: #1a73e8; }
+        /* สไตล์การ์ดที่โค้งมนและเงาบางเบา */
+        .apple-card { 
+            background-color: #ffffff; 
+            border: none; 
+            border-radius: 18px; 
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04); 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden; 
+        }
+        
+        /* สไตล์ช่องกรอกข้อมูล */
+        .g-input { 
+            border: 1px solid #d2d2d7; 
+            border-radius: 12px; 
+            padding: 8px 16px; 
+            font-size: 14px; 
+            color: #1d1d1f; 
+            background-color: #ffffff; 
+            outline: none; 
+            transition: all 0.2s ease; 
+        }
+        .g-input:focus { 
+            border-color: #0071e3; 
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); 
+        }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
 
-        table.dataTable.display tbody tr.odd, 
-        table.dataTable.display tbody tr.even {
-            background-color: #ffffff !important; 
+        /* สไตล์ตารางสไตล์มินิมอล */
+        table.dataTable thead th { 
+            background-color: #ffffff; 
+            color: #86868b; 
+            font-weight: 600; 
+            font-size: 12px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #d2d2d7 !important; 
+            padding: 16px !important; 
+            text-align: center !important; 
         }
-        table.dataTable.display tbody tr.odd > .sorting_1, 
-        table.dataTable.display tbody tr.even > .sorting_1 {
-            background-color: #ffffff !important; 
+        table.dataTable tbody td { 
+            padding: 16px !important; 
+            border-bottom: 1px solid #e5e5ea; 
+            font-size: 14px; 
+            color: #1d1d1f; 
         }
-        table.dataTable.display tbody tr:hover {
-            background-color: #f8f9fa !important; 
-        }
+        table.dataTable.display tbody tr.odd, table.dataTable.display tbody tr.even { background-color: #ffffff !important; }
+        table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.display tbody tr.even > .sorting_1 { background-color: #ffffff !important; }
+        table.dataTable.display tbody tr:hover { background-color: #f5f5f7 !important; }
         
-        table.dataTable thead > tr > th.sorting:before, 
-        table.dataTable thead > tr > th.sorting:after, 
-        table.dataTable thead > tr > th.sorting_asc:before, 
-        table.dataTable thead > tr > th.sorting_asc:after, 
-        table.dataTable thead > tr > th.sorting_desc:before, 
-        table.dataTable thead > tr > th.sorting_desc:after {
-            display: none !important;
-            content: none !important;
+        /* ซ่อนลูกศร Sort */
+        table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting:after, 
+        table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_asc:after, 
+        table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after {
+            display: none !important; content: none !important;
         }
-        table.dataTable thead th, table.dataTable thead td {
-            padding-right: 16px !important; 
-            background-image: none !important;
+        table.dataTable thead th, table.dataTable thead td { padding-right: 16px !important; background-image: none !important; }
+
+        /* แถบเมนูด้านบนแบบกระจกฝ้า (Glassmorphism) */
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
+        /* ปุ่มสไตล์แอปเปิ้ล */
+        .btn-primary {
+            background-color: #0071e3;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background-color: #0077ED; transform: scale(1.02); }
+        .btn-secondary {
+            background-color: #e8e8ed;
+            color: #1d1d1f;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover { background-color: #d2d2d7; }
+
+        /* ==========================================
+           ตั้งค่า Print สำหรับ A4 แนวตั้ง (Portrait) 
+           ========================================== */
         @media print {
-            @page { 
-                size: A4 portrait;
-                margin: 0mm !important;
-            }
+            @page { size: A4 portrait; margin: 0mm !important; }
             body { 
-                background-color: white; 
-                overflow: visible !important; 
-                margin: 0 !important;
-                padding: 12mm 10mm 12mm 10mm !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                background-color: white; overflow: visible !important; margin: 0 !important;
+                padding: 12mm 10mm 12mm 10mm !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
-            .no-print, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
-            main { padding: 0 !important; overflow: visible !important; }
-            .max-w-\[1400px\] { max-width: 100% !important; margin: 0 !important; }
+            .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
+            main { padding: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; }
             
-            .ls-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+            .apple-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; }
             #printHeader { display: block !important; margin-bottom: 20px; }
-            
             .web-only-col { display: none !important; }
             
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
@@ -100,100 +148,85 @@
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 17% !important; text-align: right !important; }
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; } 
 
-            table.dataTable thead th { 
-                border: 1px solid #000 !important; 
-                background-color: #f8f9fa !important; 
-                color: #000 !important; 
-                font-weight: bold !important; 
-                padding: 8px !important; 
-                font-size: 13px !important; 
-                white-space: nowrap !important; 
-                text-align: center !important; 
-            }
-            table.dataTable tbody td { 
-                border: 1px solid #000 !important; 
-                color: #000 !important; 
-                padding: 6px 8px !important; 
-                font-size: 12px !important; 
-                white-space: normal !important; 
-                word-wrap: break-word !important; 
-                vertical-align: top !important; 
-            }
+            table.dataTable thead th { border: 1px solid #000 !important; background-color: #f8f9fa !important; color: #000 !important; font-weight: bold !important; padding: 8px !important; font-size: 13px !important; white-space: nowrap !important; text-align: center !important; }
+            table.dataTable tbody td { border: 1px solid #000 !important; color: #000 !important; padding: 6px 8px !important; font-size: 12px !important; white-space: normal !important; word-wrap: break-word !important; vertical-align: top !important; }
         }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
-    <nav class="bg-white border-b border-[#dadce0] px-6 py-3 flex items-center justify-between no-print z-10 shrink-0">
+    <nav class="glass-nav px-8 py-4 flex items-center justify-between no-print shrink-0">
         <div class="flex items-center gap-4">
-            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">S</div>
-            <h1 class="text-[20px] text-[#3c4043] font-medium tracking-wide">ระบบรายงานสรุปค่าใช้จ่าย</h1>
+            <div class="text-2xl font-bold tracking-tight text-[#FF9500]">SAENSABAI</div>
+            <div class="h-6 w-px bg-[#d2d2d7] mx-2"></div>
+            <h1 class="text-[18px] text-[#1d1d1f] font-medium tracking-wide">รายงานงบประมาณโครงการ</h1>
         </div>
-        <div class="flex gap-3">
-            <button onclick="exportFormalReport()" class="text-[#1a73e8] hover:bg-[#f8f9fa] border border-[#dadce0] px-4 py-2 rounded font-medium text-sm transition-colors flex items-center gap-2">
-                🖨️ ออกรายงาน (PDF)
+        <div class="flex gap-3 items-center">
+            <button onclick="fetchGoogleSheetData()" class="btn-secondary flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                โหลดข้อมูลใหม่
+            </button>
+            <button onclick="exportFormalReport()" class="btn-primary flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.728 3.097A1.5 1.5 0 005.25 4.5v15a1.5 1.5 0 001.478 1.403h10.544A1.5 1.5 0 0018.75 19.5V4.5a1.5 1.5 0 00-1.478-1.403H6.728zM8.25 6h7.5m-7.5 3h7.5m-7.5 3h7.5" /></svg>
+                พิมพ์รายงาน (PDF)
             </button>
         </div>
     </nav>
 
-    <div class="bg-white border-b border-[#dadce0] px-6 py-3 no-print shrink-0 flex flex-wrap items-center gap-6 shadow-sm">
-        <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-[#5f6368]">วันที่:</span>
-            <input type="text" id="filterStartDate" class="g-input w-36" placeholder="วัน/เดือน/ปี">
-            <span class="text-[#5f6368]">-</span>
-            <input type="text" id="filterEndDate" class="g-input w-36" placeholder="วัน/เดือน/ปี">
+    <div class="bg-white/60 px-8 py-4 no-print shrink-0 flex flex-wrap items-center gap-6 shadow-sm border-b border-[#dadce0]">
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-[#86868b] uppercase tracking-wider">ตัวกรองวันที่:</span>
+            <input type="text" id="filterStartDate" class="g-input w-36 text-center" placeholder="วัน/เดือน/ปี">
+            <span class="text-[#86868b]">-</span>
+            <input type="text" id="filterEndDate" class="g-input w-36 text-center" placeholder="วัน/เดือน/ปี">
         </div>
-        <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-[#5f6368]">โครงการ:</span>
-            <select id="filterProject" class="g-input min-w-[200px]">
+        <div class="h-8 w-px bg-[#d2d2d7]"></div>
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-[#86868b] uppercase tracking-wider">เลือกโครงการ:</span>
+            <select id="filterProject" class="g-input min-w-[250px] cursor-pointer">
                 <option value="">-- แสดงทั้งหมด --</option>
             </select>
         </div>
-        <div class="flex items-center gap-4 ml-auto">
-            <button onclick="fetchGoogleSheetData()" class="text-sm bg-white border border-[#dadce0] text-[#1a73e8] hover:bg-[#f8f9fa] px-3 py-1.5 rounded font-medium transition-colors flex items-center gap-1 shadow-sm">
-                🔄 โหลดข้อมูลใหม่
-            </button>
-            <button id="resetFilters" class="text-sm text-[#1a73e8] hover:underline font-medium">ล้างตัวกรอง</button>
-        </div>
+        <button id="resetFilters" class="text-sm text-[#0071e3] hover:text-[#0077ED] font-medium ml-auto transition-colors">ล้างตัวกรองทั้งหมด</button>
     </div>
 
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 print:p-0">
-        <div class="max-w-[1400px] mx-auto space-y-6">
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 print:p-0 w-full">
+        <div class="w-full mx-auto space-y-8">
             
-            <div class="print-hidden-section space-y-6">
+            <div class="print-hidden-section space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="ls-card p-5 text-center">
-                        <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">ยอดเงินใช้จ่ายรวมทั้งหมด</h3>
-                        <div id="kpiTotal" class="text-3xl font-normal text-[#202124]">กำลังโหลด...</div>
+                    <div class="apple-card p-6 text-center flex flex-col justify-center items-center h-32">
+                        <h3 class="text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-2">ยอดเงินใช้จ่ายรวมทั้งหมด</h3>
+                        <div id="kpiTotal" class="text-4xl font-light text-[#1d1d1f] tracking-tight">กำลังโหลด...</div>
                     </div>
-                    <div class="ls-card p-5 text-center">
-                        <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">จำนวนโครงการ</h3>
-                        <div id="kpiProjects" class="text-3xl font-normal text-[#1a73e8]">-</div>
+                    <div class="apple-card p-6 text-center flex flex-col justify-center items-center h-32">
+                        <h3 class="text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-2">จำนวนโครงการ</h3>
+                        <div id="kpiProjects" class="text-4xl font-light text-[#0071e3] tracking-tight">-</div>
                     </div>
-                    <div class="ls-card p-5 text-center">
-                        <h3 class="text-[13px] font-medium text-[#5f6368] uppercase tracking-wider mb-2">จำนวนรายการ</h3>
-                        <div id="kpiTransactions" class="text-3xl font-normal text-[#0f9d58]">-</div>
+                    <div class="apple-card p-6 text-center flex flex-col justify-center items-center h-32">
+                        <h3 class="text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-2">จำนวนรายการ</h3>
+                        <div id="kpiTransactions" class="text-4xl font-light text-[#34c759] tracking-tight">-</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="ls-card p-5 flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-base font-medium text-[#202124]">สัดส่วนการใช้จ่ายแยกตามโครงการ</h3>
+                    <div class="apple-card p-6 flex flex-col">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold text-[#1d1d1f]">สัดส่วนการใช้จ่ายแยกตามโครงการ</h3>
                         </div>
-                        <div class="flex-1 relative min-h-[300px] flex items-center justify-center">
+                        <div class="flex-1 relative min-h-[350px] flex items-center justify-center">
                             <canvas id="expenseChart"></canvas>
                         </div>
                     </div>
-                    <div class="ls-card p-0 flex flex-col overflow-hidden">
-                        <div class="p-5 border-b border-[#dadce0] flex justify-between items-center bg-white">
-                            <h3 class="text-base font-medium text-[#202124]">สรุปยอดรวมแต่ละโครงการ</h3>
+                    <div class="apple-card p-0 flex flex-col overflow-hidden">
+                        <div class="p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white">
+                            <h3 class="text-lg font-semibold text-[#1d1d1f]">สรุปยอดรวมแต่ละโครงการ</h3>
                         </div>
                         <div class="p-2 flex-1 overflow-x-auto bg-white">
                             <table id="summaryTable" class="w-full text-left display" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th>โครงการ</th>
+                                        <th class="text-left">โครงการ</th>
                                         <th class="text-right">จำนวนบิล</th>
                                         <th class="text-right">จำนวนเงิน (บาท)</th>
                                     </tr>
@@ -207,7 +240,6 @@
 
             <div id="printHeader" class="hidden mb-4 text-black font-['Sarabun']">
                 <h1 class="text-center text-xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
-                
                 <div class="flex justify-center">
                     <div class="space-y-2 text-[15px]">
                         <div class="flex">
@@ -226,19 +258,19 @@
                 </div>
             </div>
 
-            <div class="ls-card p-0 overflow-hidden" id="reportTableSection">
-                <div class="p-5 border-b border-[#dadce0] flex justify-between items-center bg-white no-print">
-                    <h3 class="text-base font-medium text-[#202124]">รายละเอียดรายการธุรกรรม</h3>
+            <div class="apple-card p-0 overflow-hidden" id="reportTableSection">
+                <div class="p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white no-print">
+                    <h3 class="text-lg font-semibold text-[#1d1d1f]">รายละเอียดรายการธุรกรรม</h3>
                 </div>
-                <div class="p-4 bg-white overflow-x-auto">
+                <div class="p-6 bg-white overflow-x-auto">
                     <table id="detailedTable" class="w-full text-left display" style="width:100%">
                         <thead>
                             <tr>
-                                <th>วันที่</th>
-                                <th class="web-only-col">โครงการ</th>
-                                <th>รายละเอียด</th>
-                                <th>จำนวนเงิน (บาท)</th>
-                                <th>หมายเหตุ</th>
+                                <th class="text-center">วันที่</th>
+                                <th class="web-only-col text-left">โครงการ</th> 
+                                <th class="text-left">รายละเอียด</th>
+                                <th class="text-right">จำนวนเงิน (บาท)</th>
+                                <th class="text-left">หมายเหตุ</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -259,7 +291,8 @@
         let summaryTableInstance = null;
         let detailedTableInstance = null;
         let chartInstance = null;
-        const googleColors = ['#4285F4', '#DB4437', '#F4B400', '#0F9D58', '#AB47BC', '#00ACC1', '#FF7043', '#9E9D24', '#5C6BC0', '#F06292'];
+        // โทนสีพาสเทล Apple เล็กน้อยให้ดูหรูหราขึ้น
+        const googleColors = ['#0071e3', '#34c759', '#FF9500', '#ff3b30', '#af52de', '#5ac8fa', '#ffcc00', '#00c7be', '#8e8e93', '#1d1d1f'];
 
         $(document).ready(function() {
             Chart.register(ChartDataLabels);
@@ -418,13 +451,13 @@
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
                 type: 'doughnut',
-                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: googleColors, borderWidth: 1, borderColor: '#ffffff', hoverOffset: 4 }] },
+                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: googleColors, borderWidth: 0, hoverOffset: 8 }] },
                 options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    responsive: true, maintainAspectRatio: false, cutout: '70%',
                     plugins: {
-                        legend: { position: 'right', labels: { font: { family: 'Roboto, Sarabun', size: 12 }, usePointStyle: true, boxWidth: 8, color: '#3c4043' } },
-                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: 'Roboto', size: 11, weight: '500' }, textShadowColor: 'rgba(0,0,0,0.3)', textShadowBlur: 3 },
-                        tooltip: { callbacks: { label: (c) => ` ${c.raw.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` } }
+                        legend: { position: 'right', labels: { font: { family: '-apple-system, Sarabun', size: 12 }, usePointStyle: true, boxWidth: 8, color: '#1d1d1f' } },
+                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: '-apple-system', size: 12, weight: '600' }, textShadowColor: 'rgba(0,0,0,0.2)', textShadowBlur: 4 },
+                        tooltip: { backgroundColor: 'rgba(29,29,31,0.9)', padding: 12, cornerRadius: 8, callbacks: { label: (c) => ` ${c.raw.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` } }
                     }
                 }
             });
@@ -435,7 +468,7 @@
                 summaryTableInstance.draw();
             } else {
                 let tbody = '';
-                projectArray.forEach(p => tbody += `<tr><td>${p.name}</td><td class="text-right">${p.count.toLocaleString('th-TH')}</td><td class="text-right">${p.sum.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td></tr>`);
+                projectArray.forEach(p => tbody += `<tr><td class="font-medium">${p.name}</td><td class="text-right text-[#86868b]">${p.count.toLocaleString('th-TH')}</td><td class="text-right font-medium">${p.sum.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td></tr>`);
                 $('#summaryTable tbody').html(tbody);
                 summaryTableInstance = $('#summaryTable').DataTable({ paging: false, info: false, searching: false, order: [[2, 'desc']], language: { emptyTable: "ไม่มีข้อมูล" }, columnDefs: [ { className: "dt-right", targets: [1, 2] } ] });
             }
@@ -459,29 +492,29 @@
                 let tbody = '';
                 data.forEach(item => {
                     let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
-                    let dateHtml = `<span style="display:none;">${sortKey}</span>${item.dateText}`;
+                    let dateHtml = `<span style="display:none;">${sortKey}</span><span class="text-[#86868b]">${item.dateText}</span>`;
                     
                     tbody += `<tr>
                         <td class="text-center">${dateHtml}</td>
-                        <td class="whitespace-normal web-only-col">${item.project}</td>
+                        <td class="whitespace-normal web-only-col font-medium">${item.project}</td>
                         <td class="whitespace-normal">${item.details}</td>
-                        <td class="text-right font-medium">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-                        <td class="text-sm text-slate-500 whitespace-normal">${item.note}</td>
+                        <td class="text-right font-semibold text-[#1d1d1f]">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                        <td class="text-sm text-[#86868b] whitespace-normal">${item.note}</td>
                     </tr>`;
                 });
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
-                    pageLength: 20, lengthMenu: [10, 20, 50, 100], 
+                    pageLength: 20, lengthMenu: [10, 20, 50, 100, 500], 
                     order: [[0, 'asc']], 
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
-                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
+                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-6 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-6 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ 
                         { className: "dt-right", targets: [3] }, 
                         { className: "web-only-col", targets: [1] } 
                     ]
                 });
-                $('.dataTables_filter input').addClass('g-input w-full md:w-64');
-                $('.dataTables_length select').addClass('g-input ml-2');
+                $('.dataTables_filter input').addClass('g-input w-full md:w-64').css('border-radius', '20px');
+                $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '10px');
             }
         }
 
