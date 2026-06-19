@@ -93,7 +93,7 @@
             .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
             table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px; table-layout: fixed !important; }
             
-            /* จัดความกว้างคอลัมน์ที่เหลือ (ข้ามคอลัมน์ 2 ไป เพราะโดนซ่อน) */
+            /* จัดความกว้างคอลัมน์ที่เหลือ (ข้ามคอลัมน์ 2 ไป เพราะโดนซ่อนด้วยคลาส .web-only-col) */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 12% !important; text-align: center !important; } /* วันที่ */
             table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 50% !important; } /* รายละเอียด */
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
@@ -295,38 +295,54 @@
             if (data.length < 2) return;
 
             const col = { date: 1, project: 4, details: 6, amount: 7, note: 8 };
+            
+            // ค้นหาว่าหัวตารางอยู่บรรทัดไหนแน่ๆ เพื่อไม่ให้พลาดไปดึงบรรทัดหัวตารางมาคำนวณ
+            let headerRow = 1; 
+            for (let r = 0; r < Math.min(10, data.length); r++) {
+                let text = data[r].join('').replace(/\s/g, '');
+                if (text.includes('วันที่') && text.includes('จำนวนเงิน')) {
+                    headerRow = r;
+                    break;
+                }
+            }
+
             rawData = [];
             
-            for (let i = 1; i < data.length; i++) {
+            // 🟢 ปลดล็อกความเข้มงวด: ดึงข้อมูลตามจริง อ่านตั้งแต่ใต้หัวตารางลงมา
+            for (let i = headerRow + 1; i < data.length; i++) {
                 let row = data[i];
                 if (!row) continue;
                 
+                let aVal = String(row[col.amount] || '').trim();
+                if (aVal === '') continue; // ถ้าไม่มีตัวเลขจำนวนเงิน ถือว่าไม่ใช่รายการ ให้ข้ามไป
+
+                let cleanAmount = parseFloat(aVal.replace(/,/g, ''));
+                if (isNaN(cleanAmount)) continue; // ถ้าช่องจำนวนเงินพิมพ์มาเป็นตัวอักษรแปลกๆ ให้ข้ามไป
+
                 let dVal = String(row[col.date] || '').trim();
                 let pVal = String(row[col.project] || '').trim();
-                let aVal = String(row[col.amount] || '').trim();
                 let detVal = String(row[col.details] || '').trim();
                 let noteVal = String(row[col.note] || '').trim();
                 
-                if (pVal === '' || aVal === '' || pVal.includes('ยอดรวม') || pVal.includes('โครงการ') || dVal.includes('วันที่')) {
-                    continue;
+                // ถ้ารายการนี้มีเงิน แต่ผู้ใช้ลืมใส่โครงการ ให้เราตั้งชื่ออัตโนมัติ จะได้ไม่หาย
+                if (pVal === '') {
+                    pVal = 'ไม่ระบุโครงการ'; 
                 }
 
-                let cleanAmount = parseFloat(aVal.replace(/,/g, '')) || 0;
                 let parsedDate = null;
-                
-                // จัดการเรื่องวันที่ ให้ออกมาเป็น วัน/เดือน/ปี (DD/MM/YYYY) เสมอ
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
-                    if (parts.length === 3) {
+                    if (parts.length >= 3) {
                         let day = parseInt(parts[0]);
                         let month = parseInt(parts[1]);
                         let year = parseInt(parts[2]);
                         if (year < 100) year += 2000;
                         parsedDate = new Date(year, month - 1, day);
-                        
                         dVal = String(day).padStart(2, '0') + '/' + String(month).padStart(2, '0') + '/' + year;
                     }
                 }
+                
+                // ถ้าวันที่ไม่ได้ใส่ หรือใส่มาผิดรูปแบบ ให้ตีเป็นวันที่ปัจจุบันไปเลย (ยังไงยอดเงินก็สำคัญกว่า)
                 if (!parsedDate || isNaN(parsedDate)) {
                     parsedDate = new Date();
                 }
@@ -413,13 +429,9 @@
                 summaryTableInstance = $('#summaryTable').DataTable({ paging: false, info: false, searching: false, order: [[2, 'desc']], language: { emptyTable: "ไม่มีข้อมูล" }, columnDefs: [ { className: "dt-right", targets: [1, 2] } ] });
             }
 
-            // ===============================================
-            // ตารางรายละเอียดบิล (โชว์โครงการบนเว็บ ซ่อนตอนปริ้น)
-            // ===============================================
             if (detailedTableInstance) {
                 detailedTableInstance.clear();
                 data.forEach(item => {
-                    // ฝังรหัสลับเพื่อเรียงวันที่ ปปปป/ดด/วว 
                     let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
                     let dateHtml = `<span style="display:none;">${sortKey}</span>${item.dateText}`;
                     
@@ -449,12 +461,12 @@
                 $('#detailedTable tbody').html(tbody);
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100], 
-                    order: [[0, 'desc']], // สั่งเรียงลำดับวันที่
+                    order: [[0, 'desc']], 
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#5f6368] no-print"ip>',
                     columnDefs: [ 
-                        { className: "dt-right", targets: [3] }, // จำนวนเงิน ตอนนี้อยู่ Index 3
-                        { className: "web-only-col", targets: [1] } // ใส่คลาสซ่อนให้กับคอลัมน์ โครงการ
+                        { className: "dt-right", targets: [3] }, 
+                        { className: "web-only-col", targets: [1] } 
                     ]
                 });
                 $('.dataTables_filter input').addClass('g-input w-full md:w-64');
