@@ -93,7 +93,6 @@
            ========================================== */
         @media print {
             * {
-                /* บังคับสีดำล้วนสำหรับข้อความและเส้น */
                 color: #000000 !important;
                 border-color: #000000 !important;
                 text-shadow: none !important;
@@ -119,10 +118,10 @@
             
             .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
             .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
-            .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important;}
             
-            /* ปรับความกว้างให้หัวข้อแคบลง เพื่อให้เว้นวรรคสวยงาม */
-            .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 100px !important;}
+            /* เปลี่ยนความหนาฟอนต์ส่วนหัวให้เป็นปกติ */
+            .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important; font-weight: normal !important;}
+            .print-header-label { font-weight: normal !important; white-space: nowrap !important; width: 100px !important;}
 
             .dataTables_wrapper { display: block !important; width: 100% !important; overflow: visible !important; }
             
@@ -157,12 +156,12 @@
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
             table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
 
-            /* --- ล็อกความกว้างตารางหน้าแรก (Dashboard) --- */
+            /* --- ล็อกความกว้างตารางหน้าแรก (Dashboard) ลดหมายเหตุเพิ่มรายละเอียด --- */
             #detailedTable { table-layout: fixed !important; }
             #detailedTable th:nth-child(1), #detailedTable td:nth-child(1) { width: 15% !important; text-align: center !important; }
-            #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 45% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
+            #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 55% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
             #detailedTable th:nth-child(4), #detailedTable td:nth-child(4) { width: 20% !important; text-align: right !important; white-space: nowrap !important; }
-            #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 20% !important; text-align: center !important; }
+            #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 10% !important; text-align: center !important; }
 
             /* ----- สไตล์สำหรับหน้าตารางรายเดือน (พิมพ์แนวนอน) ----- */
             body.print-monthly #dashboardContainer { display: none !important; }
@@ -217,6 +216,7 @@
         </div>
     </nav>
 
+    <!-- ส่วนตัวกรองข้อมูล -->
     <div id="filterSection" class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
         <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
@@ -243,6 +243,7 @@
 
     <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
         
+        <!-- ================= DASHBOARD VIEW ================= -->
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-8">
             <div class="print-hidden-section space-y-4 md:space-y-8">
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
@@ -291,6 +292,7 @@
                 </div>
             </div>
 
+            <!-- ถอดเอาตัวหนาออกทั้งหมดใน HTML -->
             <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
@@ -300,7 +302,7 @@
                     </tr>
                     <tr>
                         <td class="print-header-label">รายจ่าย</td>
-                        <td style="font-weight: bold;">: <span id="printTotalAmount">0.00</span> บาท</td>
+                        <td>: <span id="printTotalAmount">0.00</span> บาท</td>
                     </tr>
                     <tr class="single-proj-only">
                         <td class="print-header-label">งบประมาณ</td>
@@ -308,7 +310,7 @@
                     </tr>
                     <tr class="single-proj-only">
                         <td class="print-header-label">เหลือใช้</td>
-                        <td style="font-weight: bold;">: <span id="printRemainAmount">0.00</span> บาท</td>
+                        <td>: <span id="printRemainAmount">0.00</span> บาท</td>
                     </tr>
                 </table>
             </div>
@@ -331,6 +333,7 @@
             </div>
         </div>
 
+        <!-- ================= MONTHLY EXPENSES VIEW ================= -->
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             
