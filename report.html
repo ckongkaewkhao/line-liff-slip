@@ -86,24 +86,22 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (แก้บัค Mac ไม่โชว์หัวตารางหน้า 2)
+           ⭐ THE ULTIMATE PRINT CSS (เส้นดำล้วน ไม่มีสีพื้นหลัง)
            ========================================== */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 0.5in !important; /* บังคับระยะขอบ 0.5 นิ้วทุกด้าน */
+                margin: 0.5in !important; 
             }
             
-            /* 1. บังคับ Tahoma และล้างโครงสร้างทั้งหมดที่รบกวนการปริ้นท์ */
             * {
                 color: #000000 !important;
                 text-shadow: none !important;
-                background: transparent !important;
                 box-sizing: border-box !important;
                 font-family: Tahoma, sans-serif !important; 
-                overflow: visible !important; 
             }
 
+            /* ปลดล็อกโครงสร้าง */
             html, body, main, div, section, article {
                 display: block !important;
                 position: static !important;
@@ -112,6 +110,7 @@
                 max-height: none !important;
                 overflow: visible !important;
                 float: none !important;
+                background-color: #ffffff !important; /* บังคับพื้นขาวหมด */
             }
 
             body, html { margin: 0 !important; padding: 0 !important; width: 100% !important; }
@@ -119,14 +118,14 @@
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; }
             .web-only-col { display: none !important; } 
 
-            /* 2. ส่วนหัวรายงาน */
+            /* ส่วนหัวรายงาน */
             #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; width: 100% !important; }
             .print-header-title { text-align: center !important; font-size: 18pt !important; font-weight: bold !important; margin-bottom: 15px !important; margin-top: 0 !important;}
             .print-header-table { width: 100% !important; border-collapse: collapse !important; border: none !important;}
             .print-header-table td { border: none !important; padding: 4px 0 !important; font-size: 12pt !important; text-align: left !important; vertical-align: top !important;}
             .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 120px !important;}
 
-            /* 3. โครงสร้างตาราง (บังคับกาง 100%) */
+            /* ⭐ โครงสร้างตาราง (บังคับกาง 100% เส้นดำสนิท) */
             .dataTables_wrapper { display: block !important; width: 100% !important; }
             table.dataTable { 
                 display: table !important; 
@@ -135,22 +134,36 @@
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
                 table-layout: fixed !important; 
-                border: 1pt solid #000000 !important; 
+                border: 1px solid #000000 !important; 
+                background-color: #ffffff !important; 
             }
             
-            /* ล็อกสัดส่วนคอลัมน์ (ให้ th และ td กว้างเท่ากันเป๊ะ) */
+            /* ล็อกสัดส่วนคอลัมน์ */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 16% !important; } /* วันที่ */
             table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 54% !important; } /* รายละเอียด */
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } /* จำนวนเงิน */
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; } /* หมายเหตุ */
 
-            table.dataTable th, table.dataTable td { 
-                border: 1pt solid #000000 !important; 
-                border-color: #000000 !important; /* ล็อกสีดำสนิท */
+            /* ⭐ เส้นขอบ และ สีพื้นหลัง (ล้างบางสีเทา) */
+            table.dataTable th, 
+            table.dataTable td,
+            table.dataTable tr,
+            table.dataTable thead,
+            table.dataTable tbody { 
+                border: 1px solid #000000 !important; 
+                border-color: #000000 !important; 
+                background-color: #ffffff !important; /* บังคับพื้นหลังขาว 100% ป้องกัน DataTables แทรกสีเทา */
                 padding: 6px 12px !important; 
             }
 
-            /* ⭐ 4. แก้บัค Mac: คำสั่งทำให้หัวตารางซ้ำทุกหน้าแบบสมบูรณ์ */
+            /* ล้างคลาสสลับสีของ DataTables โดยเฉพาะ */
+            table.dataTable.display tbody tr.odd,
+            table.dataTable.display tbody tr.even,
+            table.dataTable.display tbody tr.odd > .sorting_1,
+            table.dataTable.display tbody tr.even > .sorting_1 {
+                background-color: #ffffff !important;
+            }
+
             table.dataTable thead { display: table-header-group !important; }
             table.dataTable tbody { display: table-row-group !important; }
             
@@ -158,10 +171,8 @@
                 display: table-row !important; 
                 page-break-inside: auto !important; 
                 page-break-after: auto !important;
-                background-color: transparent !important; 
             }
 
-            /* ✅ ย้ายคำสั่งป้องกันบรรทัดขาด มาไว้ที่ td แทน */
             table.dataTable td, table.dataTable th {
                 page-break-inside: avoid !important; 
             }
@@ -179,25 +190,23 @@
                 font-size: 10pt !important; 
                 vertical-align: top !important; 
                 color: #000000 !important;
-                
-                /* บังคับหั่นคำ ป้องกันตัวหนังสือแทงทะลุขอบ 100% */
                 white-space: normal !important; 
                 word-wrap: break-word !important; 
                 overflow-wrap: break-word !important;
                 word-break: break-all !important; 
             }
 
-            /* บังคับชิดซ้าย ขวา ตามที่ต้องการ */
+            /* ⭐ บังคับชิดซ้าย ขวา กลาง */
             table.dataTable tbody td:nth-child(1) { text-align: center !important; word-break: normal !important; } 
             table.dataTable tbody td:nth-child(3) { text-align: left !important; } 
-            table.dataTable tbody td:nth-child(5) { text-align: left !important; } 
             table.dataTable tbody td:nth-child(4) { 
                 text-align: right !important; 
-                white-space: nowrap !important; /* จำนวนเงินห้ามตกบรรทัด */
+                white-space: nowrap !important; 
                 word-break: normal !important;
             }
+            table.dataTable tbody td:nth-child(5) { text-align: center !important; } /* หมายเหตุ ให้อยู่กึ่งกลาง */
             
-            table.dataTable.no-footer { border-bottom: 1pt solid #000000 !important; }
+            table.dataTable.no-footer { border-bottom: 1px solid #000000 !important; }
         }
     </style>
 </head>
@@ -293,7 +302,7 @@
                 </div>
             </div>
 
-            <div id="printHeader" class="hidden text-black font-['Tahoma']">
+            <div id="printHeader" class="hidden text-black">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
                     <tr>
