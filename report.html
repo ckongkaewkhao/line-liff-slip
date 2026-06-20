@@ -23,12 +23,13 @@
 
     <style>
         /* ==========================================
-           ฟอนต์สไตล์ Apple สำหรับหน้าเว็บ 
+           ⭐ สไตล์หน้าเว็บ (Screen) : สไตล์ Apple พรีเมียม
            ========================================== */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         
         body { 
-            font-family: Tahoma, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            /* บังคับหน้าเว็บให้ใช้ฟอนต์ตระกูล Apple (SF Pro) ก่อน ถ้าไม่มีค่อยใช้ Sarabun/sans-serif */
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, "Sarabun", sans-serif; 
             background-color: #f5f5f7; 
             color: #1d1d1f; 
             overflow-x: hidden; 
@@ -86,7 +87,7 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (Tahoma, A4, ขอบ 0.5 นิ้ว, เส้นดำเป๊ะ, แก้ทะลุขอบ)
+           ⭐ THE ULTIMATE PRINT CSS (Tahoma ล้วน, A4, ขอบ 0.5 นิ้ว, เส้นดำเป๊ะ)
            ========================================== */
         @media print {
             @page { 
@@ -99,7 +100,8 @@
                 text-shadow: none !important;
                 background: transparent !important;
                 box-sizing: border-box !important;
-                font-family: Tahoma, sans-serif !important; /* บังคับใช้ Tahoma ทั้งหมด */
+                /* บังคับเปลี่ยนเป็น Tahoma ทุกตัวอักษรเมื่อสั่งปริ้นท์ */
+                font-family: Tahoma, sans-serif !important; 
             }
 
             body, html { margin: 0 !important; padding: 0 !important; width: 100% !important; }
@@ -128,19 +130,19 @@
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
                 table-layout: fixed !important; /* ล็อกกรอบตารางอย่างเด็ดขาด */
-                border: 1px solid #000000 !important; 
+                border: 1pt solid #000000 !important; 
             }
             
             /* ⭐ ล็อกสัดส่วนความกว้างใหม่ให้สวยงาม */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; } /* วันที่ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 51% !important; text-align: left !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; text-align: left !important; } /* หมายเหตุ */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 16% !important; text-align: center !important; } /* วันที่ */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 54% !important; text-align: left !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; text-align: left !important; } /* หมายเหตุ */
 
             /* ⭐ การตั้งค่าเส้นขอบ และระยะห่างตัวหนังสือ (Padding) */
             table.dataTable th, table.dataTable td { 
-                border: 1px solid #000000 !important; /* เส้นดำ 100% ทุกเซลล์ */
-                padding: 6px 10px !important; /* เพิ่ม Padding ซ้าย-ขวา ให้ตัวหนังสือไม่ติดเส้นขอบ */
+                border: 1pt solid #000000 !important; /* เส้นดำ 100% ทุกเซลล์ */
+                padding: 6px 12px !important; /* เว้นระยะ 12px จากขอบซ้ายขวา */
             }
 
             table.dataTable thead th { 
@@ -157,11 +159,17 @@
                 color: #000000 !important;
                 background-color: transparent !important;
                 
-                /* ⭐ บังคับตัดคำขั้นรุนแรง ป้องกัน Mac ทะลุขอบ 100% */
+                /* ⭐ บังคับตัดคำ ป้องกันทะลุขอบ 100% */
                 white-space: normal !important; 
                 word-wrap: break-word !important; 
                 overflow-wrap: break-word !important;
                 word-break: break-all !important; /* หั่นคำทันทีเมื่อชนขอบ */
+            }
+
+            /* เฉพาะช่องจำนวนเงิน (คอลัมน์ 4) ให้ชิดขวา */
+            table.dataTable tbody td:nth-child(4) { 
+                text-align: right !important; 
+                white-space: nowrap !important;
             }
 
             table.dataTable thead { display: table-header-group !important; }
@@ -220,6 +228,7 @@
         <div class="w-full mx-auto space-y-4 md:space-y-8">
             
             <div class="print-hidden-section space-y-4 md:space-y-8">
+                <!-- KPI -->
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
                     <div class="apple-card p-3 md:p-6 text-center flex flex-col justify-center items-center h-20 md:h-32">
                         <h3 class="text-[9px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
@@ -264,7 +273,8 @@
                 </div>
             </div>
 
-            <div id="printHeader" class="hidden text-black font-['Tahoma']">
+            <!-- Print Header -->
+            <div id="printHeader" class="hidden text-black">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
                     <tr>
@@ -441,8 +451,8 @@
                 options: {
                     responsive: true, maintainAspectRatio: false, cutout: '70%',
                     plugins: {
-                        legend: { position: 'right', labels: { font: { family: 'Tahoma, -apple-system', size: 10 }, usePointStyle: true, boxWidth: 6, color: '#1d1d1f' } },
-                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: 'Tahoma', size: 9, weight: '600' }, textShadowColor: 'rgba(0,0,0,0.2)', textShadowBlur: 4 },
+                        legend: { position: 'right', labels: { font: { family: '-apple-system, sans-serif', size: 10 }, usePointStyle: true, boxWidth: 6, color: '#1d1d1f' } },
+                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: '-apple-system', size: 9, weight: '600' }, textShadowColor: 'rgba(0,0,0,0.2)', textShadowBlur: 4 },
                         tooltip: { backgroundColor: 'rgba(29,29,31,0.9)', padding: 12, cornerRadius: 8, callbacks: { label: (c) => ` ${c.raw.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` } }
                     }
                 }
