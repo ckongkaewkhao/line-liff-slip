@@ -21,7 +21,9 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
-        /* ฟอนต์สไตล์ Apple สำหรับหน้าเว็บ */
+        /* ==========================================
+           ฟอนต์สไตล์ Apple สำหรับหน้าเว็บ 
+           ========================================== */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         
         body { 
@@ -88,71 +90,83 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ บังคับตั้งค่า Print สำหรับข้าม Platform (Mac/iOS/Windows) 
+           ⭐ ตั้งค่าล๊อก Print สำหรับข้าม Platform (Mac/iOS/Windows) 
            ========================================== */
         @media print {
             @page { 
                 size: A4 portrait; 
                 margin: 1.5cm !important; /* ล็อกขอบกระดาษ 1.5 ซม. */
             }
+            
+            /* บังคับตัวหนังสือสีดำทั้งหมด ห้ามมีเงา */
+            * {
+                color: #000000 !important;
+                text-shadow: none !important;
+            }
+
             body, html { 
                 background-color: white !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
                 width: 100% !important;
-                /* บังคับฟอนต์ตอนปริ้นท์ให้เหมือนกันทุกเครื่อง */
                 font-family: 'Sarabun', sans-serif !important; 
-                color: #000000 !important;
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
             }
             
-            /* ซ่อนเมนูทั้งหมด */
+            /* ซ่อนเมนูและเครื่องมือต่างๆ */
             .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; display: block !important; }
             
-            .apple-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; }
+            .apple-card { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; }
             
-            #printHeader { display: block !important; margin-bottom: 20px !important; page-break-after: avoid !important; }
+            #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; }
             .web-only-col { display: none !important; } /* ซ่อนคอลัมน์โครงการ */
             
-            /* ⭐ ล็อกเลย์เอาต์ตาราง ป้องกัน Mac ยืดตกขอบกระดาษ */
+            /* ⭐ ล็อกตาราง ป้องกันตารางยืดตกขอบ */
             .dataTables_wrapper { width: 100% !important; }
             table.dataTable { 
                 border-collapse: collapse !important; 
                 width: 100% !important; 
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
-                table-layout: fixed !important; /* บังคับสำคัญมากสำหรับ Mac */
+                table-layout: fixed !important; /* บังคับสัดส่วนตายตัว */
+                background-color: transparent !important; /* ลบสีพื้นหลังตาราง */
             }
             
-            /* ⭐ ล็อกความกว้างคอลัมน์ใหม่ (หน่วย %) */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; white-space: nowrap !important; } /* วันที่ห้ามตกบรรทัด */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 48% !important; word-wrap: break-word !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; } /* จำนวนเงินห้ามตกบรรทัด */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 20% !important; word-wrap: break-word !important; } /* หมายเหตุ */
+            /* ล็อกความกว้างคอลัมน์ */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; white-space: nowrap !important; } 
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 48% !important; } 
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; } 
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 20% !important; } 
 
-            /* ⭐ ล็อกขนาดฟอนต์ด้วยหน่วย pt (Point) */
+            /* ⭐ ตั้งค่าขอบตาราง หัวตาราง และห้ามทะลุขอบ */
             table.dataTable thead th { 
-                border: 1px solid #000 !important; 
-                background-color: #f8f9fa !important; 
-                color: #000 !important; 
+                border: 1pt solid #000000 !important; 
+                background-color: transparent !important; /* หัวตารางโปร่งใส ไม่มีสีเทา */
                 font-weight: bold !important; 
                 padding: 6px !important; 
                 font-size: 11pt !important; 
                 text-align: center !important; 
-                position: static !important; 
-                box-shadow: none !important; 
             }
             table.dataTable tbody td { 
-                border: 1px solid #000 !important; 
-                color: #000 !important; 
+                border: 1pt solid #000000 !important; 
+                background-color: transparent !important; /* ไม่มีสีสลับบรรทัด */
                 padding: 6px !important; 
                 font-size: 11pt !important; 
                 vertical-align: top !important; 
+
+                /* บังคับตัดคำเด็ดขาด ห้ามตัวหนังสือยาวทะลุเส้นตาราง (สำหรับ Mac) */
+                word-wrap: break-word !important; 
+                word-break: break-word !important; 
+                white-space: normal !important; 
+                overflow-wrap: break-word !important;
+            }
+
+            /* ป้องกันการปริ้นท์แล้วบรรทัดขาดครึ่งระหว่างเปลี่ยนหน้า */
+            table.dataTable tbody tr {
+                page-break-inside: avoid !important;
             }
             
-            /* บังคับ Tailwind Alignment ให้ออกตอน Print */
+            /* บังคับตำแหน่งให้ออกตอน Print */
             .text-right { text-align: right !important; }
             .text-center { text-align: center !important; }
             .text-left { text-align: left !important; }
