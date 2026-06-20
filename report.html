@@ -54,28 +54,26 @@
             overflow: hidden; 
         }
         
+        /* ฟอร์ม Input ปกติ */
         .g-input { 
-            border: 1px solid #d2d2d7; 
-            border-radius: 12px; 
-            padding: 10px 16px; 
-            font-size: 14px; 
-            color: #1d1d1f; 
-            background-color: #ffffff; 
-            outline: none; 
+            border: 1px solid #d2d2d7; border-radius: 12px; padding: 10px 16px; 
+            font-size: 14px; color: #1d1d1f; background-color: #ffffff; outline: none; 
         }
         .g-input:focus { border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); }
+
+        /* ⭐ ฟอร์ม Input ขนาดเล็ก (สำหรับอยู่บน Navbar) */
+        .g-input-sm { 
+            border: 1px solid #d2d2d7; border-radius: 8px; padding: 4px 8px; 
+            font-size: 12px; color: #1d1d1f; background-color: #ffffff; outline: none; height: 28px;
+        }
+        .g-input-sm:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15); }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
 
         table.dataTable thead th { 
-            background-color: #ffffff !important; 
-            color: #86868b !important; 
-            font-weight: 600 !important; 
-            font-size: 13px !important; 
-            text-transform: uppercase;
-            border-bottom: 1px solid #d2d2d7 !important; 
-            padding: 12px 16px !important; 
-            text-align: center !important; 
-            background-image: none !important; 
+            background-color: #ffffff !important; color: #86868b !important; 
+            font-weight: 600 !important; font-size: 13px !important; text-transform: uppercase;
+            border-bottom: 1px solid #d2d2d7 !important; padding: 12px 16px !important; 
+            text-align: center !important; background-image: none !important; 
         }
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #e5e5ea; font-size: 14px; color: #1d1d1f; }
         table.dataTable tfoot th { padding: 12px 16px !important; background-color: #f5f5f7 !important; border-top: 2px solid #d2d2d7 !important; }
@@ -83,9 +81,8 @@
         #summaryTable thead th, #monthlyTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; }
 
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
-        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
-        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
-        .btn-switch { background-color: #FF9500; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
+        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
+        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
@@ -118,33 +115,22 @@
             
             .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
             .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
-            
-            /* เปลี่ยนความหนาฟอนต์ส่วนหัวให้เป็นปกติ */
             .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important; font-weight: normal !important;}
             .print-header-label { font-weight: normal !important; white-space: nowrap !important; width: 100px !important;}
 
             .dataTables_wrapper { display: block !important; width: 100% !important; overflow: visible !important; }
             
             table.dataTable, #detailedTable, #monthlyTable {
-                display: table !important; 
-                border-collapse: collapse !important; 
-                border-spacing: 0 !important;
-                width: 100% !important; 
-                max-width: 100% !important; 
-                margin-top: 10pt !important; 
-                border: 1px solid #000000 !important; 
-                background-color: #ffffff !important; 
+                display: table !important; border-collapse: collapse !important; border-spacing: 0 !important;
+                width: 100% !important; max-width: 100% !important; margin-top: 10pt !important; 
+                border: 1px solid #000000 !important; background-color: #ffffff !important; 
             }
 
             table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
             #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr,
             #monthlyTable, #monthlyTable th, #monthlyTable td, #monthlyTable tr { 
-                border-width: 1px !important;
-                border-style: solid !important;
-                border-color: #000000 !important;
-                background-color: #ffffff !important;
-                box-shadow: none !important;
-                padding: 8px 12px !important; 
+                border-width: 1px !important; border-style: solid !important; border-color: #000000 !important;
+                background-color: #ffffff !important; box-shadow: none !important; padding: 8px 12px !important; 
             }
 
             table.dataTable thead { display: table-header-group !important; }
@@ -156,7 +142,7 @@
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
             table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
 
-            /* --- ล็อกความกว้างตารางหน้าแรก (Dashboard) ลดหมายเหตุเพิ่มรายละเอียด --- */
+            /* --- ล็อกความกว้างตารางหน้าแรก (Dashboard) ตามที่คุณปรับไว้ --- */
             #detailedTable { table-layout: fixed !important; }
             #detailedTable th:nth-child(1), #detailedTable td:nth-child(1) { width: 15% !important; text-align: center !important; }
             #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 55% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
@@ -170,17 +156,12 @@
 
             #monthlyTable { table-layout: auto !important; }
             #monthlyTable th, #monthlyTable td {
-                white-space: nowrap !important; 
-                font-size: 9pt !important;
-                padding: 4px 6px !important;
-                text-align: right !important;
-                vertical-align: middle !important;
+                white-space: nowrap !important; font-size: 9pt !important; padding: 4px 6px !important;
+                text-align: right !important; vertical-align: middle !important;
             }
             #monthlyTable th:first-child, #monthlyTable td:first-child {
-                white-space: normal !important; 
-                text-align: left !important;
-                min-width: 120px !important;
-                max-width: 250px !important;
+                white-space: normal !important; text-align: left !important;
+                min-width: 120px !important; max-width: 250px !important;
             }
             #monthlyTable thead th { text-align: center !important; }
         }
@@ -188,62 +169,61 @@
 </head>
 <body class="flex flex-col h-screen">
 
-    <nav class="glass-nav px-4 md:px-8 py-3 md:py-4 flex flex-col md:flex-row items-start md:items-center justify-between no-print shrink-0 gap-3 md:gap-0">
-        <div class="flex items-center flex-wrap gap-3">
-            <div class="text-xl md:text-2xl font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
-            <div class="hidden sm:block h-6 w-px bg-[#d2d2d7]"></div>
+    <nav class="glass-nav px-3 md:px-6 py-2 flex flex-col xl:flex-row items-center justify-between no-print shrink-0 gap-3 xl:gap-4 shadow-sm">
+        
+        <div class="flex items-center flex-wrap justify-center gap-3 shrink-0">
+            <div class="text-[16px] md:text-[20px] font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
+            <div class="hidden md:block h-5 w-px bg-[#d2d2d7]"></div>
             
-            <div class="flex bg-[#e8e8ed] p-1 rounded-[10px]">
-                <button id="tabDashboard" onclick="switchTab('dashboard')" class="px-4 py-1.5 rounded-md bg-white shadow-sm text-[#1d1d1f] text-sm font-semibold transition-all">
+            <div class="flex bg-[#e8e8ed] p-1 rounded-lg">
+                <button id="tabDashboard" onclick="switchTab('dashboard')" class="px-3 py-1 rounded-md bg-white shadow-sm text-[#1d1d1f] text-[12px] font-semibold transition-all">
                     สรุปงบประมาณ
                 </button>
-                <button id="tabMonthly" onclick="switchTab('monthly')" class="px-4 py-1.5 rounded-md text-[#86868b] hover:text-[#1d1d1f] text-sm font-medium transition-all">
+                <button id="tabMonthly" onclick="switchTab('monthly')" class="px-3 py-1 rounded-md text-[#86868b] hover:text-[#1d1d1f] text-[12px] font-medium transition-all">
                     รายเดือน
                 </button>
             </div>
         </div>
+
+        <div id="filterSection" class="flex flex-wrap items-center justify-center gap-2 md:gap-3 flex-1 w-full xl:w-auto">
+            <div class="flex items-center gap-1">
+                <span class="text-[10px] font-semibold text-[#86868b] uppercase">วันที่:</span>
+                <input type="text" id="filterStartDate" class="g-input-sm w-[75px] md:w-24 text-center" placeholder="เริ่ม">
+                <span class="text-[#86868b] text-[10px]">-</span>
+                <input type="text" id="filterEndDate" class="g-input-sm w-[75px] md:w-24 text-center" placeholder="สิ้นสุด">
+            </div>
+            
+            <div class="hidden sm:block h-4 w-px bg-[#d2d2d7]"></div>
+            
+            <div class="flex items-center gap-1">
+                <span class="text-[10px] font-semibold text-[#86868b] uppercase">โครงการ:</span>
+                <select id="filterProject" class="g-input-sm w-[130px] sm:w-[160px] md:w-48 cursor-pointer truncate">
+                    <option value="">-- แสดงทั้งหมด --</option>
+                </select>
+            </div>
+            
+            <button id="toggleDateSort" type="button" class="g-input-sm flex items-center justify-center gap-1 cursor-pointer bg-white px-2">
+                <span id="sortIcon" class="text-[10px]">↑</span><span id="sortLabel" class="text-[11px] hidden sm:inline">เก่า → ใหม่</span>
+            </button>
+            
+            <button id="resetFilters" class="text-[11px] text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors ml-1">ล้างค่า</button>
+        </div>
         
-        <div class="flex gap-2 items-center flex-wrap w-full md:w-auto justify-end">
-            <button onclick="fetchGoogleSheetData()" class="btn-secondary px-3 md:px-5">
-                <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
+        <div class="flex gap-2 items-center justify-center shrink-0 w-full xl:w-auto mt-2 xl:mt-0">
+            <button onclick="fetchGoogleSheetData()" class="btn-secondary">
+                <span class="hidden sm:inline">โหลดข้อมูล</span><span class="sm:hidden">🔄</span>
             </button>
-            <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-3 md:px-5 py-[10px] text-[14px] font-medium inline-flex items-center gap-[8px] hover:bg-[#0c5c30] transition-colors shadow-sm hidden sm:inline-flex">
-                <span>โหลด Excel</span>
+            <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-3 md:px-4 py-[6px] text-[13px] font-medium inline-flex items-center hover:bg-[#0c5c30] transition-colors shadow-sm">
+                <span>Excel</span>
             </button>
-            <button onclick="exportFormalReport()" class="btn-primary hidden sm:inline-flex px-3 md:px-5">
+            <button onclick="exportFormalReport()" class="btn-primary">
                 <span>พิมพ์รายงาน</span>
             </button>
         </div>
     </nav>
 
-    <!-- ส่วนตัวกรองข้อมูล -->
-    <div id="filterSection" class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
-        <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
-            <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
-                <span class="text-[11px] md:text-xs font-semibold text-[#86868b] uppercase tracking-wider w-16 xl:w-auto">วันที่:</span>
-                <input type="text" id="filterStartDate" class="g-input flex-1 xl:w-36 text-center text-sm" placeholder="เริ่ม">
-                <span class="text-[#86868b]">-</span>
-                <input type="text" id="filterEndDate" class="g-input flex-1 xl:w-36 text-center text-sm" placeholder="สิ้นสุด">
-            </div>
-            <div class="hidden xl:block h-8 w-px bg-[#d2d2d7]"></div>
-            <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
-                <span class="text-[11px] md:text-xs font-semibold text-[#86868b] uppercase tracking-wider w-16 xl:w-auto">โครงการ:</span>
-                <select id="filterProject" class="g-input flex-1 xl:min-w-[250px] cursor-pointer text-sm">
-                    <option value="">-- แสดงทั้งหมด --</option>
-                </select>
-            </div>
-            <button id="toggleDateSort" type="button" class="g-input flex items-center justify-center gap-1 text-sm font-medium cursor-pointer select-none whitespace-nowrap w-full xl:w-auto">
-                <span id="sortIcon">↑</span><span id="sortLabel">วันที่: เก่า → ใหม่</span>
-            </button>
-            <div class="flex justify-end xl:ml-auto w-full xl:w-auto">
-                <button id="resetFilters" class="text-sm text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors flex items-center gap-1">ล้างค่า</button>
-            </div>
-        </div>
-    </div>
-
     <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
         
-        <!-- ================= DASHBOARD VIEW ================= -->
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-8">
             <div class="print-hidden-section space-y-4 md:space-y-8">
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
@@ -292,7 +272,6 @@
                 </div>
             </div>
 
-            <!-- ถอดเอาตัวหนาออกทั้งหมดใน HTML -->
             <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
@@ -333,7 +312,6 @@
             </div>
         </div>
 
-        <!-- ================= MONTHLY EXPENSES VIEW ================= -->
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             
@@ -416,19 +394,14 @@
             
             if (tabName === 'dashboard') {
                 $('#dashboardContainer').fadeIn();
-                $('#filterSection').fadeIn();
                 $('#monthlyContainer').hide();
-                
                 $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
                 $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
             } else {
                 $('#dashboardContainer').hide();
-                $('#filterSection').hide();
                 $('#monthlyContainer').fadeIn();
-                
                 $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
                 $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-                
                 generateMonthlyTable();
             }
         }
@@ -633,8 +606,8 @@
                     stateSave: false, 
                     ordering: false   
                 });
-                $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '20px').css('padding', '6px 16px');
-                $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '10px').css('padding', '4px 8px');
+                $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '12px').css('padding', '6px 16px');
+                $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '8px').css('padding', '4px 8px');
             }
 
             data.forEach(item => {
