@@ -81,7 +81,7 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-            ⭐ THE ULTIMATE PRINT CSS (เส้นดำล้วน ไม่มีสีพื้นหลัง หมายเหตุตรงกลาง)
+            ⭐ THE ULTIMATE PRINT CSS
            ========================================== */
         @media print {
             @page { size: A4 portrait; margin: 0.5in !important; }
@@ -139,14 +139,8 @@
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; }
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; }
 
-            table.dataTable,
-            table.dataTable th,
-            table.dataTable td,
-            table.dataTable tr,
-            #detailedTable,
-            #detailedTable th,
-            #detailedTable td,
-            #detailedTable tr { 
+            table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
+            #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr { 
                 border-width: 1px !important;
                 border-style: solid !important;
                 border-color: #000000 !important;
@@ -168,10 +162,7 @@
                 page-break-after: auto !important;
             }
 
-            table.dataTable td, table.dataTable th {
-                page-break-inside: avoid !important; 
-                break-inside: avoid !important;
-            }
+            table.dataTable td, table.dataTable th { page-break-inside: avoid !important; break-inside: avoid !important; }
 
             table.dataTable thead th { 
                 font-weight: bold !important; 
@@ -335,11 +326,14 @@
 
     <script>
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
-        const SHEET_NAME = 'รายการโอนเงิน'; 
+        
+        // กำหนด GID ของแต่ละชีต (ดึงจาก URL ของ Google Sheets เพื่อความแม่นยำ 100%)
+        const GID_TRANSACTIONS = '0'; // GID ของชีต "รายการโอนเงิน"
+        const GID_PROJECTS = '948953737'; // GID ของชีต "รายงานงบประมาณโครงการ"
         
         let rawData = [];
         let currentFilteredData = [];
-        let masterProjects = []; // เพิ่มตัวแปรเก็บรายชื่อโครงการจากหน้าสองหลัก
+        let masterProjects = []; 
         let summaryTableInstance = null;
         let detailedTableInstance = null;
         let chartInstance = null;
@@ -369,13 +363,12 @@
             });
         });
 
-        // ฟังก์ชันดึงข้อมูลแบบใหม่ (ดึง 2 หน้าพร้อมกันอัตโนมัติ)
         function fetchGoogleSheetData() {
             $('#kpiTotal').text('กำลังโหลด...');
             $('#kpiProjects, #kpiTransactions').text('-');
             
-            // 1. ดึงรายชื่อจากหน้า 'รายงานงบประมาณโครงการ' ก่อนเลยตามรูปถ่ายของคุณ
-            const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent('รายงานงบประมาณโครงการ')}&_cb=${new Date().getTime()}`;
+            // 1. ดึงข้อมูลจากชีต "รายงานงบประมาณโครงการ" (ใช้ GID แทนชื่อชีตป้องกันดึงผิดหน้า)
+            const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID_PROJECTS}&_cb=${new Date().getTime()}`;
             
             Papa.parse(projectSheetUrl, {
                 download: true,
@@ -386,12 +379,13 @@
                     if (projResults.data && projResults.data.length > 0) {
                         for (let i = 1; i < projResults.data.length; i++) {
                             let pName = String(projResults.data[i][0] || '').trim();
-                            if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่')) {
+                            // ดักจับชื่อโครงการ ป้องกันข้อมูลขยะ และป้องกันรหัส ID หลุดเข้ามา
+                            if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.startsWith('ID-')) {
                                 masterProjects.push(pName);
                             }
                         }
                     }
-                    // 2. ดึงข้อมูลจากหน้ารายการโอนเงินต่อตามระบบเดิม
+                    // 2. ดึงข้อมูลรายการเดินบัญชีต่อ
                     fetchTransactionData();
                 },
                 error: function() {
@@ -401,7 +395,9 @@
         }
 
         function fetchTransactionData() {
-            Papa.parse(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&_cb=${new Date().getTime()}`, {
+            const transactionSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID_TRANSACTIONS}&_cb=${new Date().getTime()}`;
+            
+            Papa.parse(transactionSheetUrl, {
                 download: true,
                 header: false,
                 skipEmptyLines: true,
@@ -415,6 +411,7 @@
 
         function processData(data) {
             if (data.length < 2) return;
+            // ลำดับ Index คอลัมน์จากรูป Google Sheets (A=0, B=1, E=4, G=6, H=7, I=8)
             const col = { date: 1, project: 4, details: 6, amount: 7, note: 8 };
             
             let headerRow = 1; 
@@ -453,9 +450,9 @@
                 rawData.push({ id: i, dateText: dVal !== '' ? dVal : '-', dateObj: parsedDate, project: pVal, details: detVal, amount: cleanAmount, note: noteVal });
             }
 
-            // มิกซ์รายชื่อจากหน้าสอง ผสมกับหน้าแรก เพื่อให้ได้รายชื่อโครงการที่ครบถ้วนและอัปเดตที่สุด
+            // มิกซ์รายชื่อจากหน้าสอง ผสมกับหน้าแรก แล้วกรอง ID ทิ้งอีกครั้งเพื่อความชัวร์
             let combinedProjects = [...masterProjects, ...rawData.map(item => item.project)];
-            const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== 'ไม่ระบุโครงการ' && p !== '').sort();
+            const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== 'ไม่ระบุโครงการ' && p !== '' && !p.startsWith('ID-')).sort();
             
             const projectFilter = document.getElementById('filterProject');
             const currentSelected = projectFilter.value; 
