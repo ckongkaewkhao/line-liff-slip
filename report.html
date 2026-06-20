@@ -26,6 +26,13 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+    <!-- แทรกระบบสลับหน้ากระดาษ (แนวตั้ง/แนวนอน) อัตโนมัติเวลาปริ้น -->
+    <style id="dynamicPrintStyle">
+        @media print {
+            @page { size: A4 portrait; margin: 15mm; }
+        }
+    </style>
+
     <style>
         /* ==========================================
            ⭐ สไตล์หน้าเว็บ (Screen)
@@ -79,14 +86,13 @@
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
         .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
+        .btn-switch { background-color: #FF9500; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (แก้ปัญหาปริ้นหน้าเดียวและจัด Layout ชิดซ้าย)
+           ⭐ THE ULTIMATE PRINT CSS (แก้ให้แยกเลย์เอาต์ตามตาราง ไม่ให้พันกัน)
            ========================================== */
         @media print {
-            @page { size: A4 portrait; margin: 15mm !important; }
-            
             * {
                 color: #000000 !important;
                 text-shadow: none !important;
@@ -107,7 +113,7 @@
             .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; } 
             table.dataTable tr.child { display: none !important; }
 
-            /* ----- สไตล์สำหรับหน้า Dashboard ปกติ ----- */
+            /* ----- สไตล์สำหรับหน้า Dashboard ปกติ (หน้าแรก) ----- */
             body:not(.print-monthly) .print-hidden-section { display: none !important; }
             body:not(.print-monthly) #monthlyContainer { display: none !important; }
             body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
@@ -118,30 +124,17 @@
             .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 250px !important;}
 
             .dataTables_wrapper { display: block !important; width: 100% !important; overflow: visible !important; }
-            table.dataTable, #detailedTable {
+            
+            table.dataTable, #detailedTable, #monthlyTable {
                 display: table !important; 
                 border-collapse: collapse !important; 
                 border-spacing: 0 !important;
                 width: 100% !important; 
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
-                table-layout: fixed !important; 
                 border: 1px solid #000000 !important; 
                 background-color: #ffffff !important; 
             }
-            
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 15% !important; }
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 45% !important; }
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; }
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 20% !important; }
-
-            /* ----- สไตล์สำหรับหน้าตารางรายเดือน (พิมพ์แนวนอน) ----- */
-            body.print-monthly {
-                @page { size: A4 landscape !important; margin: 10mm !important; }
-            }
-            body.print-monthly #dashboardContainer { display: none !important; }
-            body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
-            body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
 
             table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
             #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr,
@@ -154,24 +147,43 @@
                 padding: 8px 12px !important; 
             }
 
-            body.print-monthly table.dataTable th, body.print-monthly table.dataTable td {
-                font-size: 8pt !important; 
-                padding: 4px !important;
-            }
-
             table.dataTable thead { display: table-header-group !important; }
             table.dataTable tfoot { display: table-row-group !important; }
             table.dataTable tbody { display: table-row-group !important; }
-            table.dataTable tr { page-break-inside: avoid !important; }
+            table.dataTable tr { page-break-inside: auto !important; }
             table.dataTable td, table.dataTable th { page-break-inside: avoid !important; }
             
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
-            table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: normal !important; }
+            table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
 
-            #detailedTable tbody td:nth-child(1) { text-align: center !important; }
-            #detailedTable tbody td:nth-child(3) { text-align: left !important; }
-            #detailedTable tbody td:nth-child(4) { text-align: right !important; white-space: nowrap !important; }
-            #detailedTable thead th:nth-child(5), #detailedTable tbody td:nth-child(5) { text-align: center !important; vertical-align: middle !important; }
+            /* --- ล็อกความกว้างเฉพาะตารางหน้าแรก (Dashboard) เพื่อความสวยงาม --- */
+            #detailedTable { table-layout: fixed !important; }
+            #detailedTable th:nth-child(1), #detailedTable td:nth-child(1) { width: 15% !important; text-align: center !important; }
+            #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 45% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
+            #detailedTable th:nth-child(4), #detailedTable td:nth-child(4) { width: 20% !important; text-align: right !important; white-space: nowrap !important; }
+            #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 20% !important; text-align: center !important; }
+
+            /* ----- สไตล์สำหรับหน้าตารางรายเดือน (พิมพ์แนวนอน) ----- */
+            body.print-monthly #dashboardContainer { display: none !important; }
+            body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
+            body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
+
+            /* กฎพิเศษเพื่อป้องกันตัวหนังสือตีลังกากระจัดกระจายในหน้า 12 เดือน */
+            #monthlyTable { table-layout: auto !important; }
+            #monthlyTable th, #monthlyTable td {
+                white-space: nowrap !important; /* บังคับตัวเลขห้ามตัดบรรทัดเด็ดขาด */
+                font-size: 9pt !important;
+                padding: 4px 6px !important;
+                text-align: right !important;
+                vertical-align: middle !important;
+            }
+            #monthlyTable th:first-child, #monthlyTable td:first-child {
+                white-space: normal !important; /* ยอมให้เฉพาะชื่อโครงการตัดบรรทัดได้ถ้าชื่อยาว */
+                text-align: left !important;
+                min-width: 120px !important;
+                max-width: 250px !important;
+            }
+            #monthlyTable thead th { text-align: center !important; }
         }
     </style>
 </head>
@@ -205,6 +217,7 @@
         </div>
     </nav>
 
+    <!-- ส่วนตัวกรองข้อมูล -->
     <div id="filterSection" class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
         <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
@@ -231,6 +244,7 @@
 
     <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
         
+        <!-- ================= DASHBOARD VIEW ================= -->
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-8">
             <div class="print-hidden-section space-y-4 md:space-y-8">
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
@@ -319,6 +333,7 @@
             </div>
         </div>
 
+        <!-- ================= MONTHLY EXPENSES VIEW ================= -->
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             
@@ -405,7 +420,6 @@
                 $('#filterSection').fadeIn();
                 $('#monthlyContainer').hide();
                 
-                // จัดการหน้าตาปุ่มที่โดนกด
                 $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
                 $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
             } else {
@@ -413,7 +427,6 @@
                 $('#filterSection').hide();
                 $('#monthlyContainer').fadeIn();
                 
-                // จัดการหน้าตาปุ่มที่โดนกด
                 $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
                 $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
                 
@@ -686,15 +699,26 @@
             $('#monthlyContainer .dataTables_filter input').addClass('g-input w-full sm:w-64');
         }
 
+        // ระบบสั่งพิมพ์อัจฉริยะแบบไดนามิก (สลับหน้ากระดาษให้ตรงกัน)
         function exportFormalReport() {
+            const printStyle = document.getElementById('dynamicPrintStyle');
+
             if (currentView === 'monthly') {
+                // บังคับเปลี่ยนเป็นแนวนอน
+                printStyle.innerHTML = '@media print { @page { size: A4 landscape !important; margin: 10mm !important; } }';
                 $('body').addClass('print-monthly');
-                window.print();
-                setTimeout(() => $('body').removeClass('print-monthly'), 1000);
+                
+                setTimeout(() => {
+                    window.print();
+                    $('body').removeClass('print-monthly');
+                }, 500);
                 return;
             }
 
             if (!detailedTableInstance) return;
+
+            // บังคับกลับไปเป็นแนวตั้ง สำหรับหน้า Dashboard
+            printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 15mm !important; } }';
 
             const projVal = $('#filterProject').val();
             const totalUsedRaw = $('#kpiTotal').text().replace(/,/g, '');
