@@ -83,10 +83,10 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS
+           ⭐ THE ULTIMATE PRINT CSS (แก้ปัญหาปริ้นหน้าเดียวและจัด Layout ชิดซ้าย)
            ========================================== */
         @media print {
-            @page { size: A4 portrait; margin: 0.5in !important; }
+            @page { size: A4 portrait; margin: 15mm !important; }
             
             * {
                 color: #000000 !important;
@@ -97,28 +97,30 @@
                 print-color-adjust: exact !important;
             }
 
-            body, html { background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            /* ล้างค่า Flexbox และ Overflow ที่ทำให้กระดาษโดนตัดเหลือหน้าเดียว */
+            body, html { display: block !important; background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; min-height: auto !important; overflow: visible !important; }
+            main { display: block !important; height: auto !important; overflow: visible !important; }
+            .flex, .flex-col, .h-screen, .flex-1, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden, .ios-scroll { display: block !important; height: auto !important; overflow: visible !important; position: static !important; }
+
             .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
-            .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; }
+            .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
             
-            /* บังคับให้คอลัมน์แสดงเวลาปริ้น แม้จะโดน Responsive ของเว็บซ่อนไว้ (จากโค้ดล่าสุดของคุณ) */
             table.dataTable th, table.dataTable td { display: table-cell !important; }
-            
-            /* ซ่อนคอลัมน์ที่ไม่ต้องการ */
             .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; } 
             table.dataTable tr.child { display: none !important; }
 
             /* ----- สไตล์สำหรับหน้า Dashboard ปกติ ----- */
             body:not(.print-monthly) .print-hidden-section { display: none !important; }
             body:not(.print-monthly) #monthlyContainer { display: none !important; }
-            body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; width: 100% !important; }
+            body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
             
-            .print-header-title { text-align: center !important; font-size: 18pt !important; font-weight: bold !important; margin-bottom: 15px !important; margin-top: 0 !important;}
-            .print-header-table { width: 100% !important; border-collapse: collapse !important; border: none !important;}
-            .print-header-table td { border: none !important; padding: 4px 0 !important; font-size: 12pt !important; text-align: left !important; vertical-align: top !important;}
-            .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 160px !important;} /* ขยายความกว้าง Label */
+            /* จัดหัวตารางให้ชิดซ้ายและสวยงาม */
+            .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
+            .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
+            .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important;}
+            .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 250px !important;}
 
-            .dataTables_wrapper { display: block !important; width: 100% !important; }
+            .dataTables_wrapper { display: block !important; width: 100% !important; overflow: visible !important; }
             table.dataTable, #detailedTable {
                 display: table !important; 
                 border-collapse: collapse !important; 
@@ -131,7 +133,6 @@
                 background-color: #ffffff !important; 
             }
             
-            /* ปรับสัดส่วนความกว้างใหม่ให้พอดีทั้ง 4 คอลัมน์ (จากโค้ดล่าสุดของคุณ) */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 15% !important; }
             table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 45% !important; }
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; }
@@ -139,11 +140,11 @@
 
             /* ----- สไตล์สำหรับหน้าตารางรายเดือน (พิมพ์แนวนอน) ----- */
             body.print-monthly {
-                @page { size: A4 landscape !important; margin: 0.3in !important; }
+                @page { size: A4 landscape !important; margin: 10mm !important; }
             }
             body.print-monthly #dashboardContainer { display: none !important; }
             body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
-            body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; }
+            body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
 
             /* โครงสร้างตารางตอนพิมพ์ร่วมกัน */
             table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
@@ -154,11 +155,11 @@
                 border-color: #000000 !important;
                 background-color: #ffffff !important;
                 box-shadow: none !important;
-                padding: 6px 12px !important; 
+                padding: 8px 12px !important; 
             }
 
             body.print-monthly table.dataTable th, body.print-monthly table.dataTable td {
-                font-size: 8pt !important; /* ย่อฟอนต์แนวนอนให้พอดีกระดาษ */
+                font-size: 8pt !important; 
                 padding: 4px !important;
             }
 
@@ -171,7 +172,6 @@
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
             table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: normal !important; }
 
-            /* จัดตำแหน่งตารางรายละเอียด */
             #detailedTable tbody td:nth-child(1) { text-align: center !important; }
             #detailedTable tbody td:nth-child(3) { text-align: left !important; }
             #detailedTable tbody td:nth-child(4) { text-align: right !important; white-space: nowrap !important; }
@@ -188,6 +188,7 @@
             <h1 class="hidden sm:block text-[18px] text-[#1d1d1f] font-medium tracking-wide">รายงานงบประมาณ</h1>
         </div>
         <div class="flex gap-2 items-center flex-wrap justify-end">
+            <!-- ปุ่มสลับหน้า -->
             <button id="btnToggleView" onclick="toggleView()" class="btn-switch px-3 md:px-5">
                 <span>ค่าใช้จ่ายรายเดือน</span>
             </button>
@@ -203,6 +204,7 @@
         </div>
     </nav>
 
+    <!-- ส่วนตัวกรองข้อมูล -->
     <div id="filterSection" class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
         <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
@@ -229,6 +231,7 @@
 
     <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
         
+        <!-- ================= DASHBOARD VIEW ================= -->
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-8">
             <div class="print-hidden-section space-y-4 md:space-y-8">
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
@@ -277,28 +280,25 @@
                 </div>
             </div>
 
+            <!-- Header การพิมพ์หน้า Dashboard (แก้ให้ชิดซ้ายและเว้นวรรคสวยงาม) -->
             <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
                     <tr>
-                        <td class="print-header-label">โครงการ :</td>
-                        <td id="printProjectName">ทุกโครงการ</td>
+                        <td class="print-header-label">โครงการ</td>
+                        <td>: <span id="printProjectName">ทุกโครงการ</span></td>
                     </tr>
                     <tr>
-                        <td class="print-header-label">รวมเป็นเงิน (รายจ่าย) :</td>
-                        <td id="printTotalAmount" style="font-weight: bold; color: #ff3b30 !important;">0.00</td>
+                        <td class="print-header-label">จำนวนรายจ่าย</td>
+                        <td style="font-weight: bold; color: #ff3b30 !important;">: <span id="printTotalAmount">0.00</span> บาท</td>
                     </tr>
                     <tr class="single-proj-only">
-                        <td class="print-header-label">งบประมาณจัดสรร :</td>
-                        <td id="printBudgetAmount">0.00</td>
+                        <td class="print-header-label">จำนวนงบประมาณของงานนั้น</td>
+                        <td>: <span id="printBudgetAmount">0.00</span> บาท</td>
                     </tr>
                     <tr class="single-proj-only">
-                        <td class="print-header-label">ยอดคงเหลือที่ใช้ได้ :</td>
-                        <td id="printRemainAmount" style="font-weight: bold; color: #34c759 !important;">0.00</td>
-                    </tr>
-                    <tr class="single-proj-only">
-                        <td class="print-header-label">สัดส่วนการใช้เงิน :</td>
-                        <td id="printPercentAmount">0.00%</td>
+                        <td class="print-header-label">จำนวนเงินที่เหลือใช้</td>
+                        <td style="font-weight: bold; color: #34c759 !important;">: <span id="printRemainAmount">0.00</span> บาท</td>
                     </tr>
                 </table>
             </div>
@@ -321,6 +321,7 @@
             </div>
         </div>
 
+        <!-- ================= MONTHLY EXPENSES VIEW ================= -->
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             
@@ -705,11 +706,9 @@
             if (projVal && projectBudgets[projVal] != null) {
                 let b = projectBudgets[projVal];
                 let r = b - totalUsed;
-                let p = (totalUsed / b) * 100;
                 
                 $('#printBudgetAmount').text(b.toLocaleString('th-TH', {minimumFractionDigits:2}));
                 $('#printRemainAmount').text(r.toLocaleString('th-TH', {minimumFractionDigits:2}));
-                $('#printPercentAmount').text(p.toFixed(2) + '%');
                 $('.single-proj-only').show(); 
             } else {
                 $('.single-proj-only').hide(); 
@@ -718,6 +717,7 @@
             const currentLen = detailedTableInstance.page.len();
             detailedTableInstance.page.len(-1).draw(false); 
 
+            // รอให้กระบวนการกางตารางของ DataTables ทำงานให้เสร็จสมบูรณ์ 100% ก่อนปริ้น
             setTimeout(() => {
                 window.print();
                 detailedTableInstance.page.len(currentLen).draw(false); 
