@@ -23,7 +23,7 @@
 
     <style>
         /* ==========================================
-           ⭐ สไตล์หน้าเว็บ (Screen) : สไตล์ Apple พรีเมียม
+           ⭐ สไตล์หน้าเว็บ (Screen)
            ========================================== */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         
@@ -51,7 +51,6 @@
             color: #1d1d1f; 
             background-color: #ffffff; 
             outline: none; 
-            transition: all 0.2s ease; 
         }
         .g-input:focus { border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
@@ -79,20 +78,15 @@
         #summaryTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; }
 
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
-        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px;}
-        .btn-primary:hover { background-color: #0077ED; transform: scale(1.02); }
-        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px;}
-        .btn-secondary:hover { background-color: #d2d2d7; }
+        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;}
+        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (เส้นดำล้วน ไม่มีสีพื้นหลัง)
+           ⭐ THE ULTIMATE PRINT CSS (แก้เส้นเทา และบังคับตรงกลาง)
            ========================================== */
         @media print {
-            @page { 
-                size: A4 portrait; 
-                margin: 0.5in !important; 
-            }
+            @page { size: A4 portrait; margin: 0.5in !important; }
             
             * {
                 color: #000000 !important;
@@ -110,22 +104,20 @@
                 max-height: none !important;
                 overflow: visible !important;
                 float: none !important;
-                background-color: #ffffff !important; /* บังคับพื้นขาวหมด */
             }
 
-            body, html { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            body, html { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #ffffff !important; }
             .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; }
             .web-only-col { display: none !important; } 
 
-            /* ส่วนหัวรายงาน */
             #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; width: 100% !important; }
             .print-header-title { text-align: center !important; font-size: 18pt !important; font-weight: bold !important; margin-bottom: 15px !important; margin-top: 0 !important;}
             .print-header-table { width: 100% !important; border-collapse: collapse !important; border: none !important;}
             .print-header-table td { border: none !important; padding: 4px 0 !important; font-size: 12pt !important; text-align: left !important; vertical-align: top !important;}
             .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 120px !important;}
 
-            /* ⭐ โครงสร้างตาราง (บังคับกาง 100% เส้นดำสนิท) */
+            /* ⭐ โครงสร้างตารางหลัก */
             .dataTables_wrapper { display: block !important; width: 100% !important; }
             table.dataTable { 
                 display: table !important; 
@@ -134,34 +126,33 @@
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
                 table-layout: fixed !important; 
-                border: 1px solid #000000 !important; 
-                background-color: #ffffff !important; 
             }
             
-            /* ล็อกสัดส่วนคอลัมน์ */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 16% !important; } /* วันที่ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 54% !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; } /* หมายเหตุ */
+            /* ล็อกสัดส่วนคอลัมน์จาก Class (รับประกันความแม่นยำ) */
+            .print-col-date { width: 16% !important; }
+            .print-col-detail { width: 54% !important; }
+            .print-col-amount { width: 18% !important; }
+            .print-col-note { width: 12% !important; }
 
-            /* ⭐ เส้นขอบ และ สีพื้นหลัง (ล้างบางสีเทา) */
-            table.dataTable th, 
+            /* ⭐ ล้างบางเส้นสีเทาและพื้นหลังของ DataTables แบบ 100% */
+            table.dataTable,
+            table.dataTable th,
             table.dataTable td,
-            table.dataTable tr,
             table.dataTable thead,
-            table.dataTable tbody { 
-                border: 1px solid #000000 !important; 
-                border-color: #000000 !important; 
-                background-color: #ffffff !important; /* บังคับพื้นหลังขาว 100% ป้องกัน DataTables แทรกสีเทา */
-                padding: 6px 12px !important; 
-            }
-
-            /* ล้างคลาสสลับสีของ DataTables โดยเฉพาะ */
+            table.dataTable tbody,
+            table.dataTable tr,
             table.dataTable.display tbody tr.odd,
             table.dataTable.display tbody tr.even,
             table.dataTable.display tbody tr.odd > .sorting_1,
-            table.dataTable.display tbody tr.even > .sorting_1 {
-                background-color: #ffffff !important;
+            table.dataTable.display tbody tr.even > .sorting_1,
+            table.dataTable.no-footer { 
+                border: 1pt solid #000000 !important; /* บังคับเส้นดำทึบ */
+                border-bottom: 1pt solid #000000 !important;
+                border-top: 1pt solid #000000 !important;
+                border-left: 1pt solid #000000 !important;
+                border-right: 1pt solid #000000 !important;
+                background-color: #ffffff !important; /* บังคับพื้นหลังขาวล้วน */
+                padding: 6px 12px !important; 
             }
 
             table.dataTable thead { display: table-header-group !important; }
@@ -177,7 +168,7 @@
                 page-break-inside: avoid !important; 
             }
 
-            /* สไตล์ตัวหนังสือ */
+            /* สไตล์ตัวหนังสือหัวตาราง */
             table.dataTable thead th { 
                 font-weight: bold !important; 
                 font-size: 11pt !important; 
@@ -186,6 +177,7 @@
                 color: #000000 !important; 
             }
             
+            /* สไตล์เนื้อหา */
             table.dataTable tbody td { 
                 font-size: 10pt !important; 
                 vertical-align: top !important; 
@@ -196,17 +188,10 @@
                 word-break: break-all !important; 
             }
 
-            /* ⭐ บังคับชิดซ้าย ขวา กลาง */
-            table.dataTable tbody td:nth-child(1) { text-align: center !important; word-break: normal !important; } 
-            table.dataTable tbody td:nth-child(3) { text-align: left !important; } 
-            table.dataTable tbody td:nth-child(4) { 
-                text-align: right !important; 
-                white-space: nowrap !important; 
-                word-break: normal !important;
-            }
-            table.dataTable tbody td:nth-child(5) { text-align: center !important; } /* หมายเหตุ ให้อยู่กึ่งกลาง */
-            
-            table.dataTable.no-footer { border-bottom: 1px solid #000000 !important; }
+            /* ⭐ จัด Alignment จาก Class ที่ฝังไว้ */
+            td.print-align-center { text-align: center !important; word-break: normal !important; } 
+            td.print-align-left { text-align: left !important; } 
+            td.print-align-right { text-align: right !important; white-space: nowrap !important; word-break: normal !important; }
         }
     </style>
 </head>
@@ -220,11 +205,9 @@
         </div>
         <div class="flex gap-2">
             <button onclick="fetchGoogleSheetData()" class="btn-secondary px-3 md:px-5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                 <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
             </button>
             <button onclick="exportFormalReport()" class="btn-primary hidden sm:inline-flex px-3 md:px-5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.728 3.097A1.5 1.5 0 005.25 4.5v15a1.5 1.5 0 001.478 1.403h10.544A1.5 1.5 0 0018.75 19.5V4.5a1.5 1.5 0 00-1.478-1.403H6.728zM8.25 6h7.5m-7.5 3h7.5m-7.5 3h7.5" /></svg>
                 <span>พิมพ์รายงาน</span>
             </button>
         </div>
@@ -246,10 +229,7 @@
                 </select>
             </div>
             <div class="flex justify-end xl:ml-auto w-full xl:w-auto">
-                <button id="resetFilters" class="text-sm text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                    ล้างค่า
-                </button>
+                <button id="resetFilters" class="text-sm text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors flex items-center gap-1">ล้างค่า</button>
             </div>
         </div>
     </div>
@@ -258,6 +238,7 @@
         <div class="w-full mx-auto space-y-4 md:space-y-8">
             
             <div class="print-hidden-section space-y-4 md:space-y-8">
+                <!-- KPI -->
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
                     <div class="apple-card p-3 md:p-6 text-center flex flex-col justify-center items-center h-20 md:h-32">
                         <h3 class="text-[9px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
@@ -302,7 +283,8 @@
                 </div>
             </div>
 
-            <div id="printHeader" class="hidden text-black">
+            <!-- Print Header -->
+            <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
                     <tr>
@@ -321,11 +303,11 @@
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                         <thead>
                             <tr>
-                                <th class="text-center">วันที่</th>
+                                <th class="text-center print-col-date">วันที่</th>
                                 <th class="web-only-col text-left">โครงการ</th> 
-                                <th class="text-center">รายละเอียด</th>
-                                <th class="text-center">จำนวนเงิน</th>
-                                <th class="text-center">หมายเหตุ</th>
+                                <th class="text-center print-col-detail">รายละเอียด</th>
+                                <th class="text-center print-col-amount">จำนวนเงิน</th>
+                                <th class="text-center print-col-note">หมายเหตุ</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -506,29 +488,34 @@
                 });
                 detailedTableInstance.draw();
             } else {
-                let tbody = '';
-                data.forEach(item => {
-                    let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
-                    let dateHtml = `<span style="display:none;">${sortKey}</span><span class="text-[#86868b]">${item.dateText}</span>`;
-                    tbody += `<tr>
-                        <td class="text-center">${dateHtml}</td>
-                        <td class="whitespace-normal web-only-col font-medium">${item.project}</td>
-                        <td class="whitespace-normal">${item.details}</td>
-                        <td class="text-right font-semibold text-[#1d1d1f]">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-                        <td class="text-sm text-[#86868b] whitespace-normal">${item.note}</td>
-                    </tr>`;
-                });
-                $('#detailedTable tbody').html(tbody);
-                
+                // โหลดครั้งแรก
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100, 500, 5000], 
                     order: [[0, 'asc']], 
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
+                    
+                    // ⭐ ล็อกคลาสจัดหน้าซ้าย-ขวา-กลาง และสี ให้ผูกติดกับปลั๊กอิน DataTables 100% เลย ไม่ว่าจะรีเฟรชกี่ครั้งก็ไม่หลุด
+                    columnDefs: [ 
+                        { className: "print-align-center print-col-date text-center", targets: [0] },
+                        { className: "web-only-col font-medium", targets: [1] },
+                        { className: "print-align-left print-col-detail whitespace-normal", targets: [2] },
+                        { className: "print-align-right print-col-amount font-semibold", targets: [3] },
+                        { className: "print-align-center print-col-note text-sm text-[#86868b] text-center", targets: [4] } // บังคับหมายเหตุอยู่ตรงกลาง
+                    ],
                     stateSave: false, 
                     ordering: false   
                 });
+
+                // ดึงข้อมูลเข้าครั้งแรก
+                detailedTableInstance.clear();
+                data.forEach(item => {
+                    let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
+                    let dateHtml = `<span style="display:none;">${sortKey}</span>${item.dateText}`;
+                    detailedTableInstance.row.add([ dateHtml, item.project, item.details, item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }), item.note ]);
+                });
+                detailedTableInstance.draw();
+
                 $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '20px').css('padding', '6px 16px');
                 $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '10px').css('padding', '4px 8px');
             }
