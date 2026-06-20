@@ -367,9 +367,13 @@
                     projectBudgets = {};
                     if (projResults.data && projResults.data.length > 0) {
                         for (let i = 2; i < projResults.data.length; i++) {
-                            let pName = String(projResults.data[i][0] || '').trim();
-                            let pBudgetRaw = String(projResults.data[i][1] || '').trim(); 
-                            if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.includes('ตาราง๒')) {
+                            // เปลี่ยน Index การดึงข้อมูลให้เป็น คอลัมน์ B (Index 1) สำหรับชื่อโครงการ
+                            // และ คอลัมน์ C (Index 2) สำหรับงบประมาณ
+                            let pName = String(projResults.data[i][1] || '').trim();
+                            let pBudgetRaw = String(projResults.data[i][2] || '').trim(); 
+                            
+                            // เพิ่มเงื่อนไขตัด ID ออก
+                            if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตาราง') && !pName.startsWith('ID-')) {
                                 masterProjects.push(pName);
                                 let budgetFloat = parseFloat(pBudgetRaw.replace(/,/g, ''));
                                 projectBudgets[pName] = isNaN(budgetFloat) || budgetFloat === 0 ? null : budgetFloat;
@@ -438,7 +442,7 @@
                 let row = data[r];
                 let rowTitle = String(row[0] || '').trim();
                 
-                if(!rowTitle || rowTitle === "" || rowTitle.includes('ตาราง')) continue;
+                if(!rowTitle || rowTitle === "" || rowTitle.includes('ตาราง') || rowTitle.startsWith('ID-')) continue;
                 
                 let isOverhead = excludeKeywords.some(keyword => rowTitle.toLowerCase().includes(keyword.toLowerCase()));
                 if(isOverhead) continue;
@@ -498,8 +502,6 @@
         function processData(data) {
             if (data.length < 2) return;
             
-            // อัปเดตคอลัมน์ใหม่ตามรูปภาพล่าสุด "image_927806.png"
-            // B(1)=วันที่, E(4)=โครงการ, G(6)=รายละเอียดสิ่งของ, H(7)=จำนวนเงิน(บาท), I(8)=หมายเหตุ (สมมติว่าเป็นคอลัมน์ถัดไปถ้ามี)
             const col = { date: 1, project: 4, details: 6, amount: 7, note: 8 }; 
             
             let headerRow = 1; 
@@ -521,6 +523,8 @@
 
                 let dVal = String(row[col.date] || '').trim();
                 let pVal = String(row[col.project] || '').trim() || 'ไม่ระบุโครงการ';
+                
+                // กรองไม่ให้มีรหัส ID เข้ามาปะปนในชื่อโครงการ
                 if(pVal.startsWith('ID-')) pVal = 'ไม่ระบุโครงการ';
 
                 let detVal = String(row[col.details] || '').trim();
@@ -541,7 +545,8 @@
             }
 
             let combinedProjects = [...masterProjects, ...rawData.map(item => item.project)];
-            const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== 'ไม่ระบุโครงการ' && p !== '').sort();
+            // ลบพวกที่ไม่ระบุโครงการ ช่องว่าง หรือมีรหัส ID
+            const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== 'ไม่ระบุโครงการ' && p !== '' && !p.startsWith('ID-')).sort();
             
             const projectFilter = document.getElementById('filterProject');
             const currentSelected = projectFilter.value; 
