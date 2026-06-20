@@ -79,7 +79,6 @@
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
         .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
-        .btn-switch { background-color: #FF9500; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
@@ -97,7 +96,6 @@
                 print-color-adjust: exact !important;
             }
 
-            /* ล้างค่า Flexbox และ Overflow ที่ทำให้กระดาษโดนตัดเหลือหน้าเดียว */
             body, html { display: block !important; background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; min-height: auto !important; overflow: visible !important; }
             main { display: block !important; height: auto !important; overflow: visible !important; }
             .flex, .flex-col, .h-screen, .flex-1, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden, .ios-scroll { display: block !important; height: auto !important; overflow: visible !important; position: static !important; }
@@ -114,7 +112,6 @@
             body:not(.print-monthly) #monthlyContainer { display: none !important; }
             body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
             
-            /* จัดหัวตารางให้ชิดซ้ายและสวยงาม */
             .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
             .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
             .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important;}
@@ -146,7 +143,6 @@
             body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
             body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
 
-            /* โครงสร้างตารางตอนพิมพ์ร่วมกัน */
             table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
             #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr,
             #monthlyTable, #monthlyTable th, #monthlyTable td, #monthlyTable tr { 
@@ -181,17 +177,22 @@
 </head>
 <body class="flex flex-col h-screen">
 
-    <nav class="glass-nav px-4 md:px-8 py-3 md:py-4 flex items-center justify-between no-print shrink-0">
-        <div class="flex items-center">
+    <nav class="glass-nav px-4 md:px-8 py-3 md:py-4 flex flex-col md:flex-row items-start md:items-center justify-between no-print shrink-0 gap-3 md:gap-0">
+        <div class="flex items-center flex-wrap gap-3">
             <div class="text-xl md:text-2xl font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
-            <div class="hidden sm:block h-6 w-px bg-[#d2d2d7] mx-3"></div>
-            <h1 class="hidden sm:block text-[18px] text-[#1d1d1f] font-medium tracking-wide">รายงานงบประมาณ</h1>
+            <div class="hidden sm:block h-6 w-px bg-[#d2d2d7]"></div>
+            
+            <div class="flex bg-[#e8e8ed] p-1 rounded-[10px]">
+                <button id="tabDashboard" onclick="switchTab('dashboard')" class="px-4 py-1.5 rounded-md bg-white shadow-sm text-[#1d1d1f] text-sm font-semibold transition-all">
+                    สรุปงบประมาณ
+                </button>
+                <button id="tabMonthly" onclick="switchTab('monthly')" class="px-4 py-1.5 rounded-md text-[#86868b] hover:text-[#1d1d1f] text-sm font-medium transition-all">
+                    รายเดือน
+                </button>
+            </div>
         </div>
-        <div class="flex gap-2 items-center flex-wrap justify-end">
-            <!-- ปุ่มสลับหน้า -->
-            <button id="btnToggleView" onclick="toggleView()" class="btn-switch px-3 md:px-5">
-                <span>ค่าใช้จ่ายรายเดือน</span>
-            </button>
+        
+        <div class="flex gap-2 items-center flex-wrap w-full md:w-auto justify-end">
             <button onclick="fetchGoogleSheetData()" class="btn-secondary px-3 md:px-5">
                 <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
             </button>
@@ -204,7 +205,6 @@
         </div>
     </nav>
 
-    <!-- ส่วนตัวกรองข้อมูล -->
     <div id="filterSection" class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
         <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
@@ -231,7 +231,6 @@
 
     <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
         
-        <!-- ================= DASHBOARD VIEW ================= -->
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-8">
             <div class="print-hidden-section space-y-4 md:space-y-8">
                 <div class="grid grid-cols-3 gap-2 md:gap-6">
@@ -280,7 +279,6 @@
                 </div>
             </div>
 
-            <!-- Header การพิมพ์หน้า Dashboard (แก้ให้ชิดซ้ายและเว้นวรรคสวยงาม) -->
             <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
@@ -321,7 +319,6 @@
             </div>
         </div>
 
-        <!-- ================= MONTHLY EXPENSES VIEW ================= -->
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             
@@ -360,14 +357,14 @@
 
     <script>
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
-        const GID_TRANSACTIONS = '0'; // ชีตรายการโอนเงิน
-        const GID_PROJECTS = '948953737'; // ชีตงบประมาณ
+        const GID_TRANSACTIONS = '0'; 
+        const GID_PROJECTS = '948953737'; 
         
         let rawData = [];
         let currentFilteredData = [];
-        let projectBudgets = {}; // เก็บข้อมูลงบประมาณ
+        let projectBudgets = {}; 
         
-        let currentView = 'dashboard'; // สลับหน้าจอ
+        let currentView = 'dashboard'; 
         
         let summaryTableInstance = null;
         let detailedTableInstance = null;
@@ -399,25 +396,31 @@
             });
         });
 
-        // ฟังก์ชันสลับหน้าไปมา
-        function toggleView() {
-            if (currentView === 'dashboard') {
-                currentView = 'monthly';
+        // ฟังก์ชันสลับหน้าไปมาแบบ Tab
+        function switchTab(tabName) {
+            currentView = tabName;
+            
+            if (tabName === 'dashboard') {
+                $('#dashboardContainer').fadeIn();
+                $('#filterSection').fadeIn();
+                $('#monthlyContainer').hide();
+                
+                // จัดการหน้าตาปุ่มที่โดนกด
+                $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
+                $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
+            } else {
                 $('#dashboardContainer').hide();
                 $('#filterSection').hide();
                 $('#monthlyContainer').fadeIn();
-                $('#btnToggleView').html('<span>กลับหน้าหลัก</span>').removeClass('btn-switch').addClass('btn-secondary');
+                
+                // จัดการหน้าตาปุ่มที่โดนกด
+                $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
+                $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
+                
                 generateMonthlyTable();
-            } else {
-                currentView = 'dashboard';
-                $('#monthlyContainer').hide();
-                $('#dashboardContainer').fadeIn();
-                $('#filterSection').fadeIn();
-                $('#btnToggleView').html('<span>ค่าใช้จ่ายรายเดือน</span>').removeClass('btn-secondary').addClass('btn-switch');
             }
         }
 
-        // ดึงข้อมูล งบประมาณ (หน้า 1)
         function fetchGoogleSheetData() {
             $('#kpiTotal').text('กำลังโหลด...');
             $('#kpiProjects, #kpiTransactions').text('-');
@@ -447,7 +450,6 @@
             });
         }
 
-        // ดึงข้อมูล ค่าใช้จ่าย (หน้า 2)
         function fetchTransactionData() {
             const transactionSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID_TRANSACTIONS}&_cb=${new Date().getTime()}`;
             
@@ -580,7 +582,6 @@
                 }
             });
 
-            // อัปเดตตารางสรุป
             if (summaryTableInstance) { summaryTableInstance.clear(); } 
             else { 
                 summaryTableInstance = $('#summaryTable').DataTable({ 
@@ -632,7 +633,6 @@
             detailedTableInstance.draw();
         }
 
-        // ตารางสรุปรายเดือน
         function generateMonthlyTable() {
             let pivot = {};
             let totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]; 
@@ -717,7 +717,6 @@
             const currentLen = detailedTableInstance.page.len();
             detailedTableInstance.page.len(-1).draw(false); 
 
-            // รอให้กระบวนการกางตารางของ DataTables ทำงานให้เสร็จสมบูรณ์ 100% ก่อนปริ้น
             setTimeout(() => {
                 window.print();
                 detailedTableInstance.page.len(currentLen).draw(false); 
