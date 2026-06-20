@@ -89,9 +89,6 @@
         .monthly-table tr:hover td { background-color: #f5f5f7; }
         .monthly-table .total-row td { background-color: #e8e8ed; font-weight: bold; color: #000000; border-top: 2px solid #1d1d1f; border-bottom: 2px solid #1d1d1f; }
 
-        /* ==========================================
-            ⭐ THE ULTIMATE PRINT CSS
-           ========================================== */
         @media print {
             @page { size: A4 portrait; margin: 0.5in !important; }
             .print-landscape { @page { size: A4 landscape !important; } }
@@ -152,7 +149,6 @@
             table.dataTable tbody td { font-size: 10pt !important; white-space: normal !important; word-wrap: break-word !important; }
             table.dataTable tbody td:nth-child(4) { text-align: right !important; }
 
-            /* Monthly print config */
             .monthly-print-container { width: 100% !important; display: block !important; }
             .monthly-table { display: table !important; width: 100% !important; border: 1px solid #000000 !important; font-size: 8pt !important; table-layout: auto !important; }
             .monthly-table th, .monthly-table td { border: 1px solid #000000 !important; padding: 5px 4px !important; }
@@ -164,7 +160,6 @@
 </head>
 <body class="flex flex-col h-screen">
 
-    <!-- Navbar -->
     <nav class="glass-nav px-4 md:px-8 py-3 md:py-4 flex items-center justify-between no-print shrink-0">
         <div class="flex items-center gap-4">
             <div class="text-xl md:text-2xl font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
@@ -180,7 +175,6 @@
         </div>
     </nav>
 
-    <!-- Filters Area (Project View) -->
     <div id="projectFilters" class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
         <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
@@ -205,10 +199,8 @@
         </div>
     </div>
 
-    <!-- MAIN CONTAINER -->
     <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
         
-        <!-- ================= VIEW 1: PROJECT REPORT ================= -->
         <div id="viewProjectContent" class="w-full mx-auto space-y-4 md:space-y-8">
             
             <div class="print-hidden-section space-y-4 md:space-y-8">
@@ -243,7 +235,7 @@
                                 <thead>
                                     <tr>
                                         <th class="text-left">โครงการ</th>
-                                        <th class="text-right">งบประมาณ</th>
+                                        <th class="text-right">งบประมาณตั้งต้น</th>
                                         <th class="text-right">บิล</th>
                                         <th class="text-right">จำนวนเงินใช้ไป</th>
                                     </tr>
@@ -255,7 +247,6 @@
                 </div>
             </div>
 
-            <!-- Dynamic Print Header Area -->
             <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานสรุปงบประมาณและค่าใช้จ่ายโครงการ</h1>
                 <table class="print-header-table">
@@ -267,7 +258,6 @@
                 </table>
             </div>
 
-            <!-- Detailed Transactions Table -->
             <div class="apple-card p-0 overflow-hidden" id="reportTableSection">
                 <div class="p-0 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
@@ -287,11 +277,10 @@
 
         </div>
 
-        <!-- ================= VIEW 2: MONTHLY EXPENSES MATRIX ================= -->
         <div id="viewMonthlyContent" class="w-full mx-auto hidden space-y-6">
             <div class="flex justify-between items-center no-print">
                 <h2 class="text-xl font-bold text-[#1d1d1f]">สรุปค่าใช้จ่ายโครงการรายเดือน</h2>
-                <span class="text-xs text-[#86868b]">ดึงข้อมูลงบประมาณจากหน้ารายงานงบประมาณโครงการโดยตรง</span>
+                <span class="text-xs text-[#86868b] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium">ดึงงบประมาณตั้งต้นตรงตามโครงการอัตโนมัติ</span>
             </div>
             
             <div class="apple-card p-4 md:p-6 bg-white overflow-x-auto ios-scroll monthly-print-container">
@@ -300,7 +289,7 @@
                     <p class="text-sm">SAENSABAI 1978</p>
                 </div>
                 <div id="monthlyMatrixContainer">
-                    <div class="text-center py-8 text-gray-400">กำลังโหลดข้อมูลโครงสร้างรายเดือน...</div>
+                    <div class="text-center py-8 text-gray-400">กำลังโหลดโครงสร้างตารางข้อมูล...</div>
                 </div>
             </div>
         </div>
@@ -365,9 +354,9 @@
 
         function fetchGoogleSheetData() {
             $('#kpiTotal').text('กำลังโหลด...');
-            $('#monthlyMatrixContainer').html('<div class="text-center py-8 text-gray-400">กำลังอัปเดตข้อมูล...</div>');
+            $('#monthlyMatrixContainer').html('<div class="text-center py-8 text-gray-400">กำลังดึงข้อมูล...</div>');
             
-            // 1. ดึงข้อมูลจากชีต "รายงานงบประมาณโครงการ" (รูปที่ 2) เพื่อบันทึกงบประมาณตั้งต้นไว้ก่อน
+            // ดึงข้อมูล "รายงานงบประมาณโครงการ" (รูปที่ 2) คอลัมน์ A (ชื่อโครงการ) และ คอลัมน์ B (งบประมาณตั้งต้น)
             const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent('รายงานงบประมาณโครงการ')}&_cb=${new Date().getTime()}`;
             
             Papa.parse(projectSheetUrl, {
@@ -380,7 +369,7 @@
                     if (projResults.data && projResults.data.length > 0) {
                         for (let i = 2; i < projResults.data.length; i++) {
                             let pName = String(projResults.data[i][0] || '').trim();
-                            let pBudgetRaw = String(projResults.data[i][1] || '').trim();
+                            let pBudgetRaw = String(projResults.data[i][1] || '').trim(); // คอลัมน์ B งบประมาณตั้งต้น
                             if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.includes('ตาราง๒')) {
                                 masterProjects.push(pName);
                                 let budgetFloat = parseFloat(pBudgetRaw.replace(/,/g, ''));
@@ -388,7 +377,6 @@
                             }
                         }
                     }
-                    // 2. ดึงข้อมูลชีตที่ 3 รายเดือนมาประมวลผลต่อ
                     fetchMonthlyMatrixData();
                 },
                 error: function() {
@@ -408,13 +396,12 @@
                     fetchTransactionData();
                 },
                 error: function() {
-                    $('#monthlyMatrixContainer').html('<div class="text-center py-4 text-red-500">ไม่สามารถโหลดข้อมูลรายเดือนได้</div>');
+                    $('#monthlyMatrixContainer').html('<div class="text-center py-4 text-red-500">ไม่สามารถโหลดข้อมูลสรุปรายเดือนได้</div>');
                     fetchTransactionData();
                 }
             });
         }
 
-        // ⭐ ฟังก์ชันสร้างตารางรายเดือนอัจฉริยะ (คัดเฉพาะโครงการจริง + แปะงบประมาณรูป 2)
         function buildMonthlyMatrixTable(data) {
             if(!data || data.length === 0) return;
             
@@ -427,14 +414,13 @@
                 }
             }
 
-            // เลือกคอลัมน์ มกราคม ถึง ธันวาคม มาแสดงผล
-            const monthCols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+            const monthCols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // มกราคม (1) ถึง ธันวาคม (12)
             
             let html = `<table class="monthly-table">
                 <thead>
                     <tr>
                         <th>ชื่อโครงการ</th>
-                        <th style="color: #0071e3;">งบประมาณตั้งต้น</th>`;
+                        <th style="color: #0071e3; background-color: #f2f8ff;">งบประมาณตั้งต้น</th>`;
             
             monthCols.forEach(c => {
                 let colName = String(data[headerIdx][c] || '').trim();
@@ -442,8 +428,8 @@
             });
             html += `<th>รวมจ่ายทั้งหมด</th></tr></thead><tbody>`;
 
-            // รายชื่อคำหรือหมวดหมู่ทั่วไปที่จะกรองทิ้ง (ไม่เอามาโชว์ในตารางโครงการ)
-            const excludeKeywords = ['ซ่อมรถ', 'น้ำมันรถ', 'ค่าใช้จ่ายส่วนตัว', 'ค่างานล่วงหน้า', 'แพล้นปูน', 'สวนทุเรียน', 'อื่นๆ', 'รวมทั้งสิ้น', 'รวม', 'ยอดรวม'];
+            // หมวดหมู่ค่าใช้จ่ายทั่วไปที่จะคัดออก ไม่เอามาแสดงปนกับตารางชื่อโครงการ
+            const excludeKeywords = ['ซ่อมรถ', 'น้ำมันรถ', 'ค่าใช้จ่ายส่วนตัว', 'ค่างานล่วงหน้า', 'แพล้นปูน', 'สวนทุเรียน', 'อื่นๆ', 'รวมทั้งสิ้น', 'รวม', 'ยอดรวม', 'ค่าทำบัญชี', 'ค่าที่ปรึกษา', 'เงินเดือน', 'จ้างรถ'];
             
             let grandTotalBudget = 0;
             let grandTotalMonths = Array(12).fill(0);
@@ -456,13 +442,12 @@
                 
                 if(!rowTitle || rowTitle === "" || rowTitle.includes('ตาราง')) continue;
                 
-                // ตรวจสอบเพื่อคัดออกถ้าเป็นค่าใช้จ่ายส่วนกลาง/หัวตารางทั่วไป
                 let isOverhead = excludeKeywords.some(keyword => rowTitle.toLowerCase().includes(keyword.toLowerCase()));
                 if(isOverhead) continue;
 
-                // 1. ดึงงบประมาณตรงล็อกตามชื่อโครงการจากหน้า 2 (image_936067.png)
+                // ดึงค่างบประมาณตั้งต้นที่แมทช์จากหน้ารายงานงบประมาณโครงการ (รูปที่ 2)
                 let budget = projectBudgets[rowTitle]; 
-                let budgetText = '<span class="text-gray-400 font-normal">ว่าง</span>';
+                let budgetText = '<span class="text-gray-300 font-normal">-</span>';
                 if (budget !== undefined && budget !== null) {
                     budgetText = budget.toLocaleString('th-TH', {minimumFractionDigits: 2});
                     grandTotalBudget += budget;
@@ -470,30 +455,28 @@
                 }
 
                 html += `<tr>`;
-                html += `<td>${rowTitle}</td>`; // แสดงชื่อโครงการ
-                html += `<td class="text-right font-semibold text-[#0071e3]">${budgetText}</td>`; // แสดงงบประมาณตั้งต้น
+                html += `<td class="font-medium">${rowTitle}</td>`;
+                html += `<td class="text-right font-semibold text-[#0071e3]" style="background-color: #fbfdff;">${budgetText}</td>`;
 
-                // 2. ลูปแสดงยอดเงินแต่ละเดือน (ม.ค. - ธ.ค.)
+                let projectYearTotal = 0;
                 monthCols.forEach((c, idx) => {
                     let cellVal = String(row[c] || '').trim();
                     let num = parseFloat(cellVal.replace(/,/g, '')) || 0;
                     grandTotalMonths[idx] += num;
+                    projectYearTotal += num;
                     html += `<td>${num > 0 ? num.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '0.00'}</td>`;
                 });
 
-                // 3. แสดงยอดรวมจ่ายทั้งปีของโครงการนั้นๆ (คอลัมน์ O ใน Google Sheets)
-                let yearVal = String(row[14] || '').trim();
-                let yearNum = parseFloat(yearVal.replace(/,/g, '')) || 0;
-                grandTotalYear += yearNum;
-                html += `<td class="font-bold bg-gray-50/50">${yearNum.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>`;
-                
+                // ช่องสรุปยอดเงินรวมทั้งหมดของโครงการนี้
+                grandTotalYear += projectYearTotal;
+                html += `<td class="font-bold bg-gray-50 text-gray-900">${projectYearTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>`;
                 html += `</tr>`;
             }
 
-            // 4. แถวรวมทั้งหมด (Grand Total) ท้ายตาราง สรุปยอดรวมให้ทุกคอลัมน์
+            // แถวสรุปยอดรวมโครงการทั้งหมดท้ายตาราง
             html += `<tr class="total-row">`;
             html += `<td>รวมโครงการทั้งหมด</td>`;
-            html += `<td class="text-right">${hasValidBudgetSum ? grandTotalBudget.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '0.00'}</td>`;
+            html += `<td class="text-right text-[#0071e3]">${hasValidBudgetSum ? grandTotalBudget.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '0.00'}</td>`;
             grandTotalMonths.forEach(mSum => {
                 html += `<td class="text-right">${mSum.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>`;
             });
@@ -513,7 +496,7 @@
                     if (!results.data || results.data.length === 0) return;
                     processData(results.data); 
                 },
-                error: function(err) { alert("เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูล"); }
+                error: function(err) { alert("เกิดข้อผิดพลาดในการโหลดรายละเอียดโอนเงิน"); }
             });
         }
 
@@ -636,7 +619,7 @@
                 summaryTableInstance.clear();
                 projectArray.forEach(p => {
                     let bg = projectBudgets[p.name];
-                    let bgText = (bg !== undefined && bg !== null) ? bg.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '<span class="text-gray-400 font-normal">ว่าง</span>';
+                    let bgText = (bg !== undefined && bg !== null) ? bg.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '<span class="text-gray-400 font-normal">-</span>';
                     summaryTableInstance.row.add([p.name, bgText, p.count.toLocaleString('th-TH'), p.sum.toLocaleString('th-TH', { minimumFractionDigits: 2 })]);
                 });
                 summaryTableInstance.draw();
@@ -644,7 +627,7 @@
                 let tbody = '';
                 projectArray.forEach(p => {
                     let bg = projectBudgets[p.name];
-                    let bgText = (bg !== undefined && bg !== null) ? bg.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '<span class="text-gray-400 font-normal">ว่าง</span>';
+                    let bgText = (bg !== undefined && bg !== null) ? bg.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '<span class="text-gray-400 font-normal">-</span>';
                     tbody += `<tr>
                         <td class="font-medium text-[13px]">${p.name}</td>
                         <td class="text-right font-medium text-[13px]">${bgText}</td>
@@ -722,7 +705,7 @@
                     `;
                 } else {
                     headerHtml = `
-                        <tr><td class="print-header-label">งบประมาณตั้งต้น :</td><td style="color: #86868b; italic">ว่าง (ยังไม่ได้ระบุงบประมาณในระบบ)</td></tr>
+                        <tr><td class="print-header-label">งบประมาณตั้งต้น :</td><td style="color: #86868b; italic">ไม่ได้ระบุงบประมาณ</td></tr>
                         <tr><td class="print-header-label">ยอดเงินใช้ไปแล้ว :</td><td>${totalSpent.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</td></tr>
                         <tr><td class="print-header-label">งบประมาณคงเหลือ :</td><td>-</td></tr>
                         <tr><td class="print-header-label">คิดเป็นเปอร์เซ็นต์ :</td><td>-</td></tr>
