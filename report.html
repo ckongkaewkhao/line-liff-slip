@@ -88,12 +88,12 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ตั้งค่าล๊อก Print สำหรับข้าม Platform (Mac/Windows)
+           ⭐ บังคับตั้งค่า Print สำหรับข้าม Platform (Mac/iOS/Windows) 
            ========================================== */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 1.5cm !important; /* ล็อกขอบกระดาษ 1.5 ซม. ทุกด้านจากระบบ Print */
+                margin: 1.5cm !important; /* ล็อกขอบกระดาษ 1.5 ซม. */
             }
             body, html { 
                 background-color: white !important; 
@@ -107,37 +107,39 @@
                 print-color-adjust: exact !important;
             }
             
+            /* ซ่อนเมนูทั้งหมด */
             .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; }
+            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; display: block !important; }
             
             .apple-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; }
-            #printHeader { display: block !important; margin-bottom: 20px !important; }
-            .web-only-col { display: none !important; }
             
-            .dataTables_wrapper { width: 100% !important; overflow: visible !important; }
-            table.dataTable { border-collapse: collapse !important; width: 100% !important; max-width: 100% !important; margin-top: 10px !important; table-layout: fixed !important; }
+            #printHeader { display: block !important; margin-bottom: 20px !important; page-break-after: avoid !important; }
+            .web-only-col { display: none !important; } /* ซ่อนคอลัมน์โครงการ */
             
-            /* ล็อกความกว้างคอลัมน์ใหม่ เพื่อป้องกันข้อความตกบรรทัด */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { 
-                width: 14% !important; 
-                text-align: center !important; 
-                white-space: nowrap !important; /* บังคับห้ามตัดคำในช่องวันที่ */
+            /* ⭐ ล็อกเลย์เอาต์ตาราง ป้องกัน Mac ยืดตกขอบกระดาษ */
+            .dataTables_wrapper { width: 100% !important; }
+            table.dataTable { 
+                border-collapse: collapse !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                margin-top: 10pt !important; 
+                table-layout: fixed !important; /* บังคับสำคัญมากสำหรับ Mac */
             }
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 50% !important; } 
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { 
-                width: 18% !important; 
-                text-align: right !important; 
-                white-space: nowrap !important; /* บังคับห้ามตัดคำในช่องจำนวนเงิน */
-            }
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 18% !important; } 
+            
+            /* ⭐ ล็อกความกว้างคอลัมน์ใหม่ (หน่วย %) */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; white-space: nowrap !important; } /* วันที่ห้ามตกบรรทัด */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 48% !important; word-wrap: break-word !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; } /* จำนวนเงินห้ามตกบรรทัด */
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 20% !important; word-wrap: break-word !important; } /* หมายเหตุ */
 
+            /* ⭐ ล็อกขนาดฟอนต์ด้วยหน่วย pt (Point) */
             table.dataTable thead th { 
                 border: 1px solid #000 !important; 
                 background-color: #f8f9fa !important; 
                 color: #000 !important; 
                 font-weight: bold !important; 
-                padding: 8px !important; 
-                font-size: 11pt !important; /* ใช้หน่วย pt (Point) เพื่อล็อกขนาดตัวหนังสือให้เท่ากันทุกเครื่อง */
+                padding: 6px !important; 
+                font-size: 11pt !important; 
                 text-align: center !important; 
                 position: static !important; 
                 box-shadow: none !important; 
@@ -145,12 +147,15 @@
             table.dataTable tbody td { 
                 border: 1px solid #000 !important; 
                 color: #000 !important; 
-                padding: 6px 8px !important; 
-                font-size: 11pt !important; /* ล็อกขนาดเนื้อหาในตารางเป็น 11pt */
-                white-space: normal !important; 
-                word-wrap: break-word !important; 
+                padding: 6px !important; 
+                font-size: 11pt !important; 
                 vertical-align: top !important; 
             }
+            
+            /* บังคับ Tailwind Alignment ให้ออกตอน Print */
+            .text-right { text-align: right !important; }
+            .text-center { text-align: center !important; }
+            .text-left { text-align: left !important; }
         }
     </style>
 </head>
@@ -248,20 +253,20 @@
             </div>
 
             <div id="printHeader" class="hidden mb-4 text-black font-['Sarabun']">
-                <h1 class="text-center text-xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
+                <h1 class="text-center text-2xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
                 <div class="flex justify-center">
-                    <div class="space-y-2 text-[15pt]">
-                        <div class="flex">
-                            <div class="w-24 font-bold">โครงการ </div>
+                    <div class="space-y-2 text-[14pt]">
+                        <div class="flex gap-2">
+                            <div class="w-32 font-bold text-left">โครงการ :</div>
                             <div id="printProjectName">ทุกโครงการ</div>
                         </div>
-                        <div class="flex">
-                            <div class="w-24 font-bold">Budget </div>
+                        <div class="flex gap-2">
+                            <div class="w-32 font-bold text-left">Budget :</div>
                             <div id="printBudgetName">แสดงทุกหมวดหมู่ (อิงตามข้อมูลที่ Filter)</div>
                         </div>
-                        <div class="flex">
-                            <div class="w-24 font-bold">รวมเป็นเงิน </div>
-                            <div id="printTotalAmount" class="font-bold">0.00 บาท</div>
+                        <div class="flex gap-2">
+                            <div class="w-32 font-bold text-left">รวมเป็นเงิน :</div>
+                            <div id="printTotalAmount" class="font-bold">0.00</div>
                         </div>
                     </div>
                 </div>
