@@ -154,10 +154,9 @@
             table.dataTable thead { display: table-header-group !important; }
             table.dataTable tbody { display: table-row-group !important; }
             
-            /* ❌ ข้อห้ามของ Mac: ห้ามใส่ page-break-inside: avoid ที่ tr เด็ดขาด มันจะปิดหัวตารางทันที */
             table.dataTable tr { 
                 display: table-row !important; 
-                page-break-inside: auto !important; /* แก้ให้เป็น auto แทนหลีกเลี่ยงบัค */
+                page-break-inside: auto !important; 
                 page-break-after: auto !important;
                 background-color: transparent !important; 
             }
@@ -284,7 +283,7 @@
                                     <tr>
                                         <th class="text-left">โครงการ</th>
                                         <th class="text-right">บิล</th>
-                                        <th class="text-right">จำนวนเงิน (บาท)</th>
+                                        <th class="text-right">จำนวนเงิน</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -316,7 +315,7 @@
                                 <th class="text-center">วันที่</th>
                                 <th class="web-only-col text-left">โครงการ</th> 
                                 <th class="text-center">รายละเอียด</th>
-                                <th class="text-center">จำนวนเงิน (บาท)</th>
+                                <th class="text-center">จำนวนเงิน</th>
                                 <th class="text-center">หมายเหตุ</th>
                             </tr>
                         </thead>
