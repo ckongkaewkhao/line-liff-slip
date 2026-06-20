@@ -356,7 +356,7 @@
             $('#kpiTotal').text('กำลังโหลด...');
             $('#monthlyMatrixContainer').html('<div class="text-center py-8 text-gray-400">กำลังดึงข้อมูล...</div>');
             
-            // ดึงข้อมูล "รายงานงบประมาณโครงการ" (รูปที่ 2) คอลัมน์ A (ชื่อโครงการ) และ คอลัมน์ B (งบประมาณตั้งต้น)
+            // ดึงข้อมูล "รายงานงบประมาณโครงการ"
             const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent('รายงานงบประมาณโครงการ')}&_cb=${new Date().getTime()}`;
             
             Papa.parse(projectSheetUrl, {
@@ -414,7 +414,7 @@
                 }
             }
 
-            const monthCols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // มกราคม (1) ถึง ธันวาคม (12)
+            const monthCols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; 
             
             let html = `<table class="monthly-table">
                 <thead>
@@ -428,7 +428,6 @@
             });
             html += `<th>รวมจ่ายทั้งหมด</th></tr></thead><tbody>`;
 
-            // หมวดหมู่ค่าใช้จ่ายทั่วไปที่จะคัดออก ไม่เอามาแสดงปนกับตารางชื่อโครงการ
             const excludeKeywords = ['ซ่อมรถ', 'น้ำมันรถ', 'ค่าใช้จ่ายส่วนตัว', 'ค่างานล่วงหน้า', 'แพล้นปูน', 'สวนทุเรียน', 'อื่นๆ', 'รวมทั้งสิ้น', 'รวม', 'ยอดรวม', 'ค่าทำบัญชี', 'ค่าที่ปรึกษา', 'เงินเดือน', 'จ้างรถ'];
             
             let grandTotalBudget = 0;
@@ -445,7 +444,6 @@
                 let isOverhead = excludeKeywords.some(keyword => rowTitle.toLowerCase().includes(keyword.toLowerCase()));
                 if(isOverhead) continue;
 
-                // ดึงค่างบประมาณตั้งต้นที่แมทช์จากหน้ารายงานงบประมาณโครงการ (รูปที่ 2)
                 let budget = projectBudgets[rowTitle]; 
                 let budgetText = '<span class="text-gray-300 font-normal">-</span>';
                 if (budget !== undefined && budget !== null) {
@@ -467,13 +465,11 @@
                     html += `<td>${num > 0 ? num.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '0.00'}</td>`;
                 });
 
-                // ช่องสรุปยอดเงินรวมทั้งหมดของโครงการนี้
                 grandTotalYear += projectYearTotal;
                 html += `<td class="font-bold bg-gray-50 text-gray-900">${projectYearTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>`;
                 html += `</tr>`;
             }
 
-            // แถวสรุปยอดรวมโครงการทั้งหมดท้ายตาราง
             html += `<tr class="total-row">`;
             html += `<td>รวมโครงการทั้งหมด</td>`;
             html += `<td class="text-right text-[#0071e3]">${hasValidBudgetSum ? grandTotalBudget.toLocaleString('th-TH', {minimumFractionDigits: 2}) : '0.00'}</td>`;
@@ -502,7 +498,11 @@
 
         function processData(data) {
             if (data.length < 2) return;
-            const col = { date: 1, project: 4, details: 6, amount: 7, note: 8 };
+            
+            // ==========================================
+            // แก้ไขตรงนี้ครับ ปรับ project เป็น 2 หรือ 3 เพื่อดึงชื่อโครงการที่ถูกต้อง แทนรหัส ID
+            // ==========================================
+            const col = { date: 1, project: 3, details: 6, amount: 7, note: 8 }; 
             
             let headerRow = 1; 
             for (let r = 0; r < Math.min(10, data.length); r++) {
@@ -523,6 +523,10 @@
 
                 let dVal = String(row[col.date] || '').trim();
                 let pVal = String(row[col.project] || '').trim() || 'ไม่ระบุโครงการ';
+                
+                // ถ้าระบุคอลัมน์แล้วยังหลุดเป็น ID มา ให้ข้ามหรือไม่แสดง
+                if(pVal.startsWith('ID-')) pVal = 'ไม่ระบุโครงการ';
+
                 let detVal = String(row[col.details] || '').trim();
                 let noteVal = String(row[col.note] || '').trim();
                 
