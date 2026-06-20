@@ -23,8 +23,10 @@
 
     <style>
         /* ==========================================
-           เปลี่ยนฟอนต์หลักเป็น Tahoma สำหรับหน้าเว็บ 
+           ฟอนต์สไตล์ Apple สำหรับหน้าเว็บ 
            ========================================== */
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        
         body { 
             font-family: Tahoma, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f5f5f7; 
@@ -84,7 +86,7 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (Tahoma, A4, ขอบ 0.5 นิ้ว, เส้นดำเป๊ะ)
+           ⭐ THE ULTIMATE PRINT CSS (Tahoma, A4, ขอบ 0.5 นิ้ว, เส้นดำเป๊ะ, แก้ทะลุขอบ)
            ========================================== */
         @media print {
             @page { 
@@ -97,8 +99,7 @@
                 text-shadow: none !important;
                 background: transparent !important;
                 box-sizing: border-box !important;
-                /* บังคับใช้ Tahoma ทั้งหมดในหน้าพิมพ์ */
-                font-family: Tahoma, sans-serif !important; 
+                font-family: Tahoma, sans-serif !important; /* บังคับใช้ Tahoma ทั้งหมด */
             }
 
             body, html { margin: 0 !important; padding: 0 !important; width: 100% !important; }
@@ -118,7 +119,7 @@
             .print-header-table td { border: none !important; padding: 4px 8px !important; font-size: 12pt !important; text-align: left !important; vertical-align: top !important;}
             .print-header-label { font-weight: bold !important; white-space: nowrap !important; width: 120px !important;}
 
-            /* ⭐ โครงสร้างตาราง (บังคับตารางกาง 100% เส้นดำสนิท) */
+            /* ⭐ โครงสร้างตาราง (กาง 100% เส้นดำสนิททุกช่อง) */
             .dataTables_wrapper { display: block !important; width: 100% !important; }
             table.dataTable { 
                 display: table !important; 
@@ -126,43 +127,41 @@
                 width: 100% !important; 
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
-                table-layout: fixed !important; 
-                border: 1pt solid #000000 !important; /* บังคับเส้นขอบตารางนอกสุด */
+                table-layout: fixed !important; /* ล็อกกรอบตารางอย่างเด็ดขาด */
+                border: 1px solid #000000 !important; 
             }
             
-            /* ⭐ ล็อกสัดส่วนความกว้างใหม่ */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 16% !important; } /* วันที่ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 49% !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; } /* หมายเหตุ */
+            /* ⭐ ล็อกสัดส่วนความกว้างใหม่ให้สวยงาม */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; } /* วันที่ */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 51% !important; text-align: left !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 20% !important; text-align: right !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 15% !important; text-align: left !important; } /* หมายเหตุ */
 
-            /* ⭐ การจัดหน้า (Alignment) และเว้นระยะ (Padding) */
+            /* ⭐ การตั้งค่าเส้นขอบ และระยะห่างตัวหนังสือ (Padding) */
             table.dataTable th, table.dataTable td { 
-                border: 1pt solid #000000 !important; /* เส้นกั้นทุกเซลล์เป็นสีดำ 1pt */
-                padding: 6px 12px !important; /* เว้นระยะจากเส้นขอบ 12px ให้ดูสวยงาม */
+                border: 1px solid #000000 !important; /* เส้นดำ 100% ทุกเซลล์ */
+                padding: 6px 10px !important; /* เพิ่ม Padding ซ้าย-ขวา ให้ตัวหนังสือไม่ติดเส้นขอบ */
             }
 
-            /* หัวตารางให้อยู่กึ่งกลางเสมอ */
             table.dataTable thead th { 
                 font-weight: bold !important; 
-                font-size: 11pt !important; /* Tahoma ตัวจะใหญ่กว่า Sarabun เลยลดขนาด pt ลงเล็กน้อย */
-                text-align: center !important; 
+                font-size: 11pt !important; 
+                text-align: center !important; /* หัวตารางอยู่กึ่งกลางทั้งหมด */
+                color: #000000 !important; 
+                background-color: transparent !important;
             }
             
-            /* ข้อมูลเนื้อหา: บังคับชิดซ้ายทั้งหมด (ยกเว้นช่องที่ 4) */
             table.dataTable tbody td { 
-                font-size: 10pt !important; /* Tahoma ตัวจะใหญ่กว่า Sarabun เลยลดขนาด pt ลงเล็กน้อย */
+                font-size: 10pt !important; 
                 vertical-align: top !important; 
-                text-align: left !important; /* บังคับชิดซ้าย */
+                color: #000000 !important;
+                background-color: transparent !important;
+                
+                /* ⭐ บังคับตัดคำขั้นรุนแรง ป้องกัน Mac ทะลุขอบ 100% */
+                white-space: normal !important; 
                 word-wrap: break-word !important; 
-                word-break: break-word !important; 
                 overflow-wrap: break-word !important;
-            }
-
-            /* เฉพาะช่องจำนวนเงิน (คอลัมน์ 4) ให้ชิดขวา */
-            table.dataTable tbody td:nth-child(4) { 
-                text-align: right !important; 
-                white-space: nowrap !important;
+                word-break: break-all !important; /* หั่นคำทันทีเมื่อชนขอบ */
             }
 
             table.dataTable thead { display: table-header-group !important; }
@@ -170,7 +169,6 @@
             
             /* ไม่ให้บรรทัดขาดครึ่งระหว่างเปลี่ยนหน้ากระดาษ */
             table.dataTable tr { display: table-row !important; page-break-inside: avoid !important; break-inside: avoid !important; background-color: transparent !important; }
-            table.dataTable.no-footer { border-bottom: 1pt solid #000000 !important; }
         }
     </style>
 </head>
