@@ -24,6 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         /* ==========================================
@@ -217,6 +218,9 @@
             <button onclick="fetchGoogleSheetData()" class="btn-secondary px-3 md:px-5">
                 <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
             </button>
+            <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-3 md:px-5 py-[10px] text-[14px] font-medium inline-flex items-center gap-[8px] hover:bg-[#0c5c30] transition-colors shadow-sm hidden sm:inline-flex">
+                <span>โหลด Excel</span>
+            </button>
             <button onclick="exportFormalReport()" class="btn-primary hidden sm:inline-flex px-3 md:px-5">
                 <span>พิมพ์รายงาน</span>
             </button>
@@ -335,6 +339,7 @@
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&t=${new Date().getTime()}`;
 
         let rawData = [];
+        let currentFilteredData = [];
         let summaryTableInstance = null;
         let detailedTableInstance = null;
         let chartInstance = null;
@@ -451,6 +456,8 @@
                 return dateSortAsc ? diff : -diff;
             });
 
+            currentFilteredData = filteredData;
+
             updateDashboards(filteredData);
         }
 
@@ -553,6 +560,34 @@
                 window.print();
                 detailedTableInstance.page.len(currentLen).draw(false); 
             }, 800); 
+        }
+
+        function exportToExcel() {
+            if (!currentFilteredData || currentFilteredData.length === 0) {
+                alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
+                return;
+            }
+
+            const excelData = currentFilteredData.map(item => ({
+                "วันที่": item.dateText,
+                "โครงการ": item.project,
+                "รายละเอียด": item.details,
+                "จำนวนเงิน": item.amount,
+                "หมายเหตุ": item.note
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+            const projVal = $('#filterProject').val();
+            let fileName = "SAENSABAI_Report";
+            if (projVal) {
+                fileName += `_${projVal.replace(/\s+/g, '-')}`;
+            }
+            fileName += ".xlsx";
+
+            XLSX.writeFile(workbook, fileName);
         }
     </script>
 </body>
