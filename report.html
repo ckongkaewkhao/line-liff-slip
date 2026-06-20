@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
     <title>SAENSABAI 1978 - รายงานสรุปค่าใช้จ่าย</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -58,6 +59,7 @@
         }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
 
+        /* ตารางสไตล์ Apple (เว็บ) */
         table.dataTable thead th { 
             background-color: #ffffff; 
             color: #86868b; 
@@ -73,24 +75,20 @@
         table.dataTable.display tbody tr.odd, table.dataTable.display tbody tr.even { background-color: #ffffff !important; }
         table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.display tbody tr.even > .sorting_1 { background-color: #ffffff !important; }
         table.dataTable.display tbody tr:hover { background-color: #f5f5f7 !important; }
-        
-        table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting:after, 
-        table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_asc:after, 
-        table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after { display: none !important; content: none !important; }
         table.dataTable thead th, table.dataTable thead td { padding-right: 16px !important; background-image: none !important; }
-
         #summaryTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; }
 
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
 
-        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; text-align: center; justify-content: center; }
+        .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 8px;}
         .btn-primary:hover { background-color: #0077ED; transform: scale(1.02); }
-        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; text-align: center; justify-content: center; }
+        .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s ease; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 8px;}
         .btn-secondary:hover { background-color: #d2d2d7; }
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ ตั้งค่าล๊อก Print สำหรับข้าม Platform (Mac/iOS/Windows) 
+           ⭐ THE ULTIMATE CROSS-BROWSER PRINT CSS
+           (บังคับ Safari, Chrome, Edge ให้เหมือนกัน 100%)
            ========================================== */
         @media print {
             @page { 
@@ -98,157 +96,175 @@
                 margin: 1.5cm !important; /* ล็อกขอบกระดาษ 1.5 ซม. */
             }
             
-            /* บังคับตัวหนังสือสีดำทั้งหมด ห้ามมีเงา */
+            /* ล้างค่าสี ล้างเงา ล้างพื้นหลังที่ Safari ชอบแอบใส่มาให้ */
             * {
                 color: #000000 !important;
                 text-shadow: none !important;
+                background: transparent !important;
+                box-sizing: border-box !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
 
             body, html { 
-                background-color: white !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
                 width: 100% !important;
                 font-family: 'Sarabun', sans-serif !important; 
             }
             
-            /* ซ่อนเมนูและเครื่องมือต่างๆ */
+            /* ซ่อนเมนูทั้งหมด */
             .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; width: 100% !important; max-width: 100% !important; display: block !important; }
             
-            .apple-card { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; overflow: visible !important; height: auto !important; }
+            /* ⭐ ทะลวงโครงสร้าง Flexbox ของ Tailwind (ตัวการทำ Safari พัง) เปลี่ยนเป็น Block ให้หมด */
+            body, main, .w-full, .mx-auto, .overflow-y-auto, .overflow-x-auto, #reportTableSection, .bg-white { 
+                display: block !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                overflow: visible !important; 
+                position: static !important;
+            }
             
-            #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; }
+            /* การ์ดตาราง */
+            .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
             .web-only-col { display: none !important; } /* ซ่อนคอลัมน์โครงการ */
             
-            /* ⭐ ล็อกตาราง ป้องกันตารางยืดตกขอบ */
-            .dataTables_wrapper { width: 100% !important; }
+            /* ⭐ หัวตารางสำหรับการปริ้นท์ (ใช้ HTML Table พื้นฐาน แข็งแกร่งที่สุด) */
+            #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; width: 100% !important; }
+            .print-header-title { text-align: center !important; font-size: 20pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
+            .print-header-table { width: auto !important; margin: 0 auto !important; border-collapse: collapse !important; border: none !important;}
+            .print-header-table td { border: none !important; padding: 4px 8px !important; font-size: 14pt !important; text-align: left !important; vertical-align: top !important;}
+            .print-header-label { font-weight: bold !important; width: 120px !important; }
+
+            /* ⭐ ล็อกตารางข้อมูล ให้อยู่ในกรอบ 100% เสมอ */
+            .dataTables_wrapper { display: block !important; width: 100% !important; }
             table.dataTable { 
+                display: table !important;
                 border-collapse: collapse !important; 
                 width: 100% !important; 
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
-                table-layout: fixed !important; /* บังคับสัดส่วนตายตัว */
-                background-color: transparent !important; /* ลบสีพื้นหลังตาราง */
+                table-layout: fixed !important; /* ล็อกความกว้างคอลัมน์ */
             }
             
-            /* ล็อกความกว้างคอลัมน์ */
+            /* ล็อกความกว้างคอลัมน์ (รวม 100%) */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; white-space: nowrap !important; } 
             table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 48% !important; } 
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; } 
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 20% !important; } 
 
-            /* ⭐ ตั้งค่าขอบตาราง หัวตาราง และห้ามทะลุขอบ */
-            table.dataTable thead th { 
+            /* ⭐ ตั้งค่าขอบตาราง หัวตาราง (บังคับเส้นดำ 1pt) */
+            table.dataTable thead { display: table-header-group !important; }
+            table.dataTable tbody { display: table-row-group !important; }
+            table.dataTable tr { display: table-row !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+
+            table.dataTable th, table.dataTable td { 
                 border: 1pt solid #000000 !important; 
-                background-color: transparent !important; /* หัวตารางโปร่งใส ไม่มีสีเทา */
-                font-weight: bold !important; 
                 padding: 6px !important; 
-                font-size: 11pt !important; 
+            }
+            
+            table.dataTable thead th { 
+                font-weight: bold !important; 
+                font-size: 12pt !important; 
                 text-align: center !important; 
             }
+            
             table.dataTable tbody td { 
-                border: 1pt solid #000000 !important; 
-                background-color: transparent !important; /* ไม่มีสีสลับบรรทัด */
-                padding: 6px !important; 
                 font-size: 11pt !important; 
                 vertical-align: top !important; 
 
-                /* บังคับตัดคำเด็ดขาด ห้ามตัวหนังสือยาวทะลุเส้นตาราง (สำหรับ Mac) */
+                /* บังคับหั่นคำ ห้ามตัวหนังสือยาวทะลุเส้นขอบเด็ดขาด */
+                white-space: pre-wrap !important; 
                 word-wrap: break-word !important; 
-                word-break: break-word !important; 
-                white-space: normal !important; 
+                word-break: break-all !important; 
                 overflow-wrap: break-word !important;
             }
-
-            /* ป้องกันการปริ้นท์แล้วบรรทัดขาดครึ่งระหว่างเปลี่ยนหน้า */
-            table.dataTable tbody tr {
-                page-break-inside: avoid !important;
-            }
-            
-            /* บังคับตำแหน่งให้ออกตอน Print */
-            .text-right { text-align: right !important; }
-            .text-center { text-align: center !important; }
-            .text-left { text-align: left !important; }
         }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
-    <nav class="glass-nav px-4 md:px-8 py-3 md:py-4 flex flex-col sm:flex-row items-center justify-between no-print shrink-0 gap-4 sm:gap-0">
-        <div class="flex items-center justify-between w-full sm:w-auto">
+    <nav class="glass-nav px-4 md:px-8 py-3 md:py-4 flex items-center justify-between no-print shrink-0">
+        <div class="flex items-center">
             <div class="text-xl md:text-2xl font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
-            <div class="hidden sm:block h-6 w-px bg-[#d2d2d7] mx-2"></div>
+            <div class="hidden sm:block h-6 w-px bg-[#d2d2d7] mx-3"></div>
             <h1 class="hidden sm:block text-[18px] text-[#1d1d1f] font-medium tracking-wide">รายงานงบประมาณ</h1>
         </div>
-        <div class="flex gap-2 w-full sm:w-auto">
-            <button onclick="fetchGoogleSheetData()" class="btn-secondary flex items-center flex-1 sm:flex-none gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                <span class="hidden md:inline">โหลดข้อมูลใหม่</span>
-                <span class="md:hidden">รีเฟรช</span>
+        
+        <div class="flex gap-2">
+            <button onclick="fetchGoogleSheetData()" class="btn-secondary px-3 md:px-5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
             </button>
-            <button onclick="exportFormalReport()" class="btn-primary flex items-center flex-1 sm:flex-none gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.728 3.097A1.5 1.5 0 005.25 4.5v15a1.5 1.5 0 001.478 1.403h10.544A1.5 1.5 0 0018.75 19.5V4.5a1.5 1.5 0 00-1.478-1.403H6.728zM8.25 6h7.5m-7.5 3h7.5m-7.5 3h7.5" /></svg>
-                <span class="hidden md:inline">พิมพ์รายงาน (PDF)</span>
-                <span class="md:hidden">ปริ้นท์ PDF</span>
+            
+            <button onclick="exportFormalReport()" class="btn-primary hidden sm:inline-flex px-3 md:px-5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.728 3.097A1.5 1.5 0 005.25 4.5v15a1.5 1.5 0 001.478 1.403h10.544A1.5 1.5 0 0018.75 19.5V4.5a1.5 1.5 0 00-1.478-1.403H6.728zM8.25 6h7.5m-7.5 3h7.5m-7.5 3h7.5" /></svg>
+                <span>พิมพ์รายงาน</span>
             </button>
         </div>
     </nav>
 
-    <div class="bg-white/60 px-4 md:px-8 py-4 no-print shrink-0 flex flex-col xl:flex-row items-stretch xl:items-center gap-4 shadow-sm border-b border-[#dadce0]">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full xl:w-auto">
-            <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider min-w-[80px]">วันที่:</span>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <input type="text" id="filterStartDate" class="g-input flex-1 sm:w-36 text-center" placeholder="เริ่ม">
+    <div class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
+        <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
+            
+            <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
+                <span class="text-[11px] md:text-xs font-semibold text-[#86868b] uppercase tracking-wider w-16 xl:w-auto">วันที่:</span>
+                <input type="text" id="filterStartDate" class="g-input flex-1 xl:w-36 text-center text-sm" placeholder="เริ่ม">
                 <span class="text-[#86868b]">-</span>
-                <input type="text" id="filterEndDate" class="g-input flex-1 sm:w-36 text-center" placeholder="สิ้นสุด">
+                <input type="text" id="filterEndDate" class="g-input flex-1 xl:w-36 text-center text-sm" placeholder="สิ้นสุด">
             </div>
-        </div>
-        <div class="hidden xl:block h-8 w-px bg-[#d2d2d7]"></div>
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full xl:w-auto">
-            <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider min-w-[80px]">โครงการ:</span>
-            <select id="filterProject" class="g-input w-full sm:min-w-[250px] cursor-pointer">
-                <option value="">-- แสดงทั้งหมด --</option>
-            </select>
-        </div>
-        <div class="flex items-center justify-end gap-4 xl:ml-auto w-full xl:w-auto pt-2 xl:pt-0">
-            <button id="resetFilters" class="text-sm text-[#0071e3] hover:text-[#0077ED] font-medium transition-colors w-full text-right xl:text-left">
-                ล้างตัวกรองทั้งหมด
-            </button>
+            
+            <div class="hidden xl:block h-8 w-px bg-[#d2d2d7]"></div>
+            
+            <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
+                <span class="text-[11px] md:text-xs font-semibold text-[#86868b] uppercase tracking-wider w-16 xl:w-auto">โครงการ:</span>
+                <select id="filterProject" class="g-input flex-1 xl:min-w-[250px] cursor-pointer text-sm">
+                    <option value="">-- แสดงทั้งหมด --</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end xl:ml-auto w-full xl:w-auto">
+                <button id="resetFilters" class="text-sm text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                    ล้างค่า
+                </button>
+            </div>
         </div>
     </div>
 
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 print:p-0 w-full ios-scroll">
-        <div class="w-full mx-auto space-y-6 md:space-y-8">
+    <main class="flex-1 overflow-y-auto p-3 md:p-8 print:p-0 w-full ios-scroll">
+        <div class="w-full mx-auto space-y-4 md:space-y-8">
             
-            <div class="print-hidden-section space-y-6 md:space-y-8">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-                    <div class="apple-card p-4 md:p-6 text-center flex flex-col justify-center items-center h-24 md:h-32">
-                        <h3 class="text-[11px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2">ยอดเงินใช้จ่ายรวม</h3>
-                        <div id="kpiTotal" class="text-2xl md:text-4xl font-light text-[#1d1d1f] tracking-tight">กำลังโหลด...</div>
+            <div class="print-hidden-section space-y-4 md:space-y-8">
+                <div class="grid grid-cols-3 gap-2 md:gap-6">
+                    <div class="apple-card p-3 md:p-6 text-center flex flex-col justify-center items-center h-20 md:h-32">
+                        <h3 class="text-[9px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
+                        <div id="kpiTotal" class="text-[16px] md:text-4xl font-semibold md:font-light text-[#1d1d1f] tracking-tight">...</div>
                     </div>
-                    <div class="apple-card p-4 md:p-6 text-center flex flex-col justify-center items-center h-24 md:h-32">
-                        <h3 class="text-[11px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2">จำนวนโครงการ</h3>
-                        <div id="kpiProjects" class="text-2xl md:text-4xl font-light text-[#0071e3] tracking-tight">-</div>
+                    <div class="apple-card p-3 md:p-6 text-center flex flex-col justify-center items-center h-20 md:h-32">
+                        <h3 class="text-[9px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2 line-clamp-1">จำนวนโครงการ</h3>
+                        <div id="kpiProjects" class="text-xl md:text-4xl font-semibold md:font-light text-[#0071e3] tracking-tight">-</div>
                     </div>
-                    <div class="apple-card p-4 md:p-6 text-center flex flex-col justify-center items-center h-24 md:h-32">
-                        <h3 class="text-[11px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2">จำนวนรายการ</h3>
-                        <div id="kpiTransactions" class="text-2xl md:text-4xl font-light text-[#34c759] tracking-tight">-</div>
+                    <div class="apple-card p-3 md:p-6 text-center flex flex-col justify-center items-center h-20 md:h-32">
+                        <h3 class="text-[9px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 md:mb-2 line-clamp-1">จำนวนรายการ</h3>
+                        <div id="kpiTransactions" class="text-xl md:text-4xl font-semibold md:font-light text-[#34c759] tracking-tight">-</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] lg:h-[450px]">
-                        <div class="flex justify-between items-center mb-4 md:mb-6 shrink-0">
-                            <h3 class="text-base md:text-lg font-semibold text-[#1d1d1f]">สัดส่วนการใช้จ่ายแยกตามโครงการ</h3>
+                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[250px] lg:h-[450px]">
+                        <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
+                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สัดส่วนการใช้จ่ายแยกตามโครงการ</h3>
                         </div>
                         <div class="flex-1 relative min-h-0 flex items-center justify-center">
                             <canvas id="expenseChart"></canvas>
                         </div>
                     </div>
-                    <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[300px] lg:h-[450px]">
+                    <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[250px] lg:h-[450px]">
                         <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0">
-                            <h3 class="text-base md:text-lg font-semibold text-[#1d1d1f]">สรุปยอดรวมแต่ละโครงการ</h3>
+                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปยอดรวมแต่ละโครงการ</h3>
                         </div>
                         <div class="px-2 pb-2 flex-1 overflow-y-auto bg-white ios-scroll">
                             <table id="summaryTable" class="w-full text-left display" style="width:100%">
@@ -266,31 +282,29 @@
                 </div>
             </div>
 
-            <div id="printHeader" class="hidden mb-4 text-black font-['Sarabun']">
-                <h1 class="text-center text-2xl font-bold mb-6 mt-2">รายงานงบประมาณโครงการ</h1>
-                <div class="flex justify-center">
-                    <div class="space-y-2 text-[14pt]">
-                        <div class="flex gap-2">
-                            <div class="w-32 font-bold text-left">โครงการ :</div>
-                            <div id="printProjectName">ทุกโครงการ</div>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-32 font-bold text-left">Budget :</div>
-                            <div id="printBudgetName">แสดงทุกหมวดหมู่ (อิงตามข้อมูลที่ Filter)</div>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-32 font-bold text-left">รวมเป็นเงิน :</div>
-                            <div id="printTotalAmount" class="font-bold">0.00</div>
-                        </div>
-                    </div>
-                </div>
+            <div id="printHeader" class="hidden text-black font-['Sarabun']">
+                <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
+                <table class="print-header-table">
+                    <tr>
+                        <td class="print-header-label">โครงการ :</td>
+                        <td id="printProjectName">ทุกโครงการ</td>
+                    </tr>
+                    <tr>
+                        <td class="print-header-label">Budget :</td>
+                        <td id="printBudgetName">แสดงทุกหมวดหมู่</td>
+                    </tr>
+                    <tr>
+                        <td class="print-header-label">รวมเป็นเงิน :</td>
+                        <td id="printTotalAmount" style="font-weight: bold;">0.00</td>
+                    </tr>
+                </table>
             </div>
 
             <div class="apple-card p-0 overflow-hidden" id="reportTableSection">
                 <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white no-print">
-                    <h3 class="text-base md:text-lg font-semibold text-[#1d1d1f]">รายละเอียดรายการธุรกรรม</h3>
+                    <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">รายละเอียดรายการธุรกรรม</h3>
                 </div>
-                <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
+                <div class="p-0 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                         <thead>
                             <tr>
@@ -353,7 +367,7 @@
         });
 
         function fetchGoogleSheetData() {
-            document.getElementById('kpiTotal').innerText = "กำลังโหลด...";
+            document.getElementById('kpiTotal').innerText = "...";
             const liveUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&_cb=${new Date().getTime()}`;
             
             Papa.parse(liveUrl, {
@@ -456,6 +470,7 @@
 
         function updateDashboards(data) {
             const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
+            
             document.getElementById('kpiTotal').innerText = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById('kpiProjects').innerText = [...new Set(data.map(item => item.project))].length.toLocaleString('th-TH');
             document.getElementById('kpiTransactions').innerText = data.length.toLocaleString('th-TH');
@@ -480,12 +495,12 @@
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
                 type: 'doughnut',
-                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: googleColors, borderWidth: 0, hoverOffset: 8 }] },
+                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: googleColors, borderWidth: 0, hoverOffset: 4 }] },
                 options: {
                     responsive: true, maintainAspectRatio: false, cutout: '70%',
                     plugins: {
-                        legend: { position: 'right', labels: { font: { family: '-apple-system, Sarabun', size: 11 }, usePointStyle: true, boxWidth: 8, color: '#1d1d1f' } },
-                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: '-apple-system', size: 10, weight: '600' }, textShadowColor: 'rgba(0,0,0,0.2)', textShadowBlur: 4 },
+                        legend: { position: 'right', labels: { font: { family: '-apple-system, Sarabun', size: 10 }, usePointStyle: true, boxWidth: 6, color: '#1d1d1f' } },
+                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: '-apple-system', size: 9, weight: '600' }, textShadowColor: 'rgba(0,0,0,0.2)', textShadowBlur: 4 },
                         tooltip: { backgroundColor: 'rgba(29,29,31,0.9)', padding: 12, cornerRadius: 8, callbacks: { label: (c) => ` ${c.raw.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท` } }
                     }
                 }
@@ -536,14 +551,14 @@
                     pageLength: 20, lengthMenu: [10, 20, 50, 100, 500,5000], 
                     order: [[0, 'asc']], 
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
-                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-6 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-6 gap-4 text-sm text-[#86868b] no-print"ip>',
+                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ 
                         { className: "dt-right", targets: [3] }, 
                         { className: "web-only-col", targets: [1] } 
                     ]
                 });
-                $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '20px');
-                $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '10px');
+                $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '20px').css('padding', '6px 16px');
+                $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '10px').css('padding', '4px 8px');
             }
         }
 
