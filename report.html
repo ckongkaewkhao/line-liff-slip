@@ -130,25 +130,33 @@
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
                 table-layout: fixed !important; /* ล็อกกรอบตารางอย่างเด็ดขาด */
-                border: 1pt solid #000000 !important; 
+                border: 1px solid #000000 !important; 
             }
             
-            /* ⭐ ล็อกสัดส่วนความกว้างใหม่ให้สวยงาม */
-            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 16% !important; text-align: center !important; } /* วันที่ */
-            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 54% !important; text-align: left !important; } /* รายละเอียด */
-            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; } /* จำนวนเงิน */
-            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; text-align: left !important; } /* หมายเหตุ */
+            /* ⭐ ล็อกสัดส่วนความกว้างอย่างเดียว (ให้ th และ td กว้างเท่ากัน) */
+            table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 16% !important; } /* วันที่ */
+            table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 54% !important; } /* รายละเอียด */
+            table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; } /* จำนวนเงิน */
+            table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 12% !important; } /* หมายเหตุ */
+
+            /* ⭐ บังคับจัด Alignment เฉพาะเนื้อหา (td) */
+            table.dataTable tbody td:nth-child(1) { text-align: center !important; }
+            table.dataTable tbody td:nth-child(3) { text-align: left !important; }
+            table.dataTable tbody td:nth-child(4) { text-align: right !important; white-space: nowrap !important; }
+            table.dataTable tbody td:nth-child(5) { text-align: left !important; }
 
             /* ⭐ การตั้งค่าเส้นขอบ และระยะห่างตัวหนังสือ (Padding) */
             table.dataTable th, table.dataTable td { 
-                border: 1pt solid #000000 !important; /* เส้นดำ 100% ทุกเซลล์ */
+                border: 1px solid #000000 !important; /* เส้นดำ 100% ทุกเซลล์ */
                 padding: 6px 12px !important; /* เว้นระยะ 12px จากขอบซ้ายขวา */
             }
 
+            /* ⭐ หัวตารางให้อยู่กึ่งกลางเสมอ (แนวนอนและแนวตั้ง) */
             table.dataTable thead th { 
                 font-weight: bold !important; 
                 font-size: 11pt !important; 
-                text-align: center !important; /* หัวตารางอยู่กึ่งกลางทั้งหมด */
+                text-align: center !important; /* กึ่งกลางแนวนอน */
+                vertical-align: middle !important; /* กึ่งกลางแนวตั้ง */
                 color: #000000 !important; 
                 background-color: transparent !important;
             }
@@ -164,12 +172,6 @@
                 word-wrap: break-word !important; 
                 overflow-wrap: break-word !important;
                 word-break: break-all !important; /* หั่นคำทันทีเมื่อชนขอบ */
-            }
-
-            /* เฉพาะช่องจำนวนเงิน (คอลัมน์ 4) ให้ชิดขวา */
-            table.dataTable tbody td:nth-child(4) { 
-                text-align: right !important; 
-                white-space: nowrap !important;
             }
 
             table.dataTable thead { display: table-header-group !important; }
