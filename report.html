@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no"
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SAENSABAI 1978">
     <title>SAENSABAI 1978 - รายงานสรุปค่าใช้จ่าย</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -89,6 +93,8 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
+                -webkit-text-size-adjust: 100% !important;
+                text-size-adjust: 100% !important;
             }
 
             html, body, main, div, section, article {
@@ -157,11 +163,13 @@
             table.dataTable tr { 
                 display: table-row !important; 
                 page-break-inside: auto !important; 
+                break-inside: auto !important;
                 page-break-after: auto !important;
             }
 
             table.dataTable td, table.dataTable th {
                 page-break-inside: avoid !important; 
+                break-inside: avoid !important;
             }
 
             table.dataTable thead th { 
@@ -173,14 +181,13 @@
             }
             
             table.dataTable tbody td { 
-    font-size: 10pt !important; 
-    vertical-align: top !important; 
-    color: #000000 !important;
-    white-space: normal !important; 
-    word-wrap: break-word !important; 
-    overflow-wrap: break-word !important;
-    word-break: normal !important;   /* ⬅️ เปลี่ยนเป็น normal */
-
+                font-size: 10pt !important; 
+                vertical-align: top !important; 
+                color: #000000 !important;
+                white-space: normal !important; 
+                word-wrap: break-word !important; 
+                overflow-wrap: break-word !important;
+                word-break: normal !important; 
             }
 
             table.dataTable tbody td:nth-child(1) { text-align: center !important; word-break: normal !important; }
@@ -231,6 +238,9 @@
                     <option value="">-- แสดงทั้งหมด --</option>
                 </select>
             </div>
+            <button id="toggleDateSort" type="button" class="g-input flex items-center justify-center gap-1 text-sm font-medium cursor-pointer select-none whitespace-nowrap w-full xl:w-auto">
+                <span id="sortIcon">↑</span><span id="sortLabel">วันที่: เก่า → ใหม่</span>
+            </button>
             <div class="flex justify-end xl:ml-auto w-full xl:w-auto">
                 <button id="resetFilters" class="text-sm text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors flex items-center gap-1">ล้างค่า</button>
             </div>
@@ -328,6 +338,7 @@
         let summaryTableInstance = null;
         let detailedTableInstance = null;
         let chartInstance = null;
+        let dateSortAsc = true;
         const googleColors = ['#0071e3', '#34c759', '#FF9500', '#ff3b30', '#af52de', '#5ac8fa', '#ffcc00', '#00c7be', '#8e8e93', '#1d1d1f'];
 
         $(document).ready(function() {
@@ -343,6 +354,12 @@
                 document.querySelector('#filterStartDate')._flatpickr.clear();
                 document.querySelector('#filterEndDate')._flatpickr.clear();
                 $('#filterProject').val('');
+                applyGlobalFilters();
+            });
+            $('#toggleDateSort').on('click', function() {
+                dateSortAsc = !dateSortAsc;
+                $('#sortIcon').text(dateSortAsc ? '↑' : '↓');
+                $('#sortLabel').text(dateSortAsc ? 'วันที่: เก่า → ใหม่' : 'วันที่: ใหม่ → เก่า');
                 applyGlobalFilters();
             });
         });
@@ -428,6 +445,12 @@
                 }
                 return isMatch;
             });
+
+            filteredData.sort((a, b) => {
+                let diff = a.dateObj - b.dateObj;
+                return dateSortAsc ? diff : -diff;
+            });
+
             updateDashboards(filteredData);
         }
 
