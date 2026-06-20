@@ -22,9 +22,6 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <style>
-        /* ==========================================
-           ฟอนต์สไตล์ Apple สำหรับหน้าเว็บ 
-           ========================================== */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         
         body { 
@@ -59,7 +56,7 @@
         }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
 
-        /* ตารางสไตล์ Apple (เว็บ) */
+        /* ตารางบนเว็บ */
         table.dataTable thead th { 
             background-color: #ffffff; 
             color: #86868b; 
@@ -76,6 +73,12 @@
         table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.display tbody tr.even > .sorting_1 { background-color: #ffffff !important; }
         table.dataTable.display tbody tr:hover { background-color: #f5f5f7 !important; }
         table.dataTable thead th, table.dataTable thead td { padding-right: 16px !important; background-image: none !important; }
+        
+        /* ซ่อนลูกศร Sort บนเว็บ */
+        table.dataTable thead > tr > th.sorting:before, table.dataTable thead > tr > th.sorting:after, 
+        table.dataTable thead > tr > th.sorting_asc:before, table.dataTable thead > tr > th.sorting_asc:after, 
+        table.dataTable thead > tr > th.sorting_desc:before, table.dataTable thead > tr > th.sorting_desc:after { display: none !important; content: none !important; }
+
         #summaryTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; }
 
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
@@ -87,23 +90,20 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE CROSS-BROWSER PRINT CSS
-           (บังคับ Safari, Chrome, Edge ให้เหมือนกัน 100%)
+           ⭐ การตั้งค่าปริ้นท์ (บังคับให้คลีนและเป็นมาตรฐานทุก Browser)
            ========================================== */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 1.5cm !important; /* ล็อกขอบกระดาษ 1.5 ซม. */
+                margin: 1.5cm !important; 
             }
             
-            /* ล้างค่าสี ล้างเงา ล้างพื้นหลังที่ Safari ชอบแอบใส่มาให้ */
+            /* ล้างค่าสี ล้างเงา */
             * {
                 color: #000000 !important;
                 text-shadow: none !important;
                 background: transparent !important;
                 box-sizing: border-box !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
             }
 
             body, html { 
@@ -113,10 +113,10 @@
                 font-family: 'Sarabun', sans-serif !important; 
             }
             
-            /* ซ่อนเมนูทั้งหมด */
+            /* ซ่อนสิ่งที่ไม่ได้ใช้ */
             .no-print, .glass-nav, .print-hidden-section, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             
-            /* ⭐ ทะลวงโครงสร้าง Flexbox ของ Tailwind (ตัวการทำ Safari พัง) เปลี่ยนเป็น Block ให้หมด */
+            /* บังคับ Block Layout */
             body, main, .w-full, .mx-auto, .overflow-y-auto, .overflow-x-auto, #reportTableSection, .bg-white { 
                 display: block !important; 
                 width: 100% !important; 
@@ -127,18 +127,17 @@
                 position: static !important;
             }
             
-            /* การ์ดตาราง */
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
-            .web-only-col { display: none !important; } /* ซ่อนคอลัมน์โครงการ */
-            
-            /* ⭐ หัวตารางสำหรับการปริ้นท์ (ใช้ HTML Table พื้นฐาน แข็งแกร่งที่สุด) */
+            .web-only-col { display: none !important; } 
+
+            /* ⭐ ส่วนหัวกระดาษ (แก้ปัญหาเครื่องหมาย : ตกบรรทัด) */
             #printHeader { display: block !important; margin-bottom: 24px !important; page-break-after: avoid !important; width: 100% !important; }
             .print-header-title { text-align: center !important; font-size: 20pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
             .print-header-table { width: auto !important; margin: 0 auto !important; border-collapse: collapse !important; border: none !important;}
             .print-header-table td { border: none !important; padding: 4px 8px !important; font-size: 14pt !important; text-align: left !important; vertical-align: top !important;}
-            .print-header-label { font-weight: bold !important; width: 120px !important; }
+            .print-header-label { font-weight: bold !important; white-space: nowrap !important; } /* บังคับไม่ให้หัวข้อตกบรรทัด */
 
-            /* ⭐ ล็อกตารางข้อมูล ให้อยู่ในกรอบ 100% เสมอ */
+            /* ⭐ ตารางข้อมูลหลัก */
             .dataTables_wrapper { display: block !important; width: 100% !important; }
             table.dataTable { 
                 display: table !important;
@@ -146,19 +145,24 @@
                 width: 100% !important; 
                 max-width: 100% !important; 
                 margin-top: 10pt !important; 
-                table-layout: fixed !important; /* ล็อกความกว้างคอลัมน์ */
+                table-layout: fixed !important; 
             }
             
-            /* ล็อกความกว้างคอลัมน์ (รวม 100%) */
+            /* ล็อกความกว้างคอลัมน์ */
             table.dataTable th:nth-child(1), table.dataTable td:nth-child(1) { width: 14% !important; text-align: center !important; white-space: nowrap !important; } 
             table.dataTable th:nth-child(3), table.dataTable td:nth-child(3) { width: 48% !important; } 
             table.dataTable th:nth-child(4), table.dataTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; } 
             table.dataTable th:nth-child(5), table.dataTable td:nth-child(5) { width: 20% !important; } 
 
-            /* ⭐ ตั้งค่าขอบตาราง หัวตาราง (บังคับเส้นดำ 1pt) */
+            /* ⭐ บังคับลบลูกศร Sort และสไตล์ DataTable ออกให้หมดตอนปริ้นท์ */
+            table.dataTable thead th, table.dataTable thead td { padding-right: 6px !important; background-image: none !important; cursor: default !important;}
+            table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc { background-image: none !important; }
+            table.dataTable thead th::before, table.dataTable thead th::after { display: none !important; content: "" !important; }
+
+            /* ⭐ เส้นขอบตาราง สีดำ 1pt */
             table.dataTable thead { display: table-header-group !important; }
             table.dataTable tbody { display: table-row-group !important; }
-            table.dataTable tr { display: table-row !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+            table.dataTable tr { display: table-row !important; page-break-inside: avoid !important; break-inside: avoid !important; background-color: transparent !important; }
 
             table.dataTable th, table.dataTable td { 
                 border: 1pt solid #000000 !important; 
@@ -169,18 +173,25 @@
                 font-weight: bold !important; 
                 font-size: 12pt !important; 
                 text-align: center !important; 
+                background-color: transparent !important;
+                color: #000000 !important;
             }
             
             table.dataTable tbody td { 
                 font-size: 11pt !important; 
                 vertical-align: top !important; 
-
-                /* บังคับหั่นคำ ห้ามตัวหนังสือยาวทะลุเส้นขอบเด็ดขาด */
+                background-color: transparent !important;
+                color: #000000 !important;
+                
+                /* บังคับตัดคำ */
                 white-space: pre-wrap !important; 
                 word-wrap: break-word !important; 
                 word-break: break-all !important; 
                 overflow-wrap: break-word !important;
             }
+            
+            /* ลบขอบตารางที่ซ้อนทับกัน (ถ้ามี) */
+            table.dataTable.no-footer { border-bottom: 1pt solid #000000 !important; }
         }
     </style>
 </head>
@@ -198,7 +209,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                 <span class="hidden sm:inline">โหลดข้อมูลใหม่</span>
             </button>
-            
             <button onclick="exportFormalReport()" class="btn-primary hidden sm:inline-flex px-3 md:px-5">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.728 3.097A1.5 1.5 0 005.25 4.5v15a1.5 1.5 0 001.478 1.403h10.544A1.5 1.5 0 0018.75 19.5V4.5a1.5 1.5 0 00-1.478-1.403H6.728zM8.25 6h7.5m-7.5 3h7.5m-7.5 3h7.5" /></svg>
                 <span>พิมพ์รายงาน</span>
@@ -208,23 +218,19 @@
 
     <div class="bg-white/60 px-4 md:px-8 py-3 md:py-4 no-print shrink-0 shadow-sm border-b border-[#dadce0]">
         <div class="flex flex-col xl:flex-row gap-4 xl:gap-6 xl:items-center">
-            
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
                 <span class="text-[11px] md:text-xs font-semibold text-[#86868b] uppercase tracking-wider w-16 xl:w-auto">วันที่:</span>
                 <input type="text" id="filterStartDate" class="g-input flex-1 xl:w-36 text-center text-sm" placeholder="เริ่ม">
                 <span class="text-[#86868b]">-</span>
                 <input type="text" id="filterEndDate" class="g-input flex-1 xl:w-36 text-center text-sm" placeholder="สิ้นสุด">
             </div>
-            
             <div class="hidden xl:block h-8 w-px bg-[#d2d2d7]"></div>
-            
             <div class="flex flex-row items-center gap-2 w-full xl:w-auto">
                 <span class="text-[11px] md:text-xs font-semibold text-[#86868b] uppercase tracking-wider w-16 xl:w-auto">โครงการ:</span>
                 <select id="filterProject" class="g-input flex-1 xl:min-w-[250px] cursor-pointer text-sm">
                     <option value="">-- แสดงทั้งหมด --</option>
                 </select>
             </div>
-
             <div class="flex justify-end xl:ml-auto w-full xl:w-auto">
                 <button id="resetFilters" class="text-sm text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
@@ -471,6 +477,7 @@
         function updateDashboards(data) {
             const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
             
+            // ลบเครื่องหมาย ฿ ออกจากการแสดงผล
             document.getElementById('kpiTotal').innerText = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById('kpiProjects').innerText = [...new Set(data.map(item => item.project))].length.toLocaleString('th-TH');
             document.getElementById('kpiTransactions').innerText = data.length.toLocaleString('th-TH');
@@ -547,6 +554,8 @@
                     </tr>`;
                 });
                 $('#detailedTable tbody').html(tbody);
+                
+                // ⭐ ตั้งค่า DataTables สำหรับการใช้งานข้าม Platform
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100, 500,5000], 
                     order: [[0, 'asc']], 
@@ -555,7 +564,9 @@
                     columnDefs: [ 
                         { className: "dt-right", targets: [3] }, 
                         { className: "web-only-col", targets: [1] } 
-                    ]
+                    ],
+                    // บังคับไม่ให้ DataTables จำสถานะตอน Print
+                    stateSave: false
                 });
                 $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '20px').css('padding', '6px 16px');
                 $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '10px').css('padding', '4px 8px');
@@ -577,14 +588,16 @@
             }
             $('#printBudgetName').text(dateRangeText);
 
+            // บังคับให้ DataTables คลายตารางออกทั้งหมดก่อนปริ้นท์
             if (detailedTableInstance) {
                 const currentLen = detailedTableInstance.page.len();
-                detailedTableInstance.page.len(-1).draw(); 
+                detailedTableInstance.page.len(-1).draw(false); 
 
                 setTimeout(() => {
                     window.print();
-                    detailedTableInstance.page.len(currentLen).draw(); 
-                }, 500);
+                    // คืนค่าตารางกลับมาหลังปริ้นท์เสร็จ
+                    detailedTableInstance.page.len(currentLen).draw(false); 
+                }, 800); // เผื่อเวลาให้ Browser เรนเดอร์ตารางที่เพิ่งกางออก
             }
         }
     </script>
