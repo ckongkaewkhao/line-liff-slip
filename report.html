@@ -356,7 +356,6 @@
             $('#kpiTotal').text('กำลังโหลด...');
             $('#monthlyMatrixContainer').html('<div class="text-center py-8 text-gray-400">กำลังดึงข้อมูล...</div>');
             
-            // ดึงข้อมูล "รายงานงบประมาณโครงการ"
             const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent('รายงานงบประมาณโครงการ')}&_cb=${new Date().getTime()}`;
             
             Papa.parse(projectSheetUrl, {
@@ -369,7 +368,7 @@
                     if (projResults.data && projResults.data.length > 0) {
                         for (let i = 2; i < projResults.data.length; i++) {
                             let pName = String(projResults.data[i][0] || '').trim();
-                            let pBudgetRaw = String(projResults.data[i][1] || '').trim(); // คอลัมน์ B งบประมาณตั้งต้น
+                            let pBudgetRaw = String(projResults.data[i][1] || '').trim(); 
                             if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.includes('ตาราง๒')) {
                                 masterProjects.push(pName);
                                 let budgetFloat = parseFloat(pBudgetRaw.replace(/,/g, ''));
@@ -414,7 +413,9 @@
                 }
             }
 
-            const monthCols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; 
+            // แก้ไขตำแหน่งคอลัมน์ของแต่ละเดือนตามภาพ (เว้นคอลัมน์ #)
+            // ม.ค.(2), ก.พ.(3), มี.ค.(4), เม.ย.(5), พ.ค.(6), มิ.ย.(8), ก.ค.(9), ส.ค.(10), ก.ย.(11), ต.ค.(12), พ.ย.(13), ธ.ค.(14)
+            const monthCols = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14]; 
             
             let html = `<table class="monthly-table">
                 <thead>
@@ -499,10 +500,9 @@
         function processData(data) {
             if (data.length < 2) return;
             
-            // ==========================================
-            // แก้ไขตรงนี้ครับ ปรับ project เป็น 2 หรือ 3 เพื่อดึงชื่อโครงการที่ถูกต้อง แทนรหัส ID
-            // ==========================================
-            const col = { date: 1, project: 3, details: 6, amount: 7, note: 8 }; 
+            // แก้ไขตำแหน่ง Index ให้ตรงกับภาพที่ส่งมา
+            // B=วันที่(1), D=โครงการ(3), F=รายละเอียด(5), I=จำนวนเงิน(8), J=หมายเหตุ(9)
+            const col = { date: 1, project: 3, details: 5, amount: 8, note: 9 }; 
             
             let headerRow = 1; 
             for (let r = 0; r < Math.min(10, data.length); r++) {
@@ -523,8 +523,6 @@
 
                 let dVal = String(row[col.date] || '').trim();
                 let pVal = String(row[col.project] || '').trim() || 'ไม่ระบุโครงการ';
-                
-                // ถ้าระบุคอลัมน์แล้วยังหลุดเป็น ID มา ให้ข้ามหรือไม่แสดง
                 if(pVal.startsWith('ID-')) pVal = 'ไม่ระบุโครงการ';
 
                 let detVal = String(row[col.details] || '').trim();
