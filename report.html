@@ -504,12 +504,14 @@
             const projectStats = {};
             
             data.forEach(item => {
-                let isExcluded = (item.slipType === "ไม่มีสลิป" && (item.boq === "ค่าใช้จ่ายรถ" || item.boq === "ค่าแรงจริง"));
+                // 🚀 ลอจิกใหม่กล่องยอดรวมบนสุด: กรองบิล "ไม่มีสลิป" ออกทั้งหมด
+                let isExcluded = (item.slipType === "ไม่มีสลิป");
                 
                 if (!isExcluded) {
                     totalAmountKPI += item.amount;
                 }
                 
+                // 🚀 ลอจิกสำหรับกราฟแท่งและตารางสรุป: บวกรวม "ทุกบิล 100%" (ไม่หักอะไรออก)
                 if(!projectStats[item.project]) projectStats[item.project] = { sum: 0, count: 0 };
                 projectStats[item.project].sum += item.amount;
                 projectStats[item.project].count += 1;
@@ -525,6 +527,9 @@
             projectArray.forEach(p => { if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name]; });
             $('#kpiTotalBudget').text(sumBudget > 0 ? sumBudget.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
 
+            // ==========================================
+            // 📊 วาดกราฟแท่ง (Bar Chart) 
+            // ==========================================
             let budgetedProjects = projectArray.filter(p => projectBudgets[p.name] != null && projectBudgets[p.name] > 0);
             let chartLabels = budgetedProjects.map(p => p.name);
             let chartData = budgetedProjects.map(p => ((p.sum / projectBudgets[p.name]) * 100).toFixed(2));
@@ -653,7 +658,8 @@
                 if (!item.dateObj) return;
                 if (projectVal && item.project !== projectVal) return; 
                 
-                if (item.slipType === "ไม่มีสลิป" && (item.boq === "ค่าใช้จ่ายรถ" || item.boq === "ค่าแรงจริง")) {
+                // 🚀 ลอจิกใหม่: ไม่นำมาบวก ถ้ารายการนั้น "ไม่มีสลิป" (ไม่สนว่า BOQ อะไร)
+                if (item.slipType === "ไม่มีสลิป") {
                     return; 
                 }
                 
@@ -718,13 +724,10 @@
 
             const projVal = $('#filterProject').val();
             
-            // ⭐ ลอจิกการปริ้นท์ใหม่ตามที่คุณต้องการ
             let printTotal = 0;
             if (projVal) {
-                // ถ้าเลือกปริ้น "แยกโครงการ" (ดึงยอดเต็ม 100% จากบิลที่โชว์ในตาราง)
                 printTotal = currentFilteredData.reduce((sum, item) => sum + item.amount, 0);
             } else {
-                // ถ้าเลือกปริ้น "ทุกโครงการ" (ดึงยอดที่หักลบแล้วจากกล่อง KPI)
                 const totalUsedRaw = $('#kpiTotal').text().replace(/,/g, '');
                 printTotal = parseFloat(totalUsedRaw) || 0;
             }
@@ -734,7 +737,7 @@
 
             if (projVal && projectBudgets[projVal] != null) {
                 let b = projectBudgets[projVal];
-                let r = b - printTotal; // ใช้ยอดที่คำนวณใหม่ไปหักลบกับงบประมาณ
+                let r = b - printTotal; 
                 $('#printBudgetAmount').text(b.toLocaleString('th-TH', {minimumFractionDigits:2}));
                 $('#printRemainAmount').text(r.toLocaleString('th-TH', {minimumFractionDigits:2}));
                 $('.single-proj-only').show(); 
