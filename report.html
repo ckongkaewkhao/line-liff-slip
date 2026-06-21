@@ -207,7 +207,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                     <div class="apple-card p-4 md:p-6 flex flex-col min-h-[250px] lg:h-[450px]">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
-                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สัดส่วนการใช้จ่ายแยกตามโครงการ</h3>
+                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">เปอร์เซ็นต์การใช้จ่ายเทียบกับงบประมาณ</h3>
                         </div>
                         <div class="flex-1 relative min-h-0 flex items-center justify-center">
                             <canvas id="expenseChart"></canvas>
@@ -304,7 +304,7 @@
         let currentFilteredData = [];
         let projectBudgets = {}; 
         let currentView = 'dashboard'; 
-        let currentTableFilter = 'all'; // ตัวกรองตาราง (ทั้งหมด, มีสลิป, ไม่มีสลิป)
+        let currentTableFilter = 'all'; 
         
         let summaryTableInstance = null;
         let detailedTableInstance = null;
@@ -335,26 +335,19 @@
                 applyGlobalFilters();
             });
 
-            // ปลั๊กอินเสริมสำหรับกรองตารางด้วย DataTables
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                 if (settings.nTable.id !== 'detailedTable') return true;
                 if (currentTableFilter === 'all') return true;
                 
-                // ดึงข้อมูลประเภท (สมมติเก็บซ่อนไว้ในคอลัมน์หมายเหตุ หรือผ่าน data-type ตอนวาด)
-                // เพื่อความง่าย เราเก็บค่า slipType ไว้ใน attribute ของ <tr> ตอน add.row
                 var rowType = $(settings.aoData[dataIndex].nTr).attr('data-sliptype') || 'มีสลิป';
-                
                 if (currentTableFilter === 'slip' && rowType === 'มีสลิป') return true;
                 if (currentTableFilter === 'noslip' && rowType === 'ไม่มีสลิป') return true;
                 return false;
             });
         });
 
-        // 🔹 ฟังก์ชันกดเปลี่ยนหน้าตารางย่อย
         function setTableFilter(filterType) {
             currentTableFilter = filterType;
-            
-            // เปลี่ยนสีปุ่ม
             ['all', 'slip', 'noslip'].forEach(type => {
                 const btn = document.getElementById('dtFilter' + (type === 'all' ? 'All' : type === 'slip' ? 'Slip' : 'NoSlip'));
                 if(type === filterType) {
@@ -363,8 +356,6 @@
                     btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors";
                 }
             });
-
-            // สั่งตารางอัปเดตใหม่
             if(detailedTableInstance) detailedTableInstance.draw();
         }
 
@@ -425,7 +416,6 @@
 
         function processData(data) {
             if (data.length < 2) return;
-            // 🔹 อัปเดตคอลัมน์ตาม Google Sheets ใหม่ที่มีการเพิ่มคอลัมน์ (สมมติว่า J คือ Index 9)
             const col = { date: 1, project: 4, boq: 5, details: 6, amount: 7, note: 8, slipType: 9 };
             
             let headerRow = 1; 
@@ -450,7 +440,6 @@
                 let detVal = String(row[col.details] || '').trim();
                 let noteVal = String(row[col.note] || '').trim();
                 
-                // 🔹 ดึงประเภทมาด้วย ถ้าช่องว่างให้ถือว่าเป็น "มีสลิป" (สำหรับข้อมูลเก่า)
                 let typeVal = String(row[col.slipType] || '').trim();
                 if(typeVal === '') typeVal = "มีสลิป";
                 
@@ -528,27 +517,81 @@
             projectArray.forEach(p => { if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name]; });
             $('#kpiTotalBudget').text(sumBudget > 0 ? sumBudget.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
 
-            let chartLabels = projectArray.map(p => p.name);
-            let chartData = projectArray.map(p => p.sum);
+            // ==========================================
+            // 📊 วาดกราฟแท่ง (Bar Chart) แสดงเฉพาะโครงการที่มีงบประมาณ
+            // ==========================================
+            
+            // 1. กรองเอาเฉพาะโครงการที่มีระบุงบประมาณ (และงบต้องมากกว่า 0)
+            let budgetedProjects = projectArray.filter(p => projectBudgets[p.name] != null && projectBudgets[p.name] > 0);
 
-            if (projectArray.length > 10 && !$('#filterProject').val()) {
-                const top = projectArray.slice(0, 9);
-                chartLabels = top.map(p => p.name); chartLabels.push('อื่นๆ');
-                chartData = top.map(p => p.sum); chartData.push(projectArray.slice(9).reduce((acc, curr) => acc + curr.sum, 0));
-            }
+            // 2. เตรียมข้อมูลแกน X (ชื่อโครงการ) และแกน Y (% ที่ใช้ไป)
+            let chartLabels = budgetedProjects.map(p => p.name);
+            let chartData = budgetedProjects.map(p => ((p.sum / projectBudgets[p.name]) * 100).toFixed(2));
+
+            // สร้างสีแท่งกราฟสลับสีตาม Theme เดิม
+            let barColors = budgetedProjects.map((_, i) => googleColors[i % googleColors.length]);
 
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
-                type: 'doughnut',
-                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: googleColors, borderWidth: 0, hoverOffset: 4 }] },
+                type: 'bar', // เปลี่ยนประเภทกราฟเป็นแท่งแนวตั้ง
+                data: { 
+                    labels: chartLabels, 
+                    datasets: [{ 
+                        data: chartData, 
+                        backgroundColor: barColors, 
+                        borderRadius: 6, // ทำมุมแท่งให้โค้งมนสไตล์ Apple
+                        borderWidth: 0
+                    }] 
+                },
                 options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '70%',
+                    responsive: true, 
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'right', labels: { font: { family: '-apple-system, sans-serif', size: 10 }, usePointStyle: true, boxWidth: 6, color: '#1d1d1f' } },
-                        datalabels: { color: '#ffffff', formatter: (value) => { if(totalAmount === 0) return ""; let pct = ((value*100) / totalAmount); return pct > 4 ? pct.toFixed(1) + "%" : ""; }, font: { family: '-apple-system', size: 9, weight: '600' } }
+                        legend: { display: false }, // ซ่อนกล่องป้ายกำกับ เพราะแท่งแยกโครงการชัดเจนแล้ว
+                        datalabels: { 
+                            color: '#1d1d1f', // สีตัวเลข % บนแท่ง
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value) => value + "%", 
+                            font: { family: '-apple-system', size: 10, weight: 'bold' } 
+                        },
+                        tooltip: { 
+                            backgroundColor: 'rgba(29,29,31,0.9)', padding: 12, cornerRadius: 8, 
+                            callbacks: { 
+                                // ปรับข้อความตอนเอาเมาส์ชี้ให้โชว์ % และ จำนวนเงิน (จ่ายไป / งบทั้งหมด)
+                                label: (c) => {
+                                    let projName = c.label;
+                                    let pData = budgetedProjects.find(p => p.name === projName);
+                                    let budget = projectBudgets[projName];
+                                    let used = pData ? pData.sum : 0;
+                                    return ` ใช้ไป: ${c.raw}% (${used.toLocaleString('th-TH', {minimumFractionDigits: 2})} / ${budget.toLocaleString('th-TH', {minimumFractionDigits: 2})} บ.)`;
+                                } 
+                            } 
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grace: '15%', // ดันเพดานกราฟขึ้นเผื่อที่ให้ตัวเลข % ไม่โดนตัด
+                            ticks: {
+                                callback: function(value) { return value + "%"; },
+                                font: { family: '-apple-system', size: 10 }
+                            }
+                        },
+                        x: {
+                            ticks: { 
+                                font: { family: '-apple-system', size: 10 },
+                                maxRotation: 45, // เอียงชื่อโครงการถ้ามันยาวไป
+                                minRotation: 0
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: { top: 20 } // เผื่อพื้นที่ด้านบนกราฟกัน datalabels ตกขอบ
                     }
                 }
             });
+            // ==========================================
 
             if (summaryTableInstance) { summaryTableInstance.clear(); } 
             else { 
@@ -584,7 +627,6 @@
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
                     ordering: false,
                     createdRow: function(row, data, dataIndex) {
-                        // แทรก slipType ไว้ใน row เพื่อเอาไว้ใช้กับฟิลเตอร์
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
                     }
@@ -595,8 +637,6 @@
 
             data.forEach(item => {
                 let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
-                
-                // ตกแต่งรายละเอียดนิดหน่อย เพื่อให้รู้ว่าเป็นแบบไหน (ถ้าไม่มีสลิป จะมีแท็กบอก)
                 let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1">ไม่มีสลิป</span>` : ``;
                 
                 let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b]">${item.dateText}</span>`;
@@ -607,7 +647,6 @@
             detailedTableInstance.draw();
         }
 
-        // 🔹 คำนวณรายเดือนใหม่: ไม่เอา "ไม่มีสลิป" + (ค่าใช้จ่ายรถ / ค่าแรงจริง)
         function generateMonthlyTable() {
             let pivot = {};
             let totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]; 
@@ -617,7 +656,6 @@
                 if (!item.dateObj) return;
                 if (projectVal && item.project !== projectVal) return; 
                 
-                // 🚀 ลอจิกใหม่: ไม่นำมาบวก ถ้ารายการนั้น "ไม่มีสลิป" และ BOQ คือ ค่าใช้จ่ายรถ หรือ ค่าแรงจริง
                 if (item.slipType === "ไม่มีสลิป" && (item.boq === "ค่าใช้จ่ายรถ" || item.boq === "ค่าแรงจริง")) {
                     return; 
                 }
@@ -676,7 +714,6 @@
 
             if (!detailedTableInstance) return;
 
-            // 🔹 บังคับปรับตารางเป็นโหมด "แสดงทั้งหมด" ก่อนพิมพ์ เพื่อให้ข้อมูลไม่แหว่ง
             let previousFilter = currentTableFilter;
             setTableFilter('all'); 
             
@@ -705,7 +742,7 @@
             setTimeout(() => {
                 window.print();
                 detailedTableInstance.page.len(currentLen).draw(false); 
-                setTableFilter(previousFilter); // 🔹 คืนค่าฟิลเตอร์กลับเป็นแบบที่ผู้ใช้เลือกไว้ตอนแรก
+                setTableFilter(previousFilter); 
             }, 800); 
         }
 
