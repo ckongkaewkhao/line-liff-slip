@@ -34,7 +34,7 @@
 
     <style>
         /* ==========================================
-           ⭐ สไตล์หน้าเว็บ (Screen) - อัปเดตฟอนต์สไตล์ Minimal
+           ⭐ สไตล์หน้าเว็บ (Screen)
            ========================================== */
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
         
@@ -68,7 +68,7 @@
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (BLACK & WHITE ONLY) - บังคับ Tahoma เหมือนเดิม
+           ⭐ THE ULTIMATE PRINT CSS (BLACK & WHITE ONLY)
            ========================================== */
         @media print {
             * {
@@ -312,7 +312,6 @@
         let chartInstance = null;
         let dateSortAsc = true;
         
-        // ⭐ เปลี่ยนโทนสีให้เป็นแนวพาสเทลโมเดิร์นสวยๆ คลีนๆ (Modern Aesthetic Colors)
         const themeColors = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA', '#38BDF8', '#FB7185', '#2DD4BF', '#FB923C', '#818CF8', '#A3E635', '#F472B6'];
 
         $(document).ready(function() {
@@ -501,18 +500,27 @@
         }
 
         function updateDashboards(data) {
-            const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
-            
-            $('#kpiTotal').text(totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-            $('#kpiProjects').text([...new Set(data.map(item => item.project))].length.toLocaleString('th-TH'));
-            $('#kpiTransactions').text(data.length.toLocaleString('th-TH'));
-
+            let totalAmountKPI = 0;
             const projectStats = {};
+            
             data.forEach(item => {
+                // 🚀 ลอจิกสำหรับกล่องยอดรวมบนสุด: กรองบิล "ไม่มีสลิป" + (ค่าใช้จ่ายรถ / ค่าแรงจริง) ออก
+                let isExcluded = (item.slipType === "ไม่มีสลิป" && (item.boq === "ค่าใช้จ่ายรถ" || item.boq === "ค่าแรงจริง"));
+                
+                if (!isExcluded) {
+                    totalAmountKPI += item.amount;
+                }
+                
+                // 🚀 ลอจิกสำหรับกราฟแท่งและตารางสรุป: บวกรวม "ทุกบิล 100%" (ไม่หักอะไรออก)
                 if(!projectStats[item.project]) projectStats[item.project] = { sum: 0, count: 0 };
                 projectStats[item.project].sum += item.amount;
                 projectStats[item.project].count += 1;
             });
+            
+            $('#kpiTotal').text(totalAmountKPI.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            $('#kpiProjects').text([...new Set(data.map(item => item.project))].length.toLocaleString('th-TH'));
+            $('#kpiTransactions').text(data.length.toLocaleString('th-TH'));
+
             const projectArray = Object.keys(projectStats).map(proj => ({ name: proj, sum: projectStats[proj].sum })).sort((a, b) => b.sum - a.sum);
 
             let sumBudget = 0;
@@ -714,6 +722,7 @@
             printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 15mm !important; } }';
 
             const projVal = $('#filterProject').val();
+            // เมื่อสั่งปริ้นท์ยอดรวมในใบ PDF จะดึงจากกล่อง KPI (ที่กรองแล้ว) มาแสดง
             const totalUsedRaw = $('#kpiTotal').text().replace(/,/g, '');
             const totalUsed = parseFloat(totalUsedRaw) || 0;
 
