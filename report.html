@@ -145,18 +145,22 @@
             body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
             body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
 
-            /* บังคับตารางรายเดือนปรับยืดหดตามตัวเลข เพิ่ม-ลด อัตโนมัติ */
-            #monthlyTable { table-layout: auto !important; }
+            /* แก้ปัญหาตัวหนังสือตีลังกาในหน้ารายเดือนตอนปริ้น */
+            #monthlyTable { table-layout: auto !important; width: 100% !important;}
             #monthlyTable th, #monthlyTable td {
-                white-space: nowrap !important; font-size: 9pt !important; padding: 4px 6px !important;
-                text-align: right !important; vertical-align: middle !important;
+                white-space: nowrap !important; /* บังคับห้ามตัดคำเด็ดขาด */
+                font-size: 8pt !important; /* ลดฟอนต์ลงนิดนึงเพื่อให้พอดี A4 แนวนอน */
+                padding: 4px 6px !important;
+                text-align: right !important; 
+                vertical-align: middle !important;
             }
             #monthlyTable th:first-child, #monthlyTable td:first-child {
-                white-space: normal !important; text-align: left !important;
-                min-width: 120px !important; max-width: 250px !important;
+                text-align: left !important;
+                width: 15% !important; /* กำหนดความกว้างคอลัมน์ชื่อให้ตายตัว */
             }
             #monthlyTable thead th { text-align: center !important; }
-            /* เน้นสีดำให้แถวยอดรวมด้านบน */
+            
+            /* เน้นสีดำให้แถวยอดรวมด้านบนสุด */
             #monthlyTotalsTop th { border-bottom: 2px solid #000000 !important; background-color: #f5f5f7 !important;}
         }
     </style>
@@ -548,7 +552,7 @@
             });
             const projectArray = Object.keys(projectStats).map(proj => ({ name: proj, sum: projectStats[proj].sum })).sort((a, b) => b.sum - a.sum);
 
-            // คำนวณยอดงบประมาณรวม เฉพาะโปรเจกต์ที่แสดงอยู่ในตาราง ณ ขณะนั้น
+            // คำนวณยอดงบประมาณรวม
             let sumBudget = 0;
             projectArray.forEach(p => {
                 if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name];
@@ -629,11 +633,13 @@
             detailedTableInstance.draw();
         }
 
+        // ================= แก้ไขตารางรายเดือนให้บวกเลขก่อนแล้วค่อยสร้าง Header =================
         function generateMonthlyTable() {
             let pivot = {};
             let totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]; 
             const projectVal = $('#filterProject').val();
             
+            // วนลูปบวกเลขเก็บเข้าตัวแปรให้เรียบร้อย
             rawData.forEach(item => {
                 if (!item.dateObj) return;
                 if (projectVal && item.project !== projectVal) return; 
@@ -648,33 +654,34 @@
             
             if (monthlyTableInstance) monthlyTableInstance.destroy();
             
-            // สร้าง Header ยอดรวมไว้บนสุดเหนือเดือน
-            let headTotals = `<th class="text-left font-bold text-[#1d1d1f] py-3 px-4 border-b text-[13px] md:text-[14px]">ยอดรวมทุกโครงการ</th>`;
-            for(let i=0; i<=12; i++) {
-                let textVal = totals[i] > 0 ? totals[i].toLocaleString('th-TH', {minimumFractionDigits:2}) : '-';
-                let colorClass = i === 12 ? 'text-[#FF9500]' : 'text-[#1d1d1f]';
-                headTotals += `<th class="text-right font-bold ${colorClass} py-3 px-4 border-b text-[13px] md:text-[14px]">${textVal}</th>`;
-            }
-            $('#monthlyTotalsTop').html(headTotals);
-
             let tbody = '';
             Object.keys(pivot).sort().forEach(p => {
                 tbody += `<tr><td class="font-medium text-[13px] whitespace-nowrap">${p}</td>`;
                 for(let i=0; i<=12; i++) {
                     let val = pivot[p][i];
+                    totals[i] += val; // <--- บวกเข้ายอดรวมรวมทุกโปรเจกต์
                     let colorClass = val > 0 ? (i === 12 ? 'text-[#FF9500] font-bold' : 'text-[#1d1d1f]') : 'text-[#d2d2d7]';
                     let textVal = val > 0 ? val.toLocaleString('th-TH', {minimumFractionDigits:2}) : '-';
                     tbody += `<td class="text-right text-[12px] ${colorClass}">${textVal}</td>`;
                 }
                 tbody += `</tr>`;
             });
+
+            // สร้าง Header ยอดรวมหลังจากที่คำนวณ totals[] เสร็จทั้งหมดแล้ว
+            let headTotals = `<th class="text-left font-bold text-[#1d1d1f] py-3 px-4 border-b text-[13px] md:text-[14px]">ยอดรวมทุกโครงการ</th>`;
+            for(let i=0; i<=12; i++) {
+                let textVal = totals[i] > 0 ? totals[i].toLocaleString('th-TH', {minimumFractionDigits:2}) : '-';
+                let colorClass = i === 12 ? 'text-[#FF9500]' : 'text-[#1d1d1f]';
+                headTotals += `<th class="text-right font-bold ${colorClass} py-3 px-4 border-b text-[13px] md:text-[14px]">${textVal}</th>`;
+            }
             
+            $('#monthlyTotalsTop').html(headTotals);
             $('#monthlyTable tbody').html(tbody);
             
             monthlyTableInstance = $('#monthlyTable').DataTable({
                 paging: false, info: false, searching: true,
-                orderCellsTop: false, // เพื่อให้ DataTables ไม่สับสนกับแถวรวมบนสุด
-                order: [], // ปิดการเรียงลำดับอัตโนมัติ เพื่อรักษาลำดับที่จัดมาแล้ว
+                orderCellsTop: false, 
+                order: [], 
                 dom: '<"flex justify-between items-center mb-4 no-print"f>rt',
                 language: { search: "", searchPlaceholder: "พิมพ์ชื่อโครงการ...", emptyTable: "ไม่มีข้อมูล" },
                 columnDefs: [ { className: "dt-right", targets: "_all" }, { className: "dt-left", targets: [0] } ]
