@@ -11,8 +11,17 @@
 
     <div class="p-4 max-w-md mx-auto w-full">
         <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 shadow-sm text-white mb-6">
-            <h1 class="text-xl font-bold">บันทึกรายจ่าย & ส่งสลิป</h1>
-            <p class="text-xs text-emerald-100 mt-1">กรอกข้อมูลและแนบรูปภาพให้ครบถ้วน</p>
+            <h1 class="text-xl font-bold">บันทึกรายจ่าย</h1>
+            <p class="text-xs text-emerald-100 mt-1">กรุณาเลือกประเภทการบันทึกข้อมูล</p>
+        </div>
+
+        <div class="flex bg-slate-200 p-1 rounded-xl mb-4">
+            <button id="btnModeSlip" type="button" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-emerald-600 transition-all">
+                ✅ บิลมีสลิป
+            </button>
+            <button id="btnModeNoSlip" type="button" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">
+                ❌ บิลไม่มีสลิป
+            </button>
         </div>
 
         <form id="slipForm" class="bg-white rounded-2xl p-5 shadow-sm space-y-4 border border-slate-100">
@@ -38,10 +47,8 @@
                     <option value="ค่างานล่วงหน้า">ค่างานล่วงหน้า</option>
                     <option value="แพล้นปูน">แพล้นปูน</option>
                     <option value="สวนทุเรียน">สวนทุเรียน</option>
-  					     <option value="เบิกล่วงหน้า">เบิกล่วงหน้า</option>
+                    <option value="เบิกล่วงหน้า">เบิกล่วงหน้า</option>
                     <option value="อื่นๆ">อื่นๆ (พิมพ์ระบุหน้างานเอง)</option>
-		   
-
                     <option disabled>──────────</option>
                     <option value="งานเขื่อนปรางหมู่">งานเขื่อนปรางหมู่</option>
                     <option value="งานวางท่อท่าแค">งานวางท่อท่าแค</option>
@@ -61,9 +68,7 @@
                     <option value="งานถนนสายปัญญาวุธ">งานถนนสายปัญญาวุธ</option>
                     <option value="งานถนนสายต้นโหนด">งานถนนสายต้นโหนด</option>
                     <option value="งานถนนสายน้ำใต้บ่อ">งานถนนสายน้ำใต้บ่อ</option>
-		         <option value="งานถนนท่าสำเภา">งานถนนท่าสำเภา</option>
-
-
+                    <option value="งานถนนท่าสำเภา">งานถนนท่าสำเภา</option>
                 </select>
             </div>
 
@@ -72,9 +77,18 @@
                 <input type="text" id="otherProjectSite" placeholder="พิมพ์ชื่อโครงการใหม่ที่นี่" class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
-            <div>
+            <div id="boqZone">
                 <label class="block text-sm font-semibold text-slate-600 mb-1">ประเภท BOQ (ถ้ามี)</label>
-                <input type="text" id="boqType" placeholder="เช่น ค่าวัสดุ, ค่าแรง..." class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                
+                <input type="text" id="boqType_slip" placeholder="เช่น ค่าวัสดุ, ค่าแรง..." class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                
+                <select id="boqType_noslip" class="hidden w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all mb-2">
+                    <option value="">-- เลือกประเภท BOQ --</option>
+                    <option value="ค่าใช้จ่ายรถ">ค่าใช้จ่ายรถ</option>
+                    <option value="ค่าแรงจริง">ค่าแรงจริง</option>
+                    <option value="อื่นๆ">อื่นๆ (พิมพ์ระบุเอง)</option>
+                </select>
+                <input type="text" id="boqType_noslip_other" placeholder="ระบุประเภท BOQ..." class="hidden w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
 
             <div>
@@ -92,7 +106,7 @@
                 <textarea id="remark" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" class="w-full bg-white p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"></textarea>
             </div>
 
-            <div>
+            <div id="imageUploadZone">
                 <label class="block text-sm font-semibold text-slate-600 mb-1">แนบรูปภาพสลิป / หน้างาน <span class="text-red-500">*</span></label>
                 <input type="file" id="slipFiles" accept="image/*" multiple required class="w-full bg-white p-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
             </div>
@@ -107,12 +121,66 @@
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfKLRezPJbcpnOMJ0PcUcJTgJ83anK6DgylXzSVtKG7c95zwDWMipFPwpQcB3--EnOfA/exec"; 
         const LIFF_ID = "2010350342-kxcHYs3F"; 
 
+        let currentMode = "มีสลิป"; // เก็บสถานะโหมดปัจจุบัน
+
+        // ตั้งค่าวันที่ปัจจุบัน
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
 
+        // 🔹 ระบบสลับโหมด
+        const btnSlip = document.getElementById('btnModeSlip');
+        const btnNoSlip = document.getElementById('btnModeNoSlip');
+        const imgZone = document.getElementById('imageUploadZone');
+        const slipFileInput = document.getElementById('slipFiles');
+        
+        const boqSlip = document.getElementById('boqType_slip');
+        const boqNoSlip = document.getElementById('boqType_noslip');
+        const boqNoSlipOther = document.getElementById('boqType_noslip_other');
+
+        btnSlip.addEventListener('click', () => {
+            currentMode = "มีสลิป";
+            btnSlip.className = "flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-emerald-600 transition-all";
+            btnNoSlip.className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
+            
+            imgZone.classList.remove('hidden');
+            slipFileInput.setAttribute('required', 'required'); // บังคับแนบรูป
+
+            boqSlip.classList.remove('hidden');
+            boqNoSlip.classList.add('hidden');
+            boqNoSlipOther.classList.add('hidden');
+        });
+
+        btnNoSlip.addEventListener('click', () => {
+            currentMode = "ไม่มีสลิป";
+            btnNoSlip.className = "flex-1 py-2 text-sm font-bold rounded-lg bg-white shadow-sm text-red-500 transition-all";
+            btnSlip.className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
+            
+            imgZone.classList.add('hidden');
+            slipFileInput.removeAttribute('required'); // ไม่บังคับแนบรูป
+            slipFileInput.value = ""; // ล้างรูปที่เลือกไว้ทิ้ง
+
+            boqSlip.classList.add('hidden');
+            boqNoSlip.classList.remove('hidden');
+            // เช็คว่าเคยเลือก "อื่นๆ" ไว้ไหม ถ้าใช่ให้เปิดช่องพิมพ์
+            if(boqNoSlip.value === "อื่นๆ") {
+                boqNoSlipOther.classList.remove('hidden');
+            }
+        });
+
+        // เปิดช่องระบุ BOQ เอง
+        boqNoSlip.addEventListener('change', function() {
+            if (this.value === 'อื่นๆ') {
+                boqNoSlipOther.classList.remove('hidden');
+            } else {
+                boqNoSlipOther.classList.add('hidden');
+                boqNoSlipOther.value = "";
+            }
+        });
+
+        // เปิดช่องระบุโครงการเอง
         document.getElementById('projectSite').addEventListener('change', function() {
             const otherDiv = document.getElementById('otherProjectDiv');
             const otherInput = document.getElementById('otherProjectSite');
@@ -185,37 +253,51 @@
             e.preventDefault();
             
             const btnSubmit = document.getElementById('btnSubmit');
-            btnSubmit.innerText = "กำลังอัปโหลดรูปภาพและบันทึกคลาวด์...";
+            btnSubmit.innerText = "กำลังบันทึกข้อมูล...";
             btnSubmit.disabled = true;
             btnSubmit.classList.replace('bg-emerald-500', 'bg-slate-400');
 
             try {
-                const fileInput = document.getElementById('slipFiles');
-                const files = fileInput.files;
+                // จัดการรูปภาพ (ถ้ามีสลิป)
+                const files = document.getElementById('slipFiles').files;
                 const imagesPayload = [];
-
-                for (let i = 0; i < files.length; i++) {
-                    const compressedBase64 = await resizeAndBase64(files[i]);
-                    imagesPayload.push({
-                        name: `${Date.now()}_${i}_slip.jpg`,
-                        data: compressedBase64
-                    });
+                if (currentMode === "มีสลิป") {
+                    for (let i = 0; i < files.length; i++) {
+                        const compressedBase64 = await resizeAndBase64(files[i]);
+                        imagesPayload.push({
+                            name: `${Date.now()}_${i}_slip.jpg`,
+                            data: compressedBase64
+                        });
+                    }
                 }
 
+                // จัดการชื่อโครงการ
                 let finalProjectSite = document.getElementById('projectSite').value;
                 if (finalProjectSite === 'อื่นๆ') {
                     finalProjectSite = document.getElementById('otherProjectSite').value;
+                }
+
+                // จัดการค่า BOQ ตามโหมด
+                let finalBoqType = "";
+                if (currentMode === "มีสลิป") {
+                    finalBoqType = document.getElementById('boqType_slip').value;
+                } else {
+                    finalBoqType = document.getElementById('boqType_noslip').value;
+                    if (finalBoqType === "อื่นๆ") {
+                        finalBoqType = document.getElementById('boqType_noslip_other').value;
+                    }
                 }
 
                 const payload = {
                     dateInput: document.getElementById('dateInput').value,
                     employeeName: document.getElementById('empName').value,
                     projectSite: finalProjectSite,
-                    boqType: document.getElementById('boqType').value,
+                    boqType: finalBoqType,
                     itemDetail: document.getElementById('itemDetail').value,
                     amount: parseFloat(document.getElementById('amount').value),
                     remark: document.getElementById('remark').value,
-                    images: imagesPayload
+                    images: imagesPayload,
+                    slipType: currentMode // 🔹 ส่งค่า มีสลิป/ไม่มีสลิป ไปให้หลังบ้าน
                 };
 
                 const response = await fetch(GAS_WEB_APP_URL, {
@@ -226,7 +308,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('🎉 สำเร็จเรียบร้อย! ข้อมูลและรูปภาพทั้งหมดส่งเข้าระบบแล้ว');
+                    alert('🎉 สำเร็จเรียบร้อย! ส่งข้อมูลเข้าระบบแล้ว');
                     liff.closeWindow(); 
                 } else {
                     alert('❌ เกิดข้อผิดพลาดจากระบบหลังบ้าน: ' + result.error);
