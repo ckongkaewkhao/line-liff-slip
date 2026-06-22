@@ -172,7 +172,6 @@
 
         <div id="filterSection" class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 md:gap-3 flex-1 w-full xl:w-auto">
             
-            <!-- 📌 เพิ่มตัวกรอง "ปี" ตรงนี้ -->
             <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
                 <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">ปี:</span>
                 <select id="filterYear" class="g-input-sm w-[100px] sm:w-[80px] cursor-pointer bg-transparent">
@@ -181,7 +180,8 @@
             </div>
             <div class="hidden lg:block h-4 w-px bg-[#d2d2d7]"></div>
 
-            <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
+            <!-- 📌 ใส่ ID ให้ชุดวันที่จะได้ซ่อนได้ตอนอยู่หน้ารายเดือน -->
+            <div id="dateFilterGroup" class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
                 <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">วันที่:</span>
                 <div class="flex items-center gap-1">
                     <input type="text" id="filterStartDate" class="g-input-sm w-[95px] md:w-24 text-center bg-transparent" placeholder="เริ่ม">
@@ -189,7 +189,7 @@
                     <input type="text" id="filterEndDate" class="g-input-sm w-[95px] md:w-24 text-center bg-transparent" placeholder="สิ้นสุด">
                 </div>
             </div>
-            <div class="hidden lg:block h-4 w-px bg-[#d2d2d7]"></div>
+            <div id="dateFilterDivider" class="hidden lg:block h-4 w-px bg-[#d2d2d7]"></div>
 
             <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
                 <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">โครงการ:</span>
@@ -335,7 +335,8 @@
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             <div class="apple-card p-0 overflow-hidden">
                 <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0 no-print">
-                    <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปค่าใช้จ่ายรายเดือน</h3>
+                    <!-- 📌 เพิ่ม ID ให้หัวตารางเพื่อเปลี่ยนชื่อตามปีที่เลือก -->
+                    <h3 id="monthlyTitle" class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปค่าใช้จ่ายรายเดือน</h3>
                 </div>
                 <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="monthlyTable" class="w-full text-left display nowrap" style="width:100%">
@@ -419,7 +420,29 @@
             });
         });
 
-        // 🔵 ฟังก์ชันแสดงสรุปรายวัน ทำงานในหน้าเว็บล้วนๆ พร้อมระบบ Dropdown
+        // 📌 ระบบสลับหน้าจอ ที่ถูกแก้ไขให้ยังคงโชว์ตัวกรองปีอยู่
+        function switchTab(tabName) {
+            currentView = tabName;
+            if (tabName === 'dashboard') {
+                $('#dashboardContainer').fadeIn();
+                $('#monthlyContainer').hide();
+                $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
+                $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
+                
+                // แสดงตัวกรองวันที่ และปุ่มเรียงลำดับในหน้าแดชบอร์ด
+                $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').show();
+            } else {
+                $('#dashboardContainer').hide();
+                $('#monthlyContainer').fadeIn();
+                $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
+                $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
+                
+                // ซ่อนตัวกรองวันที่ ในหน้ารายเดือน
+                $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').hide();
+                generateMonthlyTable();
+            }
+        }
+
         function buildLocalDailySummary() {
             let now = new Date();
             let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
@@ -430,7 +453,6 @@
             let projectData = {};
 
             rawData.forEach(item => {
-                // เช็คว่าอยู่ในรอบ 24 ชั่วโมง และต้อง "มีสลิป"
                 if (item.exactDateTime && item.exactDateTime > startTime && item.exactDateTime <= endTime) {
                     if (item.slipType === "ไม่มีสลิป") return;
 
@@ -448,13 +470,11 @@
                 }
             });
 
-            // อัปเดตตัวเลขหลัก
             let dateFormatted = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
             document.getElementById("sum-date").innerText = "(" + dateFormatted + ")";
             document.getElementById("sum-total").innerText = totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + " ฿";
             document.getElementById("sum-count").innerText = count + " รายการ";
 
-            // สร้าง Dropdown รายการย่อย
             let projectHtml = "";
             let projectKeys = Object.keys(projectData);
             
@@ -498,7 +518,6 @@
             document.getElementById("sum-projects").innerHTML = projectHtml;
         }
 
-        // ระบบคลิกพับ-กาง (Dropdown)
         function toggleSummaryDrop(id) {
             const content = document.getElementById('content-' + id);
             const icon = document.getElementById('icon-' + id);
@@ -522,24 +541,6 @@
                 }
             });
             if(detailedTableInstance) detailedTableInstance.draw();
-        }
-
-        function switchTab(tabName) {
-            currentView = tabName;
-            if (tabName === 'dashboard') {
-                $('#dashboardContainer').fadeIn();
-                $('#filterSection').fadeIn();
-                $('#monthlyContainer').hide();
-                $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
-                $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-            } else {
-                $('#dashboardContainer').hide();
-                $('#filterSection').hide();
-                $('#monthlyContainer').fadeIn();
-                $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
-                $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-                generateMonthlyTable();
-            }
         }
 
         function fetchGoogleSheetData() {
@@ -611,7 +612,7 @@
                 if(typeVal === '') typeVal = "มีสลิป";
                 
                 let parsedDate = null;
-                let exactDateTime = null; // เก็บเวลาแบบเป๊ะๆ
+                let exactDateTime = null; 
                 
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
@@ -621,7 +622,6 @@
                         parsedDate = new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]));
                         dVal = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${year}`;
                         
-                        // แกะเวลาเพื่อสร้าง exactDateTime
                         let tParts = timeVal.split(':');
                         let h = tParts.length > 0 ? parseInt(tParts[0]) : 0;
                         let m = tParts.length > 1 ? parseInt(tParts[1]) : 0;
@@ -636,9 +636,6 @@
                 });
             }
 
-            // =====================================
-            // 📌 สร้างตัวเลือก ปี (Year) ให้ Filter 
-            // =====================================
             const uniqueYears = [...new Set(rawData.map(item => item.dateObj ? item.dateObj.getFullYear().toString() : null).filter(Boolean))].sort((a,b) => b - a);
             
             const yearFilter = document.getElementById('filterYear');
@@ -646,7 +643,6 @@
             yearFilter.innerHTML = '<option value="all">-- ทุกปี --</option>';
             uniqueYears.forEach(year => yearFilter.appendChild(new Option(year, year)));
             
-            // ตั้งค่าเริ่มต้นเป็นปีปัจจุบัน (ถ้ามีข้อมูลในปีนี้)
             let currentYearStr = new Date().getFullYear().toString();
             if (currentSelectedYear && currentSelectedYear !== 'all' && uniqueYears.includes(currentSelectedYear)) {
                 yearFilter.value = currentSelectedYear;
@@ -655,7 +651,6 @@
             } else {
                 yearFilter.value = 'all';
             }
-            // =====================================
 
             let combinedProjects = [...Object.keys(projectBudgets), ...rawData.map(item => item.project)];
             const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== 'ไม่ระบุโครงการ' && p !== '' && !p.startsWith('ID-')).sort();
@@ -667,7 +662,7 @@
             projectFilter.value = currentSelected;
 
             applyGlobalFilters();
-            buildLocalDailySummary(); // สร้างรายงานรายวันทันทีหลังจากโหลดข้อมูลเสร็จ
+            buildLocalDailySummary(); 
             if(currentView === 'monthly') generateMonthlyTable();
         }
 
@@ -675,13 +670,12 @@
             const startDateVal = $('#filterStartDate').val();
             const endDateVal = $('#filterEndDate').val();
             const projectVal = $('#filterProject').val();
-            const yearVal = $('#filterYear').val(); // 📌 รับค่าปีจาก Filter
+            const yearVal = $('#filterYear').val();
 
             let filteredData = rawData.filter(item => {
                 let isMatch = true;
                 if (projectVal && item.project !== projectVal) isMatch = false;
                 
-                // 📌 กรองตามปีที่เลือก
                 if (yearVal !== 'all' && item.dateObj && item.dateObj.getFullYear().toString() !== yearVal) isMatch = false;
 
                 if (item.dateObj) {
@@ -844,10 +838,14 @@
             detailedTableInstance.draw();
         }
 
-        // 📌 ตารางรายเดือนใช้ currentFilteredData ที่ผ่านการกรองปีแล้ว
         function generateMonthlyTable() {
             let pivot = {};
             let totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]; 
+            
+            // 📌 อัปเดตชื่อหัวตารางให้แสดงผลตามปีที่เลือกอยู่
+            let yearVal = $('#filterYear').val();
+            let yearText = yearVal === 'all' ? 'ทุกปี' : `ปี ${yearVal}`;
+            $('#monthlyTitle').text(`สรุปค่าใช้จ่ายรายเดือน (${yearText})`);
             
             currentFilteredData.forEach(item => {
                 if (!item.dateObj) return;
