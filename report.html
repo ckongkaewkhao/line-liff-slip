@@ -204,6 +204,28 @@
                     </div>
                 </div>
 
+                <div class="apple-card p-4 md:p-6 mb-4">
+                    <div class="flex justify-between items-center mb-4 border-b border-[#f5f5f7] pb-3">
+                        <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
+                            📊 สรุปรายจ่ายวันนี้ 
+                            <span id="sum-date" class="text-[13px] font-normal text-[#86868b]"></span>
+                        </h3>
+                        <button onclick="fetchDailySummary()" class="btn-secondary text-[11px] px-3 py-1">🔄 อัปเดต</button>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+                        <div class="md:w-1/3 bg-[#f5f5f7] rounded-[14px] p-5 flex flex-col justify-center items-center border border-[#e5e5ea]">
+                            <span class="text-[12px] text-[#86868b] font-semibold mb-1 uppercase tracking-wide">ยอดรวมสุทธิ (เฉพาะมีสลิป)</span>
+                            <span id="sum-total" class="text-2xl md:text-3xl font-bold text-[#34c759] tracking-tight">กำลังโหลด...</span>
+                            <span id="sum-count" class="text-[13px] text-[#86868b] mt-1 font-medium">- รายการ</span>
+                        </div>
+                        <div class="md:w-2/3 flex flex-col">
+                            <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ:</h4>
+                            <div id="sum-projects" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[120px] pr-2">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                     <div class="apple-card p-4 md:p-6 flex flex-col min-h-[250px] lg:h-[450px]">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
@@ -296,6 +318,9 @@
     </main>
 
     <script>
+        // 🔴 ลิงก์ Apps Script ใหม่ของคุณสำหรับดึงข้อมูลรายงานรายวัน (Real-time)
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwy9MZ0VHrd80mFBgqcdJ1YbBAMgn3szCzySR7bHEYktQ9T8OYbS3lUbGGy25FfouiJ0Q/exec";
+        
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
         const GID_TRANSACTIONS = '0'; 
         const GID_PROJECTS = '948953737'; 
@@ -316,7 +341,10 @@
 
         $(document).ready(function() {
             Chart.register(ChartDataLabels);
+            
+            // โหลดข้อมูลต่างๆ ทันทีที่เข้าหน้าเว็บ
             fetchGoogleSheetData();
+            fetchDailySummary(); // เรียกดึงรายงานรายวันผ่าน Apps Script
 
             const fpOptions = { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", locale: "th", disableMobile: "true", onChange: applyGlobalFilters };
             flatpickr("#filterStartDate", fpOptions);
@@ -347,6 +375,42 @@
             });
         });
 
+        // 🔵 ฟังก์ชันดึงรายงานรายวัน 24 ชม. ผ่าน Apps Script
+        async function fetchDailySummary() {
+            $('#sum-total').text('กำลังโหลด...');
+            $('#sum-projects').html('<div class="text-[#86868b] p-2">กำลังดึงข้อมูล...</div>');
+
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const data = await response.json();
+                
+                document.getElementById("sum-date").innerText = "(" + data.date + ")";
+                document.getElementById("sum-total").innerText = data.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + " ฿";
+                document.getElementById("sum-count").innerText = data.count + " รายการ";
+                
+                let projectHtml = "";
+                if(data.projects && data.projects.length === 0) {
+                    projectHtml = "<div class='text-[#86868b] p-2 bg-white rounded-lg border border-[#e5e5ea]'>🟢 ยังไม่มีรายการเบิกจ่ายที่มีสลิปในรอบเวลานี้</div>";
+                } else if (data.projects) {
+                    data.projects.forEach(p => {
+                        projectHtml += `<div class="bg-white px-3 py-2.5 rounded-[10px] flex justify-between items-center border border-[#e5e5ea] shadow-sm">
+                            <span class="font-medium text-[#1d1d1f] truncate mr-2">${p.name}</span>
+                            <span class="font-bold text-[#1d1d1f] shrink-0">${p.total.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
+                        </div>`;
+                    });
+                }
+                document.getElementById("sum-projects").innerHTML = projectHtml;
+                
+            } catch (error) {
+                console.error("โหลดข้อมูลสรุปไม่สำเร็จ:", error);
+                document.getElementById("sum-total").innerText = "โหลดไม่สำเร็จ";
+                document.getElementById("sum-projects").innerHTML = "<div class='text-red-500 p-2'>เกิดข้อผิดพลาดในการดึงข้อมูล โปรดลองโหลดข้อมูลอีกครั้ง</div>";
+            }
+        }
+
+        // ==============================================
+        // ฟังก์ชันเดิมของหน้า Dashboard
+        // ==============================================
         function setTableFilter(filterType) {
             currentTableFilter = filterType;
             ['all', 'slip', 'noslip'].forEach(type => {
@@ -504,14 +568,12 @@
             const projectStats = {};
             
             data.forEach(item => {
-                // 🚀 ลอจิกใหม่กล่องยอดรวมบนสุด: กรองบิล "ไม่มีสลิป" ออกทั้งหมด
                 let isExcluded = (item.slipType === "ไม่มีสลิป");
                 
                 if (!isExcluded) {
                     totalAmountKPI += item.amount;
                 }
                 
-                // 🚀 ลอจิกสำหรับกราฟแท่งและตารางสรุป: บวกรวม "ทุกบิล 100%" (ไม่หักอะไรออก)
                 if(!projectStats[item.project]) projectStats[item.project] = { sum: 0, count: 0 };
                 projectStats[item.project].sum += item.amount;
                 projectStats[item.project].count += 1;
@@ -527,9 +589,6 @@
             projectArray.forEach(p => { if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name]; });
             $('#kpiTotalBudget').text(sumBudget > 0 ? sumBudget.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
 
-            // ==========================================
-            // 📊 วาดกราฟแท่ง (Bar Chart) 
-            // ==========================================
             let budgetedProjects = projectArray.filter(p => projectBudgets[p.name] != null && projectBudgets[p.name] > 0);
             let chartLabels = budgetedProjects.map(p => p.name);
             let chartData = budgetedProjects.map(p => ((p.sum / projectBudgets[p.name]) * 100).toFixed(2));
@@ -589,9 +648,7 @@
                             }
                         }
                     },
-                    layout: {
-                        padding: { top: 20 }
-                    }
+                    layout: { padding: { top: 20 } }
                 }
             });
 
@@ -658,10 +715,7 @@
                 if (!item.dateObj) return;
                 if (projectVal && item.project !== projectVal) return; 
                 
-                // 🚀 ลอจิกใหม่: ไม่นำมาบวก ถ้ารายการนั้น "ไม่มีสลิป" (ไม่สนว่า BOQ อะไร)
-                if (item.slipType === "ไม่มีสลิป") {
-                    return; 
-                }
+                if (item.slipType === "ไม่มีสลิป") return; 
                 
                 let m = item.dateObj.getMonth(); 
                 let p = item.project;
