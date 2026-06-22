@@ -50,7 +50,8 @@
         
         .g-input { border: 1px solid #d2d2d7; border-radius: 12px; padding: 10px 16px; font-size: 14px; outline: none; }
         .g-input:focus { border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); }
-        .g-input-sm { border: 1px solid #d2d2d7; border-radius: 8px; padding: 4px 8px; font-size: 12px; outline: none; height: 28px; }
+        .g-input-sm { border: 1px solid #d2d2d7; border-radius: 8px; padding: 4px 8px; font-size: 14px; outline: none; height: 34px; }
+        @media (min-width: 640px) { .g-input-sm { font-size: 12px; height: 28px; } }
         .g-input-sm:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15); }
         .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
 
@@ -66,6 +67,26 @@
         .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
+
+        /* 📌 ปรับแต่งสไตล์ DataTables ให้ยืดหยุ่นเต็มร้อยบนมือถือ */
+        @media (max-width: 640px) {
+            .dataTables_wrapper .dataTables_length, 
+            .dataTables_wrapper .dataTables_filter {
+                width: 100% !important;
+                text-align: left !important;
+                margin-bottom: 8px;
+            }
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100% !important;
+                margin-left: 0 !important;
+                box-sizing: border-box;
+            }
+            .dataTables_wrapper .dataTables_length select {
+                width: 100% !important;
+                margin-left: 0 !important;
+                box-sizing: border-box;
+            }
+        }
 
         /* ==========================================
            ⭐ THE ULTIMATE PRINT CSS (BLACK & WHITE ONLY)
@@ -142,10 +163,10 @@
 </head>
 <body class="flex flex-col h-screen">
 
-    <nav class="glass-nav px-3 md:px-6 py-2 flex flex-col xl:flex-row items-start md:items-center justify-between no-print shrink-0 gap-3 xl:gap-4 shadow-sm">
+    <nav class="glass-nav px-3 md:px-6 py-2 flex flex-col xl:flex-row items-center justify-between no-print shrink-0 gap-3 xl:gap-4 shadow-sm">
         
-        <div class="flex items-center flex-wrap justify-center gap-3 shrink-0">
-            <div class="text-[16px] md:text-[20px] font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
+        <div class="flex items-center justify-between w-full xl:w-auto gap-3 shrink-0">
+            <div class="text-[18px] md:text-[20px] font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
             <div class="hidden md:block h-5 w-px bg-[#d2d2d7]"></div>
             
             <div class="flex bg-[#e8e8ed] p-1 rounded-lg">
@@ -154,30 +175,34 @@
             </div>
         </div>
 
-        <div id="filterSection" class="flex flex-wrap items-center justify-center gap-2 md:gap-3 flex-1 w-full xl:w-auto">
-            <div class="flex items-center gap-1">
-                <span class="text-[10px] font-semibold text-[#86868b] uppercase">วันที่:</span>
-                <input type="text" id="filterStartDate" class="g-input-sm w-[75px] md:w-24 text-center" placeholder="เริ่ม">
-                <span class="text-[#86868b] text-[10px]">-</span>
-                <input type="text" id="filterEndDate" class="g-input-sm w-[75px] md:w-24 text-center" placeholder="สิ้นสุด">
+        <div id="filterSection" class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 md:gap-3 flex-1 w-full xl:w-auto">
+            <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
+                <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">วันที่:</span>
+                <div class="flex items-center gap-1">
+                    <input type="text" id="filterStartDate" class="g-input-sm w-[95px] md:w-24 text-center bg-transparent" placeholder="เริ่ม">
+                    <span class="text-[#86868b] text-[11px]">-</span>
+                    <input type="text" id="filterEndDate" class="g-input-sm w-[95px] md:w-24 text-center bg-transparent" placeholder="สิ้นสุด">
+                </div>
             </div>
-            <div class="hidden sm:block h-4 w-px bg-[#d2d2d7]"></div>
-            <div class="flex items-center gap-1">
-                <span class="text-[10px] font-semibold text-[#86868b] uppercase">โครงการ:</span>
-                <select id="filterProject" class="g-input-sm w-[130px] sm:w-[160px] md:w-48 cursor-pointer truncate">
+            <div class="hidden lg:block h-4 w-px bg-[#d2d2d7]"></div>
+            <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
+                <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">โครงการ:</span>
+                <select id="filterProject" class="g-input-sm w-[200px] sm:w-[160px] md:w-48 cursor-pointer truncate bg-transparent">
                     <option value="">-- แสดงทั้งหมด --</option>
                 </select>
             </div>
-            <button id="toggleDateSort" type="button" class="g-input-sm flex items-center justify-center gap-1 cursor-pointer bg-white px-2">
-                <span id="sortIcon" class="text-[10px]">↑</span><span id="sortLabel" class="text-[11px] hidden sm:inline">เก่า → ใหม่</span>
-            </button>
-            <button id="resetFilters" class="text-[11px] text-[#ff3b30] hover:text-[#d70015] font-medium transition-colors ml-1">ล้างค่า</button>
+            <div class="flex items-center justify-center gap-3 w-full sm:w-auto mt-1 sm:mt-0">
+                <button id="toggleDateSort" type="button" class="g-input-sm flex items-center justify-center gap-1 cursor-pointer bg-white px-3 rounded-xl border border-[#e5e5ea]">
+                    <span id="sortIcon" class="text-[11px] text-[#0071e3] font-bold">↑</span><span id="sortLabel" class="text-[12px]">เก่า → ใหม่</span>
+                </button>
+                <button id="resetFilters" class="text-[13px] sm:text-[11px] text-[#ff3b30] hover:text-[#d70015] font-semibold transition-colors px-2 py-1">ล้างค่า</button>
+            </div>
         </div>
         
-        <div class="flex gap-2 items-center justify-center shrink-0 w-full xl:w-auto mt-2 xl:mt-0">
-            <button onclick="fetchGoogleSheetData()" class="btn-secondary"><span class="hidden sm:inline">โหลดข้อมูล</span><span class="sm:hidden">🔄</span></button>
-            <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-3 md:px-4 py-[6px] text-[13px] font-medium inline-flex items-center hover:bg-[#0c5c30] transition-colors shadow-sm"><span>Excel</span></button>
-            <button onclick="exportFormalReport()" class="btn-primary"><span>พิมพ์รายงาน</span></button>
+        <div class="flex gap-2 items-center justify-center shrink-0 w-full xl:w-auto mt-1 xl:mt-0 border-t sm:border-0 border-[#f5f5f7] pt-2 sm:pt-0">
+            <button onclick="fetchGoogleSheetData()" class="btn-secondary py-2 px-4 rounded-full text-[13px]"><span class="hidden sm:inline">โหลดข้อมูล</span><span class="sm:hidden">🔄 โหลดข้อมูล</span></button>
+            <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-4 py-[7px] text-[13px] font-medium inline-flex items-center hover:bg-[#0c5c30] transition-colors shadow-sm"><span>Excel</span></button>
+            <button onclick="exportFormalReport()" class="btn-primary py-2 px-4 rounded-full text-[13px]"><span>พิมพ์รายงาน</span></button>
         </div>
     </nav>
 
@@ -185,29 +210,26 @@
         
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-6">
             <div class="print-hidden-section space-y-4 md:space-y-6">
-                <!-- ================== KPI CARDS ================== -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">งบประมาณรวม</h3>
-                        <div id="kpiTotalBudget" class="text-[15px] md:text-2xl font-bold text-[#af52de] tracking-tight">...</div>
+                        <div id="kpiTotalBudget" class="text-[16px] md:text-2xl font-bold text-[#af52de] tracking-tight">...</div>
                     </div>
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
-                        <div id="kpiTotal" class="text-[15px] md:text-2xl font-bold text-[#1d1d1f] tracking-tight">...</div>
+                        <div id="kpiTotal" class="text-[16px] md:text-2xl font-bold text-[#1d1d1f] tracking-tight">...</div>
                     </div>
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">จำนวนโครงการ</h3>
-                        <div id="kpiProjects" class="text-[15px] md:text-2xl font-bold text-[#0071e3] tracking-tight">-</div>
+                        <div id="kpiProjects" class="text-[16px] md:text-2xl font-bold text-[#0071e3] tracking-tight">-</div>
                     </div>
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">จำนวนรายการ</h3>
-                        <div id="kpiTransactions" class="text-[15px] md:text-2xl font-bold text-[#34c759] tracking-tight">-</div>
+                        <div id="kpiTransactions" class="text-[16px] md:text-2xl font-bold text-[#34c759] tracking-tight">-</div>
                     </div>
                 </div>
 
-                <!-- ================== DAILY SUMMARY (กล่องใหม่ รายงานรายวัน Real-time) ================== -->
                 <div class="apple-card p-4 md:p-6 mb-4">
-                    <!-- 📌 แก้ไขส่วนหัวกล่องให้เป็นดีไซน์คลีนๆ แบบ Apple/SVG -->
                     <div class="flex justify-between items-center mb-4 border-b border-[#f5f5f7] pb-3">
                         <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
                             <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -220,30 +242,28 @@
                         </button>
                     </div>
                     <div class="flex flex-col md:flex-row gap-4 md:gap-6">
-                        <!-- ฝั่งซ้าย: ยอดรวม -->
                         <div class="md:w-1/3 bg-[#f5f5f7] rounded-[14px] p-5 flex flex-col justify-center items-center border border-[#e5e5ea]">
                             <span class="text-[12px] text-[#86868b] font-semibold mb-1 uppercase tracking-wide">ยอดรวมสุทธิ (เฉพาะมีสลิป)</span>
                             <span id="sum-total" class="text-2xl md:text-3xl font-bold text-[#34c759] tracking-tight">กำลังโหลด...</span>
                             <span id="sum-count" class="text-[13px] text-[#86868b] mt-1 font-medium">- รายการ</span>
                         </div>
-                        <!-- ฝั่งขวา: แยกโครงการ -->
                         <div class="md:w-2/3 flex flex-col">
                             <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ:</h4>
-                            <div id="sum-projects" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[120px] pr-2">
-                                <!-- โปรเจกต์จะถูกแทรกตรงนี้ -->
-                            </div>
+                            <div id="sum-projects" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[140px] pr-2">
+                                </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ================== CHART & BUDGET SUMMARY ================== -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[250px] lg:h-[450px]">
+                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] lg:h-[450px]">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
                             <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">เปอร์เซ็นต์การใช้จ่ายเทียบกับงบประมาณ</h3>
                         </div>
-                        <div class="flex-1 relative min-h-0 flex items-center justify-center">
-                            <canvas id="expenseChart"></canvas>
+                        <div class="flex-1 overflow-x-auto w-full ios-scroll relative min-h-0 pt-2">
+                            <div class="min-w-[850px] lg:min-w-0 h-full relative">
+                                <canvas id="expenseChart"></canvas>
+                            </div>
                         </div>
                     </div>
                     <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[250px] lg:h-[450px]">
@@ -268,7 +288,6 @@
                 </div>
             </div>
 
-            <!-- ================== PRINT HEADER ================== -->
             <div id="printHeader" class="hidden text-black font-['Tahoma']">
                 <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
                 <table class="print-header-table">
@@ -279,14 +298,13 @@
                 </table>
             </div>
 
-            <!-- ================== DETAILED TABLE ================== -->
             <div class="apple-card p-0 overflow-hidden" id="reportTableSection">
-                <div class="p-4 border-b border-[#f5f5f7] bg-white no-print flex gap-2">
-                    <button id="dtFilterAll" onclick="setTableFilter('all')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors">แสดงทั้งหมด</button>
-                    <button id="dtFilterSlip" onclick="setTableFilter('slip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors">รายการมีสลิป</button>
-                    <button id="dtFilterNoSlip" onclick="setTableFilter('noslip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors">รายการไม่มีสลิป</button>
+                <div class="p-4 border-b border-[#f5f5f7] bg-white no-print flex gap-2 overflow-x-auto ios-scroll">
+                    <button id="dtFilterAll" onclick="setTableFilter('all')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors shrink-0">แสดงทั้งหมด</button>
+                    <button id="dtFilterSlip" onclick="setTableFilter('slip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายการมีสลิป</button>
+                    <button id="dtFilterNoSlip" onclick="setTableFilter('noslip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายการไม่มีสลิป</button>
                 </div>
-                <div class="p-0 md:p-6 bg-white overflow-x-auto ios-scroll">
+                <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                         <thead>
                             <tr>
@@ -303,14 +321,13 @@
             </div>
         </div>
 
-        <!-- ================== MONTHLY REPORT ================== -->
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             <div class="apple-card p-0 overflow-hidden">
                 <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0 no-print">
                     <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปค่าใช้จ่ายรายเดือน</h3>
                 </div>
-                <div class="p-0 md:p-6 bg-white overflow-x-auto ios-scroll">
+                <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="monthlyTable" class="w-full text-left display nowrap" style="width:100%">
                         <thead>
                             <tr id="monthlyTotalsTop" class="bg-[#f5f5f7] border-b-2 border-[#d2d2d7]"></tr>
@@ -332,7 +349,7 @@
     </main>
 
     <script>
-        // 🔴 ลิงก์ Apps Script ใหม่ของคุณสำหรับดึงข้อมูลรายงานรายวัน (Real-time)
+        // 🔴 ลิงก์ Apps Script ของคุณสำหรับการประมวลผลข้อมูล Real-time
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwy9MZ0VHrd80mFBgqcdJ1YbBAMgn3szCzySR7bHEYktQ9T8OYbS3lUbGGy25FfouiJ0Q/exec";
         
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
@@ -356,9 +373,8 @@
         $(document).ready(function() {
             Chart.register(ChartDataLabels);
             
-            // โหลดข้อมูลต่างๆ ทันทีที่เข้าหน้าเว็บ
             fetchGoogleSheetData();
-            fetchDailySummary(); // เรียกดึงรายงานรายวันผ่าน Apps Script
+            fetchDailySummary();
 
             const fpOptions = { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", locale: "th", disableMobile: "true", onChange: applyGlobalFilters };
             flatpickr("#filterStartDate", fpOptions);
@@ -374,7 +390,7 @@
             $('#toggleDateSort').on('click', function() {
                 dateSortAsc = !dateSortAsc;
                 $('#sortIcon').text(dateSortAsc ? '↑' : '↓');
-                $('#sortLabel').text(dateSortAsc ? 'วันที่: เก่า → ใหม่' : 'วันที่: ใหม่ → เก่า');
+                $('#sortLabel').text(dateSortAsc ? 'เก่า → ใหม่' : 'ใหม่ → เก่า');
                 applyGlobalFilters();
             });
 
@@ -389,7 +405,7 @@
             });
         });
 
-        // 🔵 ฟังก์ชันดึงรายงานรายวัน 24 ชม. ผ่าน Apps Script
+        // 🔵 ฟังก์ชันดึงรายงานรายวันผ่าน Apps Script
         async function fetchDailySummary() {
             $('#sum-total').text('กำลังโหลด...');
             $('#sum-projects').html('<div class="text-[#86868b] p-2">กำลังดึงข้อมูล...</div>');
@@ -404,15 +420,15 @@
                 
                 let projectHtml = "";
                 if(data.projects && data.projects.length === 0) {
-                    // 📌 แก้ไขส่วนแสดงตอนไม่มีข้อมูล ให้เป็นกล่องแบบคลีนๆ มีเส้นประ
+                    // กล่องแสดงสถานะคลีนๆ ตอนไม่มีบิลวิ่งในวันนั้น
                     projectHtml = `
-                    <div class='flex flex-col items-center justify-center text-[#86868b] text-[13px] py-4 bg-[#f5f5f7] rounded-[10px] border border-dashed border-[#d2d2d7] mt-1'>
+                    <div class='col-span-full flex flex-col items-center justify-center text-[#86868b] text-[13px] py-5 bg-[#f5f5f7] rounded-[14px] border border-dashed border-[#d2d2d7] mt-1 w-full'>
                         <svg class="w-6 h-6 text-[#d2d2d7] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         ไม่มีรายการเบิกจ่ายที่มีสลิปในรอบเวลานี้
                     </div>`;
                 } else if (data.projects) {
                     data.projects.forEach(p => {
-                        projectHtml += `<div class="bg-white px-3 py-2.5 rounded-[10px] flex justify-between items-center border border-[#e5e5ea] shadow-sm mb-2">
+                        projectHtml += `<div class="bg-white px-3 py-2.5 rounded-[12px] flex justify-between items-center border border-[#e5e5ea] shadow-sm mb-1">
                             <span class="font-medium text-[#1d1d1f] truncate mr-2">${p.name}</span>
                             <span class="font-bold text-[#1d1d1f] shrink-0">${p.total.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
                         </div>`;
@@ -423,21 +439,21 @@
             } catch (error) {
                 console.error("โหลดข้อมูลสรุปไม่สำเร็จ:", error);
                 document.getElementById("sum-total").innerText = "โหลดไม่สำเร็จ";
-                document.getElementById("sum-projects").innerHTML = "<div class='text-red-500 p-2'>เกิดข้อผิดพลาดในการดึงข้อมูล โปรดลองโหลดข้อมูลอีกครั้ง</div>";
+                document.getElementById("sum-projects").innerHTML = "<div class='text-red-500 p-2 col-span-full text-center text-[13px]'>เกิดข้อผิดพลาดในการดึงข้อมูลย้อนหลัง</div>";
             }
         }
 
         // ==============================================
-        // ฟังก์ชันเดิมของหน้า Dashboard
+        // ฟังก์ชันเดิมของหน้า Dashboard และตารางข้อมูล
         // ==============================================
         function setTableFilter(filterType) {
             currentTableFilter = filterType;
             ['all', 'slip', 'noslip'].forEach(type => {
                 const btn = document.getElementById('dtFilter' + (type === 'all' ? 'All' : type === 'slip' ? 'Slip' : 'NoSlip'));
                 if(type === filterType) {
-                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors";
+                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors shrink-0";
                 } else {
-                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors";
+                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0";
                 }
             });
             if(detailedTableInstance) detailedTableInstance.draw();
@@ -494,7 +510,7 @@
                     if (!results.data || results.data.length === 0) return;
                     processData(results.data); 
                 },
-                error: function(err) { alert("เกิดข้อผิดพลาดในการดึงข้อมูล"); }
+                error: function(err) { alert("เกิดข้อผิดพลาดในการดึงข้อมูลคลังบิล"); }
             });
         }
 
@@ -635,7 +651,7 @@
                             anchor: 'end',
                             align: 'top',
                             formatter: (value) => value + "%", 
-                            font: { family: '-apple-system', size: 10, weight: 'bold' } 
+                            font: { family: '-apple-system', size: 11, weight: 'bold' } 
                         },
                         tooltip: { 
                             backgroundColor: 'rgba(29,29,31,0.9)', padding: 12, cornerRadius: 8, 
@@ -661,13 +677,13 @@
                         },
                         x: {
                             ticks: { 
-                                font: { family: '-apple-system', size: 10 },
+                                font: { family: '-apple-system', size: 11, weight: '500' },
                                 maxRotation: 45, 
-                                minRotation: 0
+                                minRotation: 15
                             }
                         }
                     },
-                    layout: { padding: { top: 20 } }
+                    layout: { padding: { top: 24, bottom: 5 } }
                 }
             });
 
@@ -675,7 +691,7 @@
             else { 
                 summaryTableInstance = $('#summaryTable').DataTable({ 
                     paging: false, info: false, searching: false, order: [[2, 'desc']], 
-                    language: { emptyTable: "ไม่มีข้อมูล" }, 
+                    language: { emptyTable: "ไม่มีข้อมูลในตารางสรุป" }, 
                     columnDefs: [ { className: "dt-right", targets: [1, 2, 3, 4] } ] 
                 }); 
             }
@@ -700,8 +716,8 @@
             else {
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100, 500, 5000], order: [[0, 'asc']], 
-                    language: { search: "", searchPlaceholder: "ค้นหารายละเอียด...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่มีข้อมูล" },
-                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
+                    language: { search: "", searchPlaceholder: "ค้นหารายรายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
+                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
                     ordering: false,
                     createdRow: function(row, data, dataIndex) {
@@ -709,16 +725,16 @@
                         $(row).attr('data-sliptype', typeVal);
                     }
                 });
-                $('.dataTables_filter input').addClass('g-input w-full sm:w-64').css('border-radius', '12px').css('padding', '6px 16px');
-                $('.dataTables_length select').addClass('g-input ml-2').css('border-radius', '8px').css('padding', '4px 8px');
+                $('.dataTables_filter input').addClass('g-input w-full').css('border-radius', '12px').css('padding', '8px 16px');
+                $('.dataTables_length select').addClass('g-input').css('border-radius', '8px').css('padding', '4px 8px');
             }
 
             data.forEach(item => {
                 let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
-                let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1">ไม่มีสลิป</span>` : ``;
+                let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ไม่มีสลิป</span>` : ``;
                 
-                let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b]">${item.dateText}</span>`;
-                let detailHtml = `<span>${item.details}</span>${extraTag}`;
+                let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
+                let detailHtml = `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1"><span class="break-words">${item.details}</span>${extraTag}</div>`;
 
                 detailedTableInstance.row.add([ dateHtml, item.project, detailHtml, item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }), item.note ]);
             });
@@ -772,7 +788,7 @@
             monthlyTableInstance = $('#monthlyTable').DataTable({
                 paging: false, info: false, searching: true, orderCellsTop: false, order: [], 
                 dom: '<"flex justify-between items-center mb-4 no-print"f>rt',
-                language: { search: "", searchPlaceholder: "พิมพ์ชื่อโครงการ...", emptyTable: "ไม่มีข้อมูล" },
+                language: { search: "", searchPlaceholder: "พิมพ์ชื่อโครงการ...", emptyTable: "ไม่มีข้อมูลแสดง" },
                 columnDefs: [ { className: "dt-right", targets: "_all" }, { className: "dt-left", targets: [0] } ]
             });
             $('#monthlyContainer .dataTables_filter input').addClass('g-input w-full sm:w-64');
@@ -829,7 +845,7 @@
         }
 
         function exportToExcel() {
-            if (!currentFilteredData || currentFilteredData.length === 0) return alert("ไม่มีข้อมูล");
+            if (!currentFilteredData || currentFilteredData.length === 0) return alert("ไม่มีข้อมูลสำหรับการดาวน์โหลด");
             const excelData = currentFilteredData.map(item => ({
                 "วันที่": item.dateText,
                 "โครงการ": item.project,
