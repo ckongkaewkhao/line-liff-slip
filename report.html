@@ -180,7 +180,6 @@
             </div>
             <div class="hidden lg:block h-4 w-px bg-[#d2d2d7]"></div>
 
-            <!-- 📌 ใส่ ID ให้ชุดวันที่จะได้ซ่อนได้ตอนอยู่หน้ารายเดือน -->
             <div id="dateFilterGroup" class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
                 <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">วันที่:</span>
                 <div class="flex items-center gap-1">
@@ -216,7 +215,6 @@
         
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-6">
             <div class="print-hidden-section space-y-4 md:space-y-6">
-                <!-- ================== KPI CARDS ================== -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">งบประมาณรวม</h3>
@@ -236,7 +234,6 @@
                     </div>
                 </div>
 
-                <!-- ================== DAILY SUMMARY (ระบบ Dropdown ดูรายละเอียดได้) ================== -->
                 <div class="apple-card p-4 md:p-6 mb-4">
                     <div class="flex justify-between items-center mb-4 border-b border-[#f5f5f7] pb-3">
                         <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
@@ -258,13 +255,11 @@
                         <div class="md:w-2/3 flex flex-col">
                             <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ (กดเพื่อดูรายละเอียด):</h4>
                             <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2">
-                                <!-- โปรเจกต์จะถูกแทรกตรงนี้แบบ Dropdown -->
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ================== CHART & BUDGET SUMMARY ================== -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                     <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] lg:h-[450px]">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
@@ -335,7 +330,6 @@
             <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             <div class="apple-card p-0 overflow-hidden">
                 <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0 no-print">
-                    <!-- 📌 เพิ่ม ID ให้หัวตารางเพื่อเปลี่ยนชื่อตามปีที่เลือก -->
                     <h3 id="monthlyTitle" class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปค่าใช้จ่ายรายเดือน</h3>
                 </div>
                 <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
@@ -380,7 +374,6 @@
         $(document).ready(function() {
             Chart.register(ChartDataLabels);
             
-            // โหลดข้อมูลเริ่มต้น
             fetchGoogleSheetData();
 
             const fpOptions = { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", locale: "th", disableMobile: "true", onChange: applyGlobalFilters };
@@ -394,7 +387,6 @@
                 document.querySelector('#filterEndDate')._flatpickr.clear();
                 $('#filterProject').val('');
                 
-                // คืนค่า ปี ให้กลับเป็นปีปัจจุบัน
                 let currentYearStr = new Date().getFullYear().toString();
                 let hasCurrentYear = Array.from(document.getElementById('filterYear').options).some(opt => opt.value === currentYearStr);
                 $('#filterYear').val(hasCurrentYear ? currentYearStr : 'all');
@@ -420,7 +412,6 @@
             });
         });
 
-        // 📌 ระบบสลับหน้าจอ ที่ถูกแก้ไขให้ยังคงโชว์ตัวกรองปีอยู่
         function switchTab(tabName) {
             currentView = tabName;
             if (tabName === 'dashboard') {
@@ -429,7 +420,6 @@
                 $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
                 $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
                 
-                // แสดงตัวกรองวันที่ และปุ่มเรียงลำดับในหน้าแดชบอร์ด
                 $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').show();
             } else {
                 $('#dashboardContainer').hide();
@@ -437,7 +427,6 @@
                 $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
                 $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
                 
-                // ซ่อนตัวกรองวันที่ ในหน้ารายเดือน
                 $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').hide();
                 generateMonthlyTable();
             }
@@ -663,9 +652,9 @@
 
             applyGlobalFilters();
             buildLocalDailySummary(); 
-            if(currentView === 'monthly') generateMonthlyTable();
         }
 
+        // 📌 ฟังก์ชันกรองข้อมูลถูกอัปเดตให้รองรับการรีเฟรชตารางรายเดือนแล้ว!
         function applyGlobalFilters() {
             const startDateVal = $('#filterStartDate').val();
             const endDateVal = $('#filterEndDate').val();
@@ -693,6 +682,11 @@
 
             currentFilteredData = filteredData;
             updateDashboards(filteredData);
+            
+            // ทำให้ตารางรายเดือนสลับตัวเลขเมื่อกดเปลี่ยนปีได้ทันที
+            if (currentView === 'monthly') {
+                generateMonthlyTable();
+            }
         }
 
         function updateDashboards(data) {
@@ -842,7 +836,6 @@
             let pivot = {};
             let totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]; 
             
-            // 📌 อัปเดตชื่อหัวตารางให้แสดงผลตามปีที่เลือกอยู่
             let yearVal = $('#filterYear').val();
             let yearText = yearVal === 'all' ? 'ทุกปี' : `ปี ${yearVal}`;
             $('#monthlyTitle').text(`สรุปค่าใช้จ่ายรายเดือน (${yearText})`);
