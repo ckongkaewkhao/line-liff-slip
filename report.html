@@ -10,6 +10,11 @@
     <meta name="apple-mobile-web-app-title" content="SAENSABAI 1978">
     <title>SAENSABAI 1978 - รายงานสรุปค่าใช้จ่าย</title>
     
+    <!-- 📌 ตั้งค่าโลโก้บริษัทสำหรับไอคอนบนหน้าจอมือถือ (App Icon จากรูป image_4.png) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -215,6 +220,7 @@
         
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-6">
             <div class="print-hidden-section space-y-4 md:space-y-6">
+                <!-- ================== KPI CARDS ================== -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">งบประมาณรวม</h3>
@@ -234,6 +240,7 @@
                     </div>
                 </div>
 
+                <!-- ================== DAILY SUMMARY ================== -->
                 <div class="apple-card p-4 md:p-6 mb-4">
                     <div class="flex justify-between items-center mb-4 border-b border-[#f5f5f7] pb-3">
                         <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
@@ -255,18 +262,21 @@
                         <div class="md:w-2/3 flex flex-col">
                             <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ (กดเพื่อดูรายละเอียด):</h4>
                             <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2">
-                                </div>
+                                <!-- โปรเจกต์จะถูกแทรกตรงนี้แบบ Dropdown -->
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- ================== CHART & BUDGET SUMMARY ================== -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                     <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] lg:h-[450px]">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
                             <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">เปอร์เซ็นต์การใช้จ่ายเทียบกับงบประมาณ</h3>
                         </div>
+                        <!-- 📌 ส่วนควบคุมแถบสไลด์กราฟบนมือถือ (จากรูป image_3.png) -->
                         <div class="flex-1 overflow-x-auto w-full ios-scroll relative min-h-0 pt-2">
-                            <div class="min-w-[850px] lg:min-w-0 h-full relative">
+                            <div id="chartWrapper" class="h-[250px] md:h-full relative">
                                 <canvas id="expenseChart"></canvas>
                             </div>
                         </div>
@@ -654,7 +664,6 @@
             buildLocalDailySummary(); 
         }
 
-        // 📌 ฟังก์ชันกรองข้อมูลถูกอัปเดตให้รองรับการรีเฟรชตารางรายเดือนแล้ว!
         function applyGlobalFilters() {
             const startDateVal = $('#filterStartDate').val();
             const endDateVal = $('#filterEndDate').val();
@@ -683,7 +692,6 @@
             currentFilteredData = filteredData;
             updateDashboards(filteredData);
             
-            // ทำให้ตารางรายเดือนสลับตัวเลขเมื่อกดเปลี่ยนปีได้ทันที
             if (currentView === 'monthly') {
                 generateMonthlyTable();
             }
@@ -719,6 +727,15 @@
             let chartLabels = budgetedProjects.map(p => p.name);
             let chartData = budgetedProjects.map(p => ((p.sum / projectBudgets[p.name]) * 100).toFixed(2));
             let barColors = budgetedProjects.map((_, i) => themeColors[i % themeColors.length]);
+
+            // 📌 [FIX] บังคับสัดส่วนตัวครอบ Canvas ให้ยืดขยายตามจำนวนแท่ง เพื่อบังคับสไลด์ปัดซ้าย-ขวาบนมือถือได้จริงร้อยเปอร์เซ็นต์
+            const chartWrapper = document.getElementById('chartWrapper');
+            if (window.innerWidth < 1024) {
+                const minCalculatedWidth = Math.max(850, chartLabels.length * 60);
+                chartWrapper.style.width = minCalculatedWidth + 'px';
+            } else {
+                chartWrapper.style.width = '100%';
+            }
 
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
