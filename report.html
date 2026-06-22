@@ -68,7 +68,6 @@
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
-        /* 📌 ปรับแต่งสไตล์ DataTables ให้ยืดหยุ่นเต็มร้อยบนมือถือ */
         @media (max-width: 640px) {
             .dataTables_wrapper .dataTables_length, 
             .dataTables_wrapper .dataTables_filter {
@@ -109,7 +108,6 @@
             table.dataTable tr.child { display: none !important; }
             .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
 
-            /* ----- หน้า Dashboard ปกติ ----- */
             body:not(.print-monthly) .print-hidden-section { display: none !important; }
             body:not(.print-monthly) #monthlyContainer { display: none !important; }
             body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
@@ -148,7 +146,6 @@
             #detailedTable th:nth-child(4), #detailedTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; }
             #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 14% !important; text-align: center !important; }
 
-            /* ----- หน้าตารางรายเดือน (พิมพ์แนวนอน) ----- */
             body.print-monthly #dashboardContainer { display: none !important; }
             body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
             body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
@@ -164,11 +161,9 @@
 <body class="flex flex-col h-screen">
 
     <nav class="glass-nav px-3 md:px-6 py-2 flex flex-col xl:flex-row items-center justify-between no-print shrink-0 gap-3 xl:gap-4 shadow-sm">
-        
         <div class="flex items-center justify-between w-full xl:w-auto gap-3 shrink-0">
             <div class="text-[18px] md:text-[20px] font-bold tracking-tight text-[#FF9500]">SAENSABAI 1978</div>
             <div class="hidden md:block h-5 w-px bg-[#d2d2d7]"></div>
-            
             <div class="flex bg-[#e8e8ed] p-1 rounded-lg">
                 <button id="tabDashboard" onclick="switchTab('dashboard')" class="px-3 py-1 rounded-md bg-white shadow-sm text-[#1d1d1f] text-[12px] font-semibold transition-all">สรุปงบประมาณ</button>
                 <button id="tabMonthly" onclick="switchTab('monthly')" class="px-3 py-1 rounded-md text-[#86868b] hover:text-[#1d1d1f] text-[12px] font-medium transition-all">รายเดือน</button>
@@ -236,7 +231,7 @@
                             สรุปรายจ่ายวันนี้ 
                             <span id="sum-date" class="text-[13px] font-normal text-[#86868b]"></span>
                         </h3>
-                        <button onclick="fetchDailySummary()" class="text-[#0071e3] hover:bg-[#e8e8ed] px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors flex items-center gap-1.5">
+                        <button onclick="fetchGoogleSheetData()" class="text-[#0071e3] hover:bg-[#e8e8ed] px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                             อัปเดต
                         </button>
@@ -249,7 +244,7 @@
                         </div>
                         <div class="md:w-2/3 flex flex-col">
                             <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ:</h4>
-                            <div id="sum-projects" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[140px] pr-2">
+                            <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2">
                                 </div>
                         </div>
                     </div>
@@ -345,13 +340,9 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <script>
-        // 🔴 ลิงก์ Apps Script ของคุณสำหรับการประมวลผลข้อมูล Real-time
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwy9MZ0VHrd80mFBgqcdJ1YbBAMgn3szCzySR7bHEYktQ9T8OYbS3lUbGGy25FfouiJ0Q/exec";
-        
         const SPREADSHEET_ID = '1xLc-lNK7KVQSBeKbom7j8LfMhSu6PwPchM5y5exGpbw';
         const GID_TRANSACTIONS = '0'; 
         const GID_PROJECTS = '948953737'; 
@@ -373,8 +364,8 @@
         $(document).ready(function() {
             Chart.register(ChartDataLabels);
             
+            // โหลดข้อมูลเริ่มต้น
             fetchGoogleSheetData();
-            fetchDailySummary();
 
             const fpOptions = { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", locale: "th", disableMobile: "true", onChange: applyGlobalFilters };
             flatpickr("#filterStartDate", fpOptions);
@@ -405,47 +396,98 @@
             });
         });
 
-        // 🔵 ฟังก์ชันดึงรายงานรายวันผ่าน Apps Script
-        async function fetchDailySummary() {
-            $('#sum-total').text('กำลังโหลด...');
-            $('#sum-projects').html('<div class="text-[#86868b] p-2">กำลังดึงข้อมูล...</div>');
+        // 🔵 ฟังก์ชันแสดงสรุปรายวัน ทำงานในหน้าเว็บล้วนๆ
+        function buildLocalDailySummary() {
+            let now = new Date();
+            let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
+            let startTime = new Date(endTime.getTime() - (24 * 60 * 60 * 1000));
 
-            try {
-                const response = await fetch(WEB_APP_URL);
-                const data = await response.json();
-                
-                document.getElementById("sum-date").innerText = "(" + data.date + ")";
-                document.getElementById("sum-total").innerText = data.totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + " ฿";
-                document.getElementById("sum-count").innerText = data.count + " รายการ";
-                
-                let projectHtml = "";
-                if(data.projects && data.projects.length === 0) {
-                    // กล่องแสดงสถานะคลีนๆ ตอนไม่มีบิลวิ่งในวันนั้น
-                    projectHtml = `
-                    <div class='col-span-full flex flex-col items-center justify-center text-[#86868b] text-[13px] py-5 bg-[#f5f5f7] rounded-[14px] border border-dashed border-[#d2d2d7] mt-1 w-full'>
-                        <svg class="w-6 h-6 text-[#d2d2d7] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        ไม่มีรายการเบิกจ่ายที่มีสลิปในรอบเวลานี้
-                    </div>`;
-                } else if (data.projects) {
-                    data.projects.forEach(p => {
-                        projectHtml += `<div class="bg-white px-3 py-2.5 rounded-[12px] flex justify-between items-center border border-[#e5e5ea] shadow-sm mb-1">
-                            <span class="font-medium text-[#1d1d1f] truncate mr-2">${p.name}</span>
-                            <span class="font-bold text-[#1d1d1f] shrink-0">${p.total.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
-                        </div>`;
+            let totalAmount = 0;
+            let count = 0;
+            let projectData = {};
+
+            rawData.forEach(item => {
+                // เช็คว่าอยู่ในรอบ 24 ชั่วโมง และต้อง "มีสลิป"
+                if (item.exactDateTime && item.exactDateTime > startTime && item.exactDateTime <= endTime) {
+                    if (item.slipType === "ไม่มีสลิป") return;
+
+                    totalAmount += item.amount;
+                    count++;
+
+                    if (!projectData[item.project]) {
+                        projectData[item.project] = { total: 0, items: [] };
+                    }
+                    projectData[item.project].total += item.amount;
+                    projectData[item.project].items.push({
+                        detail: item.details || 'ไม่ระบุรายละเอียด',
+                        amount: item.amount
                     });
                 }
-                document.getElementById("sum-projects").innerHTML = projectHtml;
-                
-            } catch (error) {
-                console.error("โหลดข้อมูลสรุปไม่สำเร็จ:", error);
-                document.getElementById("sum-total").innerText = "โหลดไม่สำเร็จ";
-                document.getElementById("sum-projects").innerHTML = "<div class='text-red-500 p-2 col-span-full text-center text-[13px]'>เกิดข้อผิดพลาดในการดึงข้อมูลย้อนหลัง</div>";
+            });
+
+            // อัปเดตตัวเลขหลัก
+            let dateFormatted = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+            document.getElementById("sum-date").innerText = "(" + dateFormatted + ")";
+            document.getElementById("sum-total").innerText = totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + " ฿";
+            document.getElementById("sum-count").innerText = count + " รายการ";
+
+            // สร้าง Dropdown รายการย่อย
+            let projectHtml = "";
+            let projectKeys = Object.keys(projectData);
+            
+            if(projectKeys.length === 0) {
+                projectHtml = `
+                <div class='flex flex-col items-center justify-center text-[#86868b] text-[13px] py-5 bg-[#f5f5f7] rounded-[14px] border border-dashed border-[#d2d2d7] mt-1 w-full'>
+                    <svg class="w-6 h-6 text-[#d2d2d7] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    ไม่มีรายการเบิกจ่ายที่มีสลิปในรอบเวลานี้
+                </div>`;
+            } else {
+                projectKeys.forEach((projName, index) => {
+                    let p = projectData[projName];
+                    let safeId = 'projdrop-' + index;
+                    
+                    let itemsHtml = "";
+                    p.items.forEach(item => {
+                        itemsHtml += `
+                        <div class="flex justify-between py-1.5 border-b border-[#e5e5ea] last:border-0">
+                            <span class="text-[#555] truncate mr-2 flex-1" title="${item.detail}">• ${item.detail}</span>
+                            <span class="shrink-0 font-medium text-[#1d1d1f]">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
+                        </div>`;
+                    });
+
+                    projectHtml += `
+                    <div class="bg-white rounded-[12px] border border-[#e5e5ea] shadow-sm mb-2 overflow-hidden w-full">
+                        <button onclick="toggleSummaryDrop('${safeId}')" class="w-full px-3 py-2.5 flex justify-between items-center bg-white hover:bg-[#f9f9fb] transition-colors focus:outline-none">
+                            <span class="font-medium text-[#1d1d1f] truncate mr-2 text-left flex-1">${projName}</span>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="font-bold text-[#1d1d1f]">${p.total.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
+                                <svg id="icon-${safeId}" class="w-4 h-4 text-[#86868b] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </button>
+                        <div id="content-${safeId}" class="hidden bg-[#f5f5f7] border-t border-[#e5e5ea] px-3 py-1.5">
+                            <div class="text-[12px] flex flex-col">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            }
+            document.getElementById("sum-projects").innerHTML = projectHtml;
+        }
+
+        // ระบบคลิกพับ-กาง (Dropdown)
+        function toggleSummaryDrop(id) {
+            const content = document.getElementById('content-' + id);
+            const icon = document.getElementById('icon-' + id);
+            if(content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)'; 
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)'; 
             }
         }
 
-        // ==============================================
-        // ฟังก์ชันเดิมของหน้า Dashboard และตารางข้อมูล
-        // ==============================================
         function setTableFilter(filterType) {
             currentTableFilter = filterType;
             ['all', 'slip', 'noslip'].forEach(type => {
@@ -478,8 +520,9 @@
         }
 
         function fetchGoogleSheetData() {
-            $('#kpiTotalBudget, #kpiTotal').text('กำลังโหลด...');
+            $('#kpiTotalBudget, #kpiTotal, #sum-total').text('กำลังโหลด...');
             $('#kpiProjects, #kpiTransactions').text('-');
+            $('#sum-projects').html('<div class="text-[#86868b] p-2 text-[13px]">กำลังประมวลผลข้อมูล...</div>');
             
             const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID_PROJECTS}&_cb=${new Date().getTime()}`;
             Papa.parse(projectSheetUrl, {
@@ -516,7 +559,8 @@
 
         function processData(data) {
             if (data.length < 2) return;
-            const col = { date: 1, project: 4, boq: 5, details: 6, amount: 7, note: 8, slipType: 9 };
+            // 📌 เพิ่มคอลัมน์เวลา time: 2 เข้ามาเพื่อคำนวณรอบบิล 18:00
+            const col = { date: 1, time: 2, project: 4, boq: 5, details: 6, amount: 7, note: 8, slipType: 9 };
             
             let headerRow = 1; 
             for (let r = 0; r < Math.min(10, data.length); r++) {
@@ -535,6 +579,7 @@
                 if (isNaN(cleanAmount)) continue; 
 
                 let dVal = String(row[col.date] || '').trim();
+                let timeVal = String(row[col.time] || '').trim();
                 let pVal = String(row[col.project] || '').trim() || 'ไม่ระบุโครงการ';
                 let boqVal = String(row[col.boq] || '').trim();
                 let detVal = String(row[col.details] || '').trim();
@@ -544,6 +589,8 @@
                 if(typeVal === '') typeVal = "มีสลิป";
                 
                 let parsedDate = null;
+                let exactDateTime = null; // เก็บเวลาแบบเป๊ะๆ
+                
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
                     if (parts.length >= 3) {
@@ -551,11 +598,18 @@
                         if (year < 100) year += 2000;
                         parsedDate = new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]));
                         dVal = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${year}`;
+                        
+                        // แกะเวลาเพื่อสร้าง exactDateTime
+                        let tParts = timeVal.split(':');
+                        let h = tParts.length > 0 ? parseInt(tParts[0]) : 0;
+                        let m = tParts.length > 1 ? parseInt(tParts[1]) : 0;
+                        let s = tParts.length > 2 ? parseInt(tParts[2]) : 0;
+                        exactDateTime = new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]), h, m, s);
                     }
                 }
 
                 rawData.push({ 
-                    id: i, dateText: dVal !== '' ? dVal : '-', dateObj: parsedDate, 
+                    id: i, dateText: dVal !== '' ? dVal : '-', dateObj: parsedDate, exactDateTime: exactDateTime,
                     project: pVal, boq: boqVal, details: detVal, amount: cleanAmount, note: noteVal, slipType: typeVal
                 });
             }
@@ -570,6 +624,7 @@
             projectFilter.value = currentSelected;
 
             applyGlobalFilters();
+            buildLocalDailySummary(); // 📌 สร้างรายงานรายวันทันทีหลังจากโหลดข้อมูลเสร็จ
             if(currentView === 'monthly') generateMonthlyTable();
         }
 
