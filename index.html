@@ -2,7 +2,16 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 📌 โค้ดตั้งค่าให้โทรศัพท์มือถือดึงรูป logo.png มาทำเป็นไอคอนแอป -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="ลงบิล SAENSABAI">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+
     <title>ระบบบันทึกรายจ่ายหน้างาน</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -121,16 +130,14 @@
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfKLRezPJbcpnOMJ0PcUcJTgJ83anK6DgylXzSVtKG7c95zwDWMipFPwpQcB3--EnOfA/exec"; 
         const LIFF_ID = "2010350342-kxcHYs3F"; 
 
-        let currentMode = "มีสลิป"; // เก็บสถานะโหมดปัจจุบัน
+        let currentMode = "มีสลิป";
 
-        // ตั้งค่าวันที่ปัจจุบัน
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
 
-        // 🔹 ระบบสลับโหมด
         const btnSlip = document.getElementById('btnModeSlip');
         const btnNoSlip = document.getElementById('btnModeNoSlip');
         const imgZone = document.getElementById('imageUploadZone');
@@ -146,7 +153,7 @@
             btnNoSlip.className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
             
             imgZone.classList.remove('hidden');
-            slipFileInput.setAttribute('required', 'required'); // บังคับแนบรูป
+            slipFileInput.setAttribute('required', 'required');
 
             boqSlip.classList.remove('hidden');
             boqNoSlip.classList.add('hidden');
@@ -159,18 +166,16 @@
             btnSlip.className = "flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
             
             imgZone.classList.add('hidden');
-            slipFileInput.removeAttribute('required'); // ไม่บังคับแนบรูป
-            slipFileInput.value = ""; // ล้างรูปที่เลือกไว้ทิ้ง
+            slipFileInput.removeAttribute('required');
+            slipFileInput.value = "";
 
             boqSlip.classList.add('hidden');
             boqNoSlip.classList.remove('hidden');
-            // เช็คว่าเคยเลือก "อื่นๆ" ไว้ไหม ถ้าใช่ให้เปิดช่องพิมพ์
             if(boqNoSlip.value === "อื่นๆ") {
                 boqNoSlipOther.classList.remove('hidden');
             }
         });
 
-        // เปิดช่องระบุ BOQ เอง
         boqNoSlip.addEventListener('change', function() {
             if (this.value === 'อื่นๆ') {
                 boqNoSlipOther.classList.remove('hidden');
@@ -180,7 +185,6 @@
             }
         });
 
-        // เปิดช่องระบุโครงการเอง
         document.getElementById('projectSite').addEventListener('change', function() {
             const otherDiv = document.getElementById('otherProjectDiv');
             const otherInput = document.getElementById('otherProjectSite');
@@ -258,7 +262,6 @@
             btnSubmit.classList.replace('bg-emerald-500', 'bg-slate-400');
 
             try {
-                // จัดการรูปภาพ (ถ้ามีสลิป)
                 const files = document.getElementById('slipFiles').files;
                 const imagesPayload = [];
                 if (currentMode === "มีสลิป") {
@@ -271,13 +274,11 @@
                     }
                 }
 
-                // จัดการชื่อโครงการ
                 let finalProjectSite = document.getElementById('projectSite').value;
                 if (finalProjectSite === 'อื่นๆ') {
                     finalProjectSite = document.getElementById('otherProjectSite').value;
                 }
 
-                // จัดการค่า BOQ ตามโหมด
                 let finalBoqType = "";
                 if (currentMode === "มีสลิป") {
                     finalBoqType = document.getElementById('boqType_slip').value;
@@ -297,7 +298,7 @@
                     amount: parseFloat(document.getElementById('amount').value),
                     remark: document.getElementById('remark').value,
                     images: imagesPayload,
-                    slipType: currentMode // 🔹 ส่งค่า มีสลิป/ไม่มีสลิป ไปให้หลังบ้าน
+                    slipType: currentMode
                 };
 
                 const response = await fetch(GAS_WEB_APP_URL, {
