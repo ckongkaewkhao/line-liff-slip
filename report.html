@@ -8,15 +8,13 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SAENSABAI 1978">
-    <title>SAENSABAI 1978 - รายงานสรุปค่าใช้จ่าย</title>
+    <title>SAENSABAI 1978 - กระดานสรุปการเงิน</title>
     
-    <!-- 📌 ตั้งค่าโลโก้บริษัทสำหรับไอคอนบนหน้าจอมือถือ (App Icon จากรูป image_4.png) -->
     <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
     <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
     <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -32,134 +30,39 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style id="dynamicPrintStyle">
-        @media print {
-            @page { size: A4 portrait; margin: 15mm; }
-        }
+        @media print { @page { size: A4 portrait; margin: 15mm; } }
     </style>
 
     <style>
-        /* ==========================================
-           ⭐ สไตล์หน้าเว็บ (Screen)
-           ========================================== */
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Sukhumvit Set", "Prompt", sans-serif; 
-            background-color: #f5f5f7; color: #1d1d1f; overflow-x: hidden; 
-        }
-        
-        .apple-card { 
-            background-color: #ffffff; border: none; border-radius: 18px; 
-            box-shadow: 0 4px 24px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; overflow: hidden; 
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Sukhumvit Set", "Prompt", sans-serif; background-color: #f5f5f7; color: #1d1d1f; overflow-x: hidden; }
+        .apple-card { background-color: #ffffff; border: none; border-radius: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; overflow: hidden; }
         
         .g-input { border: 1px solid #d2d2d7; border-radius: 12px; padding: 10px 16px; font-size: 14px; outline: none; }
-        .g-input:focus { border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); }
         .g-input-sm { border: 1px solid #d2d2d7; border-radius: 8px; padding: 4px 8px; font-size: 14px; outline: none; height: 34px; }
         @media (min-width: 640px) { .g-input-sm { font-size: 12px; height: 28px; } }
-        .g-input-sm:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15); }
-        .flatpickr-input[readonly] { background-color: #ffffff; cursor: pointer; } 
-
-        table.dataTable thead th { 
-            background-color: #ffffff !important; color: #86868b !important; 
-            font-weight: 600 !important; font-size: 13px !important; text-transform: uppercase;
-            border-bottom: 1px solid #d2d2d7 !important; padding: 12px 16px !important; text-align: center !important; 
-        }
+        
+        table.dataTable thead th { background-color: #ffffff !important; color: #86868b !important; font-weight: 600 !important; font-size: 13px !important; text-transform: uppercase; border-bottom: 1px solid #d2d2d7 !important; padding: 12px 16px !important; text-align: center !important; }
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #e5e5ea; font-size: 14px; color: #1d1d1f; }
-        #summaryTable thead th, #monthlyTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; }
+        #summaryTable thead th, #monthlyTable thead th { position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; }
 
         .glass-nav { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
         .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .ios-scroll { -webkit-overflow-scrolling: touch; }
 
+        /* 📌 แก้ปัญหากราฟมือถือ: บังคับให้พื้นที่ด้านล่างพอสำหรับชื่อโครงการ */
+        #chartWrapper { padding-bottom: 10px; }
+
         @media (max-width: 640px) {
-            .dataTables_wrapper .dataTables_length, 
-            .dataTables_wrapper .dataTables_filter {
-                width: 100% !important;
-                text-align: left !important;
-                margin-bottom: 8px;
-            }
-            .dataTables_wrapper .dataTables_filter input {
-                width: 100% !important;
-                margin-left: 0 !important;
-                box-sizing: border-box;
-            }
-            .dataTables_wrapper .dataTables_length select {
-                width: 100% !important;
-                margin-left: 0 !important;
-                box-sizing: border-box;
-            }
+            .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter { width: 100% !important; text-align: left !important; margin-bottom: 8px; }
+            .dataTables_wrapper .dataTables_filter input { width: 100% !important; margin-left: 0 !important; box-sizing: border-box; }
         }
-
-        /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (BLACK & WHITE ONLY)
-           ========================================== */
         @media print {
-            * {
-                color: #000000 !important; border-color: #000000 !important; text-shadow: none !important; 
-                box-sizing: border-box !important; font-family: Tahoma, sans-serif !important; 
-            }
-
-            body, html { display: block !important; background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
-            main { display: block !important; height: auto !important; overflow: visible !important; }
-            .flex, .flex-col, .h-screen, .flex-1, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden, .ios-scroll { display: block !important; height: auto !important; overflow: visible !important; position: static !important; }
-
-            .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
-            .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
-            
-            table.dataTable th, table.dataTable td { display: table-cell !important; }
-            .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; } 
-            table.dataTable tr.child { display: none !important; }
-            .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
-
-            body:not(.print-monthly) .print-hidden-section { display: none !important; }
-            body:not(.print-monthly) #monthlyContainer { display: none !important; }
-            body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
-            
-            .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
-            .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
-            .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important; font-weight: normal !important;}
-            .print-header-label { font-weight: normal !important; white-space: nowrap !important; width: 100px !important;}
-
-            .dataTables_wrapper { display: block !important; width: 100% !important; overflow: visible !important; }
-            
-            table.dataTable, #detailedTable, #monthlyTable {
-                display: table !important; border-collapse: collapse !important; border-spacing: 0 !important;
-                width: 100% !important; max-width: 100% !important; margin-top: 10pt !important; 
-                border: 1px solid #000000 !important; background-color: #ffffff !important; 
-            }
-
-            table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
-            #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr,
-            #monthlyTable, #monthlyTable th, #monthlyTable td, #monthlyTable tr { 
-                border-width: 1px !important; border-style: solid !important; border-color: #000000 !important;
-                background-color: #ffffff !important; box-shadow: none !important; padding: 8px 12px !important; 
-            }
-
-            table.dataTable thead { display: table-header-group !important; }
-            table.dataTable tbody { display: table-row-group !important; }
-            table.dataTable tr { page-break-inside: auto !important; }
-            table.dataTable td, table.dataTable th { page-break-inside: avoid !important; }
-            
-            table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
-            table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
-
-            #detailedTable { table-layout: fixed !important; }
-            #detailedTable th:nth-child(1), #detailedTable td:nth-child(1) { width: 15% !important; text-align: center !important; }
-            #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 53% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
-            #detailedTable th:nth-child(4), #detailedTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; }
-            #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 14% !important; text-align: center !important; }
-
-            body.print-monthly #dashboardContainer { display: none !important; }
-            body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
-            body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
-
-            #monthlyTable { table-layout: auto !important; width: 100% !important;}
-            #monthlyTable th, #monthlyTable td { white-space: nowrap !important; font-size: 8pt !important; padding: 4px 6px !important; text-align: right !important; vertical-align: middle !important; }
-            #monthlyTable th:first-child, #monthlyTable td:first-child { white-space: normal !important; text-align: left !important; min-width: 120px !important; max-width: 250px !important; }
-            #monthlyTable thead th { text-align: center !important; }
-            #monthlyTotalsTop th { border-bottom: 2px solid #000000 !important; background-color: #f5f5f7 !important;}
+            .no-print { display: none !important; }
+            .apple-card { box-shadow: none !important; border-radius: 0 !important; border: 1px solid #000 !important; }
+            body, html { background-color: #fff !important; color: #000 !important; }
         }
     </style>
 </head>
@@ -176,7 +79,6 @@
         </div>
 
         <div id="filterSection" class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 md:gap-3 flex-1 w-full xl:w-auto">
-            
             <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
                 <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">ปี:</span>
                 <select id="filterYear" class="g-input-sm w-[100px] sm:w-[80px] cursor-pointer bg-transparent">
@@ -212,7 +114,6 @@
         <div class="flex gap-2 items-center justify-center shrink-0 w-full xl:w-auto mt-1 xl:mt-0 border-t sm:border-0 border-[#f5f5f7] pt-2 sm:pt-0">
             <button onclick="fetchGoogleSheetData()" class="btn-secondary py-2 px-4 rounded-full text-[13px]"><span class="hidden sm:inline">โหลดข้อมูล</span><span class="sm:hidden">🔄 โหลดข้อมูล</span></button>
             <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-4 py-[7px] text-[13px] font-medium inline-flex items-center hover:bg-[#0c5c30] transition-colors shadow-sm"><span>Excel</span></button>
-            <button onclick="exportFormalReport()" class="btn-primary py-2 px-4 rounded-full text-[13px]"><span>พิมพ์รายงาน</span></button>
         </div>
     </nav>
 
@@ -220,80 +121,76 @@
         
         <div id="dashboardContainer" class="w-full mx-auto space-y-4 md:space-y-6">
             <div class="print-hidden-section space-y-4 md:space-y-6">
-                <!-- ================== KPI CARDS ================== -->
+                
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
+                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28 border-l-4 border-[#af52de]">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">งบประมาณรวม</h3>
                         <div id="kpiTotalBudget" class="text-[16px] md:text-2xl font-bold text-[#af52de] tracking-tight">...</div>
                     </div>
-                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
-                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
-                        <div id="kpiTotal" class="text-[16px] md:text-2xl font-bold text-[#1d1d1f] tracking-tight">...</div>
+                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28 border-l-4 border-[#0071e3]">
+                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดรายรับรวม (เงินงวด)</h3>
+                        <div id="kpiTotalRevenue" class="text-[16px] md:text-2xl font-bold text-[#0071e3] tracking-tight">...</div>
                     </div>
-                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
-                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">จำนวนโครงการ</h3>
-                        <div id="kpiProjects" class="text-[16px] md:text-2xl font-bold text-[#0071e3] tracking-tight">-</div>
+                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28 border-l-4 border-[#ff3b30]">
+                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดใช้จ่ายรวม</h3>
+                        <div id="kpiTotalExpense" class="text-[16px] md:text-2xl font-bold text-[#ff3b30] tracking-tight">...</div>
                     </div>
-                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
-                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">จำนวนรายการ</h3>
-                        <div id="kpiTransactions" class="text-[16px] md:text-2xl font-bold text-[#34c759] tracking-tight">-</div>
+                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28 border-l-4 border-[#34c759]">
+                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดเงินคงเหลือในมือ</h3>
+                        <div id="kpiTotalBalance" class="text-[16px] md:text-2xl font-bold text-[#34c759] tracking-tight">...</div>
                     </div>
                 </div>
 
-                <!-- ================== DAILY SUMMARY ================== -->
+                <div class="flex justify-center gap-6 text-[13px] text-[#86868b] font-medium">
+                    <span>จำนวนโครงการ: <strong id="kpiProjects" class="text-[#1d1d1f]">-</strong></span>
+                    <span>จำนวนรายการเดินบัญชี: <strong id="kpiTransactions" class="text-[#1d1d1f]">-</strong></span>
+                </div>
+
                 <div class="apple-card p-4 md:p-6 mb-4">
                     <div class="flex justify-between items-center mb-4 border-b border-[#f5f5f7] pb-3">
                         <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            <svg class="w-5 h-5 text-[#ff3b30]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                             สรุปรายจ่ายวันนี้ 
                             <span id="sum-date" class="text-[13px] font-normal text-[#86868b]"></span>
                         </h3>
-                        <button onclick="fetchGoogleSheetData()" class="text-[#0071e3] hover:bg-[#e8e8ed] px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            อัปเดต
-                        </button>
                     </div>
                     <div class="flex flex-col md:flex-row gap-4 md:gap-6">
-                        <div class="md:w-1/3 bg-[#f5f5f7] rounded-[14px] p-5 flex flex-col justify-center items-center border border-[#e5e5ea]">
-                            <span class="text-[12px] text-[#86868b] font-semibold mb-1 uppercase tracking-wide">ยอดรวมสุทธิ (เฉพาะมีสลิป)</span>
-                            <span id="sum-total" class="text-2xl md:text-3xl font-bold text-[#34c759] tracking-tight">กำลังโหลด...</span>
-                            <span id="sum-count" class="text-[13px] text-[#86868b] mt-1 font-medium">- รายการ</span>
+                        <div class="md:w-1/3 bg-[#fff0f0] rounded-[14px] p-5 flex flex-col justify-center items-center border border-[#ffcccc]">
+                            <span class="text-[12px] text-[#ff3b30] font-semibold mb-1 uppercase tracking-wide">ยอดจ่ายสุทธิ (เฉพาะมีสลิป)</span>
+                            <span id="sum-total" class="text-2xl md:text-3xl font-bold text-[#ff3b30] tracking-tight">กำลังโหลด...</span>
+                            <span id="sum-count" class="text-[13px] text-[#ff3b30] mt-1 font-medium">- รายการ</span>
                         </div>
                         <div class="md:w-2/3 flex flex-col">
-                            <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ (กดเพื่อดูรายละเอียด):</h4>
-                            <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2">
-                                <!-- โปรเจกต์จะถูกแทรกตรงนี้แบบ Dropdown -->
-                            </div>
+                            <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ (กดเพื่อกางดูรายละเอียด):</h4>
+                            <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ================== CHART & BUDGET SUMMARY ================== -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] lg:h-[450px]">
+                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[350px] lg:h-[450px]">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
                             <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">เปอร์เซ็นต์การใช้จ่ายเทียบกับงบประมาณ</h3>
                         </div>
-                        <!-- 📌 ส่วนควบคุมแถบสไลด์กราฟบนมือถือ (จากรูป image_3.png) -->
                         <div class="flex-1 overflow-x-auto w-full ios-scroll relative min-h-0 pt-2">
-                            <div id="chartWrapper" class="h-[250px] md:h-full relative">
+                            <div id="chartWrapper" class="h-[280px] md:h-full relative">
                                 <canvas id="expenseChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[250px] lg:h-[450px]">
+                    <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[300px] lg:h-[450px]">
                         <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0">
-                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปงบประมาณและยอดใช้จ่าย</h3>
+                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สถานะการเงินแยกตามโครงการ</h3>
                         </div>
                         <div class="px-2 pb-2 flex-1 overflow-y-auto bg-white ios-scroll">
-                            <table id="summaryTable" class="w-full text-left display" style="width:100%">
+                            <table id="summaryTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th class="text-left">โครงการ</th>
                                         <th class="text-right">งบประมาณ</th>
-                                        <th class="text-right text-[#ff3b30]">ใช้ไปแล้ว</th>
-                                        <th class="text-right text-[#34c759]">คงเหลือ</th>
-                                        <th class="text-right">% ใช้ไป</th>
+                                        <th class="text-right text-[#0071e3]">รายรับ</th>
+                                        <th class="text-right text-[#ff3b30]">รายจ่าย</th>
+                                        <th class="text-right font-bold">คงเหลือในมือ</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -303,56 +200,22 @@
                 </div>
             </div>
 
-            <div id="printHeader" class="hidden text-black font-['Tahoma']">
-                <h1 class="print-header-title">รายงานงบประมาณโครงการ</h1>
-                <table class="print-header-table">
-                    <tr><td class="print-header-label">โครงการ</td><td>: <span id="printProjectName">ทุกโครงการ</span></td></tr>
-                    <tr><td class="print-header-label">รายจ่าย</td><td>: <span id="printTotalAmount">0.00</span> บาท</td></tr>
-                    <tr class="single-proj-only"><td class="print-header-label">งบประมาณ</td><td>: <span id="printBudgetAmount">0.00</span> บาท</td></tr>
-                    <tr class="single-proj-only"><td class="print-header-label">เหลือใช้</td><td>: <span id="printRemainAmount">0.00</span> บาท</td></tr>
-                </table>
-            </div>
-
             <div class="apple-card p-0 overflow-hidden" id="reportTableSection">
                 <div class="p-4 border-b border-[#f5f5f7] bg-white no-print flex gap-2 overflow-x-auto ios-scroll">
                     <button id="dtFilterAll" onclick="setTableFilter('all')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors shrink-0">แสดงทั้งหมด</button>
-                    <button id="dtFilterSlip" onclick="setTableFilter('slip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายการมีสลิป</button>
-                    <button id="dtFilterNoSlip" onclick="setTableFilter('noslip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายการไม่มีสลิป</button>
+                    <button id="dtFilterRevenue" onclick="setTableFilter('revenue')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e0f2fe] text-[#0369a1] hover:bg-[#bae6fd] transition-colors shrink-0">💰 เฉพาะรายรับ</button>
+                    <button id="dtFilterSlip" onclick="setTableFilter('slip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายจ่ายมีสลิป</button>
+                    <button id="dtFilterNoSlip" onclick="setTableFilter('noslip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายจ่ายไม่มีสลิป</button>
                 </div>
                 <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                         <thead>
                             <tr>
                                 <th class="text-center">วันที่</th>
-                                <th class="web-only-col text-left">โครงการ</th> 
+                                <th class="text-left">โครงการ</th> 
                                 <th class="text-center">รายละเอียด</th>
                                 <th class="text-center">จำนวนเงิน</th>
-                                <th class="text-center">หมายเหตุ</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
-            <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
-            <div class="apple-card p-0 overflow-hidden">
-                <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0 no-print">
-                    <h3 id="monthlyTitle" class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปค่าใช้จ่ายรายเดือน</h3>
-                </div>
-                <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
-                    <table id="monthlyTable" class="w-full text-left display nowrap" style="width:100%">
-                        <thead>
-                            <tr id="monthlyTotalsTop" class="bg-[#f5f5f7] border-b-2 border-[#d2d2d7]"></tr>
-                            <tr>
-                                <th class="text-left">โครงการ</th>
-                                <th class="text-center">ม.ค.</th><th class="text-center">ก.พ.</th><th class="text-center">มี.ค.</th>
-                                <th class="text-center">เม.ย.</th><th class="text-center">พ.ค.</th><th class="text-center">มิ.ย.</th>
-                                <th class="text-center">ก.ค.</th><th class="text-center">ส.ค.</th><th class="text-center">ก.ย.</th>
-                                <th class="text-center">ต.ค.</th><th class="text-center">พ.ย.</th><th class="text-center">ธ.ค.</th>
-                                <th class="text-right text-[#FF9500]">รวมทั้งปี</th>
+                                <th class="text-center">ประเภท</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -370,12 +233,10 @@
         let rawData = [];
         let currentFilteredData = [];
         let projectBudgets = {}; 
-        let currentView = 'dashboard'; 
         let currentTableFilter = 'all'; 
         
         let summaryTableInstance = null;
         let detailedTableInstance = null;
-        let monthlyTableInstance = null;
         let chartInstance = null;
         let dateSortAsc = true;
         
@@ -383,7 +244,6 @@
 
         $(document).ready(function() {
             Chart.register(ChartDataLabels);
-            
             fetchGoogleSheetData();
 
             const fpOptions = { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", locale: "th", disableMobile: "true", onChange: applyGlobalFilters };
@@ -391,16 +251,11 @@
             flatpickr("#filterEndDate", fpOptions);
 
             $('#filterProject, #filterYear').on('change', applyGlobalFilters);
-            
             $('#resetFilters').on('click', function() {
                 document.querySelector('#filterStartDate')._flatpickr.clear();
                 document.querySelector('#filterEndDate')._flatpickr.clear();
                 $('#filterProject').val('');
-                
-                let currentYearStr = new Date().getFullYear().toString();
-                let hasCurrentYear = Array.from(document.getElementById('filterYear').options).some(opt => opt.value === currentYearStr);
-                $('#filterYear').val(hasCurrentYear ? currentYearStr : 'all');
-                
+                $('#filterYear').val('all');
                 applyGlobalFilters();
             });
 
@@ -411,140 +266,20 @@
                 applyGlobalFilters();
             });
 
+            // 📌 ลอจิกกรองตาราง (เพิ่มโหมดรายรับ)
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                 if (settings.nTable.id !== 'detailedTable') return true;
                 if (currentTableFilter === 'all') return true;
-                
-                var rowType = $(settings.aoData[dataIndex].nTr).attr('data-sliptype') || 'มีสลิป';
+                var rowType = $(settings.aoData[dataIndex].nTr).attr('data-sliptype');
                 if (currentTableFilter === 'slip' && rowType === 'มีสลิป') return true;
                 if (currentTableFilter === 'noslip' && rowType === 'ไม่มีสลิป') return true;
+                if (currentTableFilter === 'revenue' && rowType === 'รายรับ') return true;
                 return false;
             });
         });
 
-        function switchTab(tabName) {
-            currentView = tabName;
-            if (tabName === 'dashboard') {
-                $('#dashboardContainer').fadeIn();
-                $('#monthlyContainer').hide();
-                $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
-                $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-                
-                $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').show();
-            } else {
-                $('#dashboardContainer').hide();
-                $('#monthlyContainer').fadeIn();
-                $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
-                $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-                
-                $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').hide();
-                generateMonthlyTable();
-            }
-        }
-
-        function buildLocalDailySummary() {
-            let now = new Date();
-            let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
-            let startTime = new Date(endTime.getTime() - (24 * 60 * 60 * 1000));
-
-            let totalAmount = 0;
-            let count = 0;
-            let projectData = {};
-
-            rawData.forEach(item => {
-                if (item.exactDateTime && item.exactDateTime > startTime && item.exactDateTime <= endTime) {
-                    if (item.slipType === "ไม่มีสลิป") return;
-
-                    totalAmount += item.amount;
-                    count++;
-
-                    if (!projectData[item.project]) {
-                        projectData[item.project] = { total: 0, items: [] };
-                    }
-                    projectData[item.project].total += item.amount;
-                    projectData[item.project].items.push({
-                        detail: item.details || 'ไม่ระบุรายละเอียด',
-                        amount: item.amount
-                    });
-                }
-            });
-
-            let dateFormatted = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
-            document.getElementById("sum-date").innerText = "(" + dateFormatted + ")";
-            document.getElementById("sum-total").innerText = totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + " ฿";
-            document.getElementById("sum-count").innerText = count + " รายการ";
-
-            let projectHtml = "";
-            let projectKeys = Object.keys(projectData);
-            
-            if(projectKeys.length === 0) {
-                projectHtml = `
-                <div class='flex flex-col items-center justify-center text-[#86868b] text-[13px] py-5 bg-[#f5f5f7] rounded-[14px] border border-dashed border-[#d2d2d7] mt-1 w-full'>
-                    <svg class="w-6 h-6 text-[#d2d2d7] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    ไม่มีรายการเบิกจ่ายที่มีสลิปในรอบเวลานี้
-                </div>`;
-            } else {
-                projectKeys.forEach((projName, index) => {
-                    let p = projectData[projName];
-                    let safeId = 'projdrop-' + index;
-                    
-                    let itemsHtml = "";
-                    p.items.forEach(item => {
-                        itemsHtml += `
-                        <div class="flex justify-between py-1.5 border-b border-[#e5e5ea] last:border-0">
-                            <span class="text-[#555] truncate mr-2 flex-1" title="${item.detail}">• ${item.detail}</span>
-                            <span class="shrink-0 font-medium text-[#1d1d1f]">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
-                        </div>`;
-                    });
-
-                    projectHtml += `
-                    <div class="bg-white rounded-[12px] border border-[#e5e5ea] shadow-sm mb-2 overflow-hidden w-full">
-                        <button onclick="toggleSummaryDrop('${safeId}')" class="w-full px-3 py-2.5 flex justify-between items-center bg-white hover:bg-[#f9f9fb] transition-colors focus:outline-none">
-                            <span class="font-medium text-[#1d1d1f] truncate mr-2 text-left flex-1">${projName}</span>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="font-bold text-[#1d1d1f]">${p.total.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
-                                <svg id="icon-${safeId}" class="w-4 h-4 text-[#86868b] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </button>
-                        <div id="content-${safeId}" class="hidden bg-[#f5f5f7] border-t border-[#e5e5ea] px-3 py-1.5 transition-all">
-                            <div class="text-[12px] flex flex-col">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                    </div>`;
-                });
-            }
-            document.getElementById("sum-projects").innerHTML = projectHtml;
-        }
-
-        function toggleSummaryDrop(id) {
-            const content = document.getElementById('content-' + id);
-            const icon = document.getElementById('icon-' + id);
-            if(content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                icon.style.transform = 'rotate(180deg)'; 
-            } else {
-                content.classList.add('hidden');
-                icon.style.transform = 'rotate(0deg)'; 
-            }
-        }
-
-        function setTableFilter(filterType) {
-            currentTableFilter = filterType;
-            ['all', 'slip', 'noslip'].forEach(type => {
-                const btn = document.getElementById('dtFilter' + (type === 'all' ? 'All' : type === 'slip' ? 'Slip' : 'NoSlip'));
-                if(type === filterType) {
-                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors shrink-0";
-                } else {
-                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0";
-                }
-            });
-            if(detailedTableInstance) detailedTableInstance.draw();
-        }
-
         function fetchGoogleSheetData() {
-            $('#kpiTotalBudget, #kpiTotal, #sum-total').text('กำลังโหลด...');
-            $('#kpiProjects, #kpiTransactions').text('-');
+            $('#kpiTotalBudget, #kpiTotalExpense, #kpiTotalRevenue, #kpiTotalBalance, #sum-total').text('กำลังโหลด...');
             $('#sum-projects').html('<div class="text-[#86868b] p-2 text-[13px]">กำลังประมวลผลข้อมูล...</div>');
             
             const projectSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID_PROJECTS}&_cb=${new Date().getTime()}`;
@@ -556,9 +291,8 @@
                         for (let i = 1; i < projResults.data.length; i++) {
                             let pName = String(projResults.data[i][0] || '').trim();
                             let pBudgetRaw = String(projResults.data[i][1] || '').replace(/,/g, '').trim();
-                            if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.startsWith('ID-')) {
-                                let pBudget = parseFloat(pBudgetRaw);
-                                projectBudgets[pName] = isNaN(pBudget) ? null : pBudget;
+                            if (pName && pName !== 'ชื่อโครงการ' && !pName.startsWith('ID-')) {
+                                projectBudgets[pName] = parseFloat(pBudgetRaw) || null;
                             }
                         }
                     }
@@ -572,96 +306,128 @@
             const transactionSheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID_TRANSACTIONS}&_cb=${new Date().getTime()}`;
             Papa.parse(transactionSheetUrl, {
                 download: true, header: false, skipEmptyLines: true,
-                complete: function(results) { 
-                    if (!results.data || results.data.length === 0) return;
-                    processData(results.data); 
-                },
-                error: function(err) { alert("เกิดข้อผิดพลาดในการดึงข้อมูลคลังบิล"); }
+                complete: function(results) { processData(results.data); }
             });
         }
 
         function processData(data) {
             if (data.length < 2) return;
             const col = { date: 1, time: 2, project: 4, boq: 5, details: 6, amount: 7, note: 8, slipType: 9 };
-            
             let headerRow = 1; 
-            for (let r = 0; r < Math.min(10, data.length); r++) {
-                let text = data[r].join('').replace(/\s/g, '');
-                if (text.includes('วันที่') && text.includes('จำนวนเงิน')) { headerRow = r; break; }
-            }
 
             rawData = [];
             for (let i = headerRow + 1; i < data.length; i++) {
                 let row = data[i];
                 if (!row) continue;
                 
-                let aVal = String(row[col.amount] || '').trim();
-                if (aVal === '') continue; 
-                let cleanAmount = parseFloat(aVal.replace(/,/g, ''));
+                let cleanAmount = parseFloat(String(row[col.amount] || '').replace(/,/g, ''));
                 if (isNaN(cleanAmount)) continue; 
 
                 let dVal = String(row[col.date] || '').trim();
                 let timeVal = String(row[col.time] || '').trim();
                 let pVal = String(row[col.project] || '').trim() || 'ไม่ระบุโครงการ';
                 let boqVal = String(row[col.boq] || '').trim();
-                let detVal = String(row[col.details] || '').trim();
-                let noteVal = String(row[col.note] || '').trim();
+                let typeVal = String(row[col.slipType] || '').trim() || "มีสลิป";
                 
-                let typeVal = String(row[col.slipType] || '').trim();
-                if(typeVal === '') typeVal = "มีสลิป";
-                
-                let parsedDate = null;
-                let exactDateTime = null; 
-                
+                let parsedDate = null, exactDateTime = null; 
                 if (dVal.includes('/')) {
                     let parts = dVal.split('/');
                     if (parts.length >= 3) {
-                        let year = parseInt(parts[2]);
-                        if (year < 100) year += 2000;
+                        let year = parseInt(parts[2]); if (year < 100) year += 2000;
                         parsedDate = new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]));
                         dVal = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${year}`;
                         
                         let tParts = timeVal.split(':');
-                        let h = tParts.length > 0 ? parseInt(tParts[0]) : 0;
-                        let m = tParts.length > 1 ? parseInt(tParts[1]) : 0;
-                        let s = tParts.length > 2 ? parseInt(tParts[2]) : 0;
-                        exactDateTime = new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]), h, m, s);
+                        exactDateTime = new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(tParts[0]||0), parseInt(tParts[1]||0), parseInt(tParts[2]||0));
                     }
                 }
 
                 rawData.push({ 
                     id: i, dateText: dVal !== '' ? dVal : '-', dateObj: parsedDate, exactDateTime: exactDateTime,
-                    project: pVal, boq: boqVal, details: detVal, amount: cleanAmount, note: noteVal, slipType: typeVal
+                    project: pVal, boq: boqVal, details: String(row[col.details] || ''), amount: cleanAmount, note: String(row[col.note] || ''), slipType: typeVal
                 });
             }
 
             const uniqueYears = [...new Set(rawData.map(item => item.dateObj ? item.dateObj.getFullYear().toString() : null).filter(Boolean))].sort((a,b) => b - a);
-            
             const yearFilter = document.getElementById('filterYear');
-            const currentSelectedYear = yearFilter.value;
             yearFilter.innerHTML = '<option value="all">-- ทุกปี --</option>';
             uniqueYears.forEach(year => yearFilter.appendChild(new Option(year, year)));
-            
-            let currentYearStr = new Date().getFullYear().toString();
-            if (currentSelectedYear && currentSelectedYear !== 'all' && uniqueYears.includes(currentSelectedYear)) {
-                yearFilter.value = currentSelectedYear;
-            } else if (uniqueYears.includes(currentYearStr)) {
-                yearFilter.value = currentYearStr;
-            } else {
-                yearFilter.value = 'all';
-            }
 
+            // 📌 จุดที่ 1: เอาตัวกรอง 'ไม่ระบุโครงการ' ออก เพื่อให้โชว์ใน Dropdown
             let combinedProjects = [...Object.keys(projectBudgets), ...rawData.map(item => item.project)];
-            const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== 'ไม่ระบุโครงการ' && p !== '' && !p.startsWith('ID-')).sort();
+            const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== '' && !p.startsWith('ID-')).sort();
             
             const projectFilter = document.getElementById('filterProject');
-            const currentSelected = projectFilter.value; 
             projectFilter.innerHTML = '<option value="">-- แสดงทั้งหมด --</option>'; 
             uniqueProjects.forEach(proj => projectFilter.appendChild(new Option(proj, proj)));
-            projectFilter.value = currentSelected;
 
             applyGlobalFilters();
             buildLocalDailySummary(); 
+        }
+
+        function buildLocalDailySummary() {
+            let now = new Date();
+            let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0);
+            let startTime = new Date(endTime.getTime() - (24 * 60 * 60 * 1000));
+
+            let totalExpense = 0, count = 0;
+            let projectData = {};
+
+            rawData.forEach(item => {
+                if (item.exactDateTime && item.exactDateTime > startTime && item.exactDateTime <= endTime) {
+                    if (item.slipType === "ไม่มีสลิป" || item.slipType === "รายรับ") return; // ดักจับเฉพาะรายจ่ายมีสลิป
+                    
+                    totalExpense += item.amount;
+                    count++;
+
+                    if (!projectData[item.project]) projectData[item.project] = { total: 0, items: [] };
+                    projectData[item.project].total += item.amount;
+                    projectData[item.project].items.push({ detail: item.details || '-', amount: item.amount });
+                }
+            });
+
+            document.getElementById("sum-date").innerText = `(${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()})`;
+            document.getElementById("sum-total").innerText = totalExpense.toLocaleString('th-TH', {minimumFractionDigits: 2}) + " ฿";
+            document.getElementById("sum-count").innerText = count + " รายการ";
+
+            let projectHtml = "";
+            let projectKeys = Object.keys(projectData);
+            
+            // 📌 จุดที่ 7: ระบบพับเก็บ Accordion
+            if(projectKeys.length === 0) {
+                projectHtml = `<div class='text-center text-[#86868b] text-[13px] py-4'>ไม่มีรายการเบิกจ่าย(มีสลิป) ในรอบ 24 ชม. ล่าสุด</div>`;
+            } else {
+                projectKeys.forEach((projName, index) => {
+                    let p = projectData[projName];
+                    let safeId = 'projdrop-' + index;
+                    
+                    let itemsHtml = p.items.map(item => `
+                        <div class="flex justify-between py-1.5 border-b border-[#e5e5ea] last:border-0">
+                            <span class="text-[#555] truncate mr-2 flex-1">• ${item.detail}</span>
+                            <span class="shrink-0 font-medium">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
+                        </div>`).join('');
+
+                    projectHtml += `
+                    <div class="bg-white rounded-[12px] border border-[#e5e5ea] shadow-sm mb-2 overflow-hidden w-full">
+                        <button onclick="toggleSummaryDrop('${safeId}')" class="w-full px-3 py-2 flex justify-between items-center bg-white hover:bg-[#f9f9fb] transition-colors focus:outline-none">
+                            <span class="font-semibold text-[#1d1d1f] truncate mr-2 text-left flex-1">${projName}</span>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="font-bold text-[#ff3b30]">${p.total.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</span>
+                                <svg id="icon-${safeId}" class="w-4 h-4 text-[#86868b] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </button>
+                        <div id="content-${safeId}" class="hidden bg-[#f5f5f7] border-t border-[#e5e5ea] px-3 py-1.5 transition-all text-[12px] flex flex-col">${itemsHtml}</div>
+                    </div>`;
+                });
+            }
+            document.getElementById("sum-projects").innerHTML = projectHtml;
+        }
+
+        function toggleSummaryDrop(id) {
+            const content = document.getElementById('content-' + id);
+            const icon = document.getElementById('icon-' + id);
+            content.classList.toggle('hidden');
+            icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)'; 
         }
 
         function applyGlobalFilters() {
@@ -673,9 +439,7 @@
             let filteredData = rawData.filter(item => {
                 let isMatch = true;
                 if (projectVal && item.project !== projectVal) isMatch = false;
-                
                 if (yearVal !== 'all' && item.dateObj && item.dateObj.getFullYear().toString() !== yearVal) isMatch = false;
-
                 if (item.dateObj) {
                     if (startDateVal) { let sDate = new Date(startDateVal); sDate.setHours(0,0,0,0); if (item.dateObj < sDate) isMatch = false; }
                     if (endDateVal) { let eDate = new Date(endDateVal); eDate.setHours(23,59,59,999); if (item.dateObj > eDate) isMatch = false; }
@@ -685,137 +449,101 @@
 
             filteredData.sort((a, b) => {
                 if(!a.dateObj) return 1; if(!b.dateObj) return -1;
-                let diff = a.dateObj - b.dateObj;
-                return dateSortAsc ? diff : -diff;
+                return dateSortAsc ? (a.dateObj - b.dateObj) : (b.dateObj - a.dateObj);
             });
 
             currentFilteredData = filteredData;
             updateDashboards(filteredData);
-            
-            if (currentView === 'monthly') {
-                generateMonthlyTable();
-            }
         }
 
         function updateDashboards(data) {
-            let totalAmountKPI = 0;
+            // 📌 ลอจิกแยกกล่องคำนวณ รายรับ-รายจ่าย
+            let totalRevenueKPI = 0;
+            let totalExpenseKPI = 0;
             const projectStats = {};
             
             data.forEach(item => {
-                let isExcluded = (item.slipType === "ไม่มีสลิป");
+                if(!projectStats[item.project]) projectStats[item.project] = { expense: 0, revenue: 0 };
                 
-                if (!isExcluded) {
-                    totalAmountKPI += item.amount;
+                if (item.slipType === "รายรับ") {
+                    totalRevenueKPI += item.amount;
+                    projectStats[item.project].revenue += item.amount;
+                } else if (item.slipType !== "ไม่มีสลิป") {
+                    totalExpenseKPI += item.amount;
+                    projectStats[item.project].expense += item.amount;
                 }
-                
-                if(!projectStats[item.project]) projectStats[item.project] = { sum: 0, count: 0 };
-                projectStats[item.project].sum += item.amount;
-                projectStats[item.project].count += 1;
             });
             
-            $('#kpiTotal').text(totalAmountKPI.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            $('#kpiTotalRevenue').text(totalRevenueKPI.toLocaleString('th-TH', { minimumFractionDigits: 2 }));
+            $('#kpiTotalExpense').text(totalExpenseKPI.toLocaleString('th-TH', { minimumFractionDigits: 2 }));
+            
+            let totalBalanceKPI = totalRevenueKPI - totalExpenseKPI;
+            $('#kpiTotalBalance').text(totalBalanceKPI.toLocaleString('th-TH', { minimumFractionDigits: 2 }));
+            $('#kpiTotalBalance').removeClass('text-[#34c759] text-[#ff3b30]').addClass(totalBalanceKPI >= 0 ? 'text-[#34c759]' : 'text-[#ff3b30]');
+            
             $('#kpiProjects').text([...new Set(data.map(item => item.project))].length.toLocaleString('th-TH'));
             $('#kpiTransactions').text(data.length.toLocaleString('th-TH'));
 
-            const projectArray = Object.keys(projectStats).map(proj => ({ name: proj, sum: projectStats[proj].sum })).sort((a, b) => b.sum - a.sum);
+            const projectArray = Object.keys(projectStats).map(proj => ({ 
+                name: proj, expense: projectStats[proj].expense, revenue: projectStats[proj].revenue 
+            })).sort((a, b) => b.expense - a.expense);
 
             let sumBudget = 0;
             projectArray.forEach(p => { if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name]; });
-            $('#kpiTotalBudget').text(sumBudget > 0 ? sumBudget.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
+            $('#kpiTotalBudget').text(sumBudget > 0 ? sumBudget.toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '-');
 
+            // 📌 กราฟและตาราง
             let budgetedProjects = projectArray.filter(p => projectBudgets[p.name] != null && projectBudgets[p.name] > 0);
             let chartLabels = budgetedProjects.map(p => p.name);
-            let chartData = budgetedProjects.map(p => ((p.sum / projectBudgets[p.name]) * 100).toFixed(2));
-            let barColors = budgetedProjects.map((_, i) => themeColors[i % themeColors.length]);
-
-            // 📌 [FIX] บังคับสัดส่วนตัวครอบ Canvas ให้ยืดขยายตามจำนวนแท่ง เพื่อบังคับสไลด์ปัดซ้าย-ขวาบนมือถือได้จริงร้อยเปอร์เซ็นต์
+            let chartData = budgetedProjects.map(p => ((p.expense / projectBudgets[p.name]) * 100).toFixed(2));
+            
+            // 📌 จุดที่ 7: ขยายพื้นที่ด้านล่างของกราฟให้พอสำหรับชื่อโครงการ + ล็อกความกว้าง
             const chartWrapper = document.getElementById('chartWrapper');
             if (window.innerWidth < 1024) {
                 const minCalculatedWidth = Math.max(850, chartLabels.length * 60);
                 chartWrapper.style.width = minCalculatedWidth + 'px';
-            } else {
-                chartWrapper.style.width = '100%';
-            }
+            } else { chartWrapper.style.width = '100%'; }
 
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(document.getElementById('expenseChart').getContext('2d'), {
                 type: 'bar', 
-                data: { 
-                    labels: chartLabels, 
-                    datasets: [{ 
-                        data: chartData, 
-                        backgroundColor: barColors, 
-                        borderRadius: 6, 
-                        borderWidth: 0
-                    }] 
-                },
+                data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: themeColors, borderRadius: 6 }] },
                 options: {
-                    responsive: true, 
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false }, 
-                        datalabels: { 
-                            color: '#1d1d1f', 
-                            anchor: 'end',
-                            align: 'top',
-                            formatter: (value) => value + "%", 
-                            font: { family: '-apple-system', size: 11, weight: 'bold' } 
-                        },
-                        tooltip: { 
-                            backgroundColor: 'rgba(29,29,31,0.9)', padding: 12, cornerRadius: 8, 
-                            callbacks: { 
-                                label: (c) => {
-                                    let projName = c.label;
-                                    let pData = budgetedProjects.find(p => p.name === projName);
-                                    let budget = projectBudgets[projName];
-                                    let used = pData ? pData.sum : 0;
-                                    return ` ใช้ไป: ${c.raw}% (${used.toLocaleString('th-TH', {minimumFractionDigits: 2})} / ${budget.toLocaleString('th-TH', {minimumFractionDigits: 2})} บ.)`;
-                                } 
-                            } 
-                        }
+                        datalabels: { anchor: 'end', align: 'top', formatter: (v) => v + "%", font: { size: 11, weight: 'bold' } }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grace: '15%', 
-                            ticks: {
-                                callback: function(value) { return value + "%"; },
-                                font: { family: '-apple-system', size: 10 }
-                            }
-                        },
-                        x: {
-                            ticks: { 
-                                font: { family: '-apple-system', size: 11, weight: '500' },
-                                maxRotation: 45, 
-                                minRotation: 15
-                            }
-                        }
+                        y: { beginAtZero: true, grace: '15%' },
+                        x: { ticks: { font: { size: 11, weight: '500' }, maxRotation: 45, minRotation: 45 } }
                     },
-                    layout: { padding: { top: 24, bottom: 5 } }
+                    // เพิ่ม padding: bottom ให้เยอะขึ้นเพื่อดึงพื้นที่ให้ชื่อโครงการ
+                    layout: { padding: { top: 24, bottom: 45 } } 
                 }
             });
 
             if (summaryTableInstance) { summaryTableInstance.clear(); } 
             else { 
                 summaryTableInstance = $('#summaryTable').DataTable({ 
-                    paging: false, info: false, searching: false, order: [[2, 'desc']], 
-                    language: { emptyTable: "ไม่มีข้อมูลในตารางสรุป" }, 
-                    columnDefs: [ { className: "dt-right", targets: [1, 2, 3, 4] } ] 
+                    paging: false, info: false, searching: false, order: [[3, 'desc']], 
+                    language: { emptyTable: "ไม่มีข้อมูลในตารางสรุป" }, columnDefs: [ { className: "dt-right", targets: [1,2,3,4] } ] 
                 }); 
             }
 
+            // 📌 จุดที่ 3: แทรกข้อมูลลงตารางใหม่
             projectArray.forEach(p => {
                 let budget = projectBudgets[p.name];
-                let budgetStr = (budget == null) ? `<span class="text-[#86868b] text-[12px]">ว่าง</span>` : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
-                let remainStr = (budget == null) ? "-" : (budget - p.sum).toLocaleString('th-TH', {minimumFractionDigits:2});
-                let pctStr = (budget == null || budget === 0) ? "-" : ((p.sum / budget) * 100).toFixed(2) + "%";
+                let budgetStr = (budget == null) ? "-" : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
+                let balance = p.revenue - p.expense;
+                let balanceColor = balance >= 0 ? "text-[#34c759]" : "text-[#ff3b30]";
 
                 summaryTableInstance.row.add([
                     `<span class="font-medium text-[13px]">${p.name}</span>`,
-                    `<span class="text-[13px]">${budgetStr}</span>`,
-                    `<span class="text-[13px] text-[#ff3b30]">${p.sum.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
-                    `<span class="text-[13px] text-[#34c759]">${remainStr}</span>`,
-                    `<span class="text-[13px] text-[#86868b]">${pctStr}</span>`
+                    `<span class="text-[13px] text-[#86868b]">${budgetStr}</span>`,
+                    `<span class="text-[13px] text-[#0071e3] font-medium">${p.revenue.toLocaleString('th-TH', {minimumFractionDigits: 2})}</span>`,
+                    `<span class="text-[13px] text-[#ff3b30]">${p.expense.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
+                    `<span class="text-[13px] font-bold ${balanceColor}">${balance.toLocaleString('th-TH', {minimumFractionDigits:2})}</span>`
                 ]);
             });
             summaryTableInstance.draw();
@@ -823,15 +551,11 @@
             if (detailedTableInstance) { detailedTableInstance.clear(); } 
             else {
                 detailedTableInstance = $('#detailedTable').DataTable({
-                    pageLength: 20, lengthMenu: [10, 20, 50, 100, 500, 5000], order: [[0, 'asc']], 
-                    language: { search: "", searchPlaceholder: "ค้นหารายรายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
-                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
-                    columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
-                    ordering: false,
-                    createdRow: function(row, data, dataIndex) {
-                        const typeVal = $(data[0]).attr('data-sliptype');
-                        $(row).attr('data-sliptype', typeVal);
-                    }
+                    pageLength: 20, lengthMenu: [10, 20, 50, 100], order: [[0, 'asc']], 
+                    language: { search: "", searchPlaceholder: "ค้นหาข้อมูลบิล/รายรับ...", emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
+                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b]"ip>',
+                    columnDefs: [ { className: "dt-right", targets: [3] } ], ordering: false,
+                    createdRow: function(row, data, dataIndex) { $(row).attr('data-sliptype', $(data[0]).attr('data-sliptype')); }
                 });
                 $('.dataTables_filter input').addClass('g-input w-full').css('border-radius', '12px').css('padding', '8px 16px');
                 $('.dataTables_length select').addClass('g-input').css('border-radius', '8px').css('padding', '4px 8px');
@@ -839,135 +563,45 @@
 
             data.forEach(item => {
                 let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
-                let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ไม่มีสลิป</span>` : ``;
                 
-                let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
-                let detailHtml = `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1"><span class="break-words">${item.details}</span>${extraTag}</div>`;
+                // ตกแต่งป้าย Tag ให้สีต่างกัน
+                let tagColor = "bg-slate-100 text-slate-600";
+                if(item.slipType === "รายรับ") tagColor = "bg-blue-100 text-[#0071e3]";
+                else if(item.slipType === "ไม่มีสลิป") tagColor = "bg-red-100 text-[#ff3b30]";
+                else tagColor = "bg-emerald-100 text-emerald-600"; // มีสลิป
 
-                detailedTableInstance.row.add([ dateHtml, item.project, detailHtml, item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }), item.note ]);
+                let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
+                let detailHtml = `<div class="flex flex-col gap-1"><span class="break-words">${item.details}</span><span class="text-[11px] text-[#86868b]">${item.note}</span></div>`;
+                let typeHtml = `<span class="${tagColor} text-[11px] px-2 py-0.5 rounded font-bold">${item.slipType}</span>`;
+
+                detailedTableInstance.row.add([ dateHtml, item.project, detailHtml, item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 }), typeHtml ]);
             });
             detailedTableInstance.draw();
         }
 
-        function generateMonthlyTable() {
-            let pivot = {};
-            let totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]; 
-            
-            let yearVal = $('#filterYear').val();
-            let yearText = yearVal === 'all' ? 'ทุกปี' : `ปี ${yearVal}`;
-            $('#monthlyTitle').text(`สรุปค่าใช้จ่ายรายเดือน (${yearText})`);
-            
-            currentFilteredData.forEach(item => {
-                if (!item.dateObj) return;
-                
-                if (item.slipType === "ไม่มีสลิป") return; 
-                
-                let m = item.dateObj.getMonth(); 
-                let p = item.project;
-                
-                if (!pivot[p]) pivot[p] = [0,0,0,0,0,0,0,0,0,0,0,0,0];
-                pivot[p][m] += item.amount;
-                pivot[p][12] += item.amount; 
-            });
-            
-            if (monthlyTableInstance) monthlyTableInstance.destroy();
-            
-            let tbody = '';
-            Object.keys(pivot).sort().forEach(p => {
-                tbody += `<tr><td class="font-medium text-[13px] whitespace-nowrap">${p}</td>`;
-                for(let i=0; i<=12; i++) {
-                    let val = pivot[p][i];
-                    totals[i] += val; 
-                    let colorClass = val > 0 ? (i === 12 ? 'text-[#FF9500] font-bold' : 'text-[#1d1d1f]') : 'text-[#d2d2d7]';
-                    let textVal = val > 0 ? val.toLocaleString('th-TH', {minimumFractionDigits:2}) : '-';
-                    tbody += `<td class="text-right text-[12px] ${colorClass}">${textVal}</td>`;
+        function setTableFilter(type) {
+            currentTableFilter = type;
+            ['all', 'revenue', 'slip', 'noslip'].forEach(t => {
+                let btn = document.getElementById('dtFilter' + (t.charAt(0).toUpperCase() + t.slice(1)));
+                if(t === type) {
+                    btn.className = (t === 'revenue') ? "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#0369a1] text-white transition-colors shrink-0" : "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#1d1d1f] text-white transition-colors shrink-0";
+                } else {
+                    btn.className = "px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0";
                 }
-                tbody += `</tr>`;
             });
-
-            let headTotals = `<th class="text-left font-bold text-[#1d1d1f] py-3 px-4 border-b text-[13px] md:text-[14px]">ยอดรวมทุกโครงการ</th>`;
-            for(let i=0; i<=12; i++) {
-                let textVal = totals[i] > 0 ? totals[i].toLocaleString('th-TH', {minimumFractionDigits:2}) : '-';
-                let colorClass = i === 12 ? 'text-[#FF9500]' : 'text-[#1d1d1f]';
-                headTotals += `<th class="text-right font-bold ${colorClass} py-3 px-4 border-b text-[13px] md:text-[14px]">${textVal}</th>`;
-            }
-            
-            $('#monthlyTotalsTop').html(headTotals);
-            $('#monthlyTable tbody').html(tbody);
-            
-            monthlyTableInstance = $('#monthlyTable').DataTable({
-                paging: false, info: false, searching: true, orderCellsTop: false, order: [], 
-                dom: '<"flex justify-between items-center mb-4 no-print"f>rt',
-                language: { search: "", searchPlaceholder: "พิมพ์ชื่อโครงการ...", emptyTable: "ไม่มีข้อมูลแสดงตามปีที่เลือก" },
-                columnDefs: [ { className: "dt-right", targets: "_all" }, { className: "dt-left", targets: [0] } ]
-            });
-            $('#monthlyContainer .dataTables_filter input').addClass('g-input w-full sm:w-64');
-        }
-
-        function exportFormalReport() {
-            const printStyle = document.getElementById('dynamicPrintStyle');
-
-            if (currentView === 'monthly') {
-                printStyle.innerHTML = '@media print { @page { size: A4 landscape !important; margin: 10mm !important; } }';
-                $('body').addClass('print-monthly');
-                setTimeout(() => { window.print(); $('body').removeClass('print-monthly'); }, 500);
-                return;
-            }
-
-            if (!detailedTableInstance) return;
-
-            let previousFilter = currentTableFilter;
-            setTableFilter('all'); 
-            
-            printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 15mm !important; } }';
-
-            const projVal = $('#filterProject').val();
-            
-            let printTotal = 0;
-            if (projVal) {
-                printTotal = currentFilteredData.reduce((sum, item) => sum + item.amount, 0);
-            } else {
-                const totalUsedRaw = $('#kpiTotal').text().replace(/,/g, '');
-                printTotal = parseFloat(totalUsedRaw) || 0;
-            }
-
-            $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
-            $('#printTotalAmount').text(printTotal.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-
-            if (projVal && projectBudgets[projVal] != null) {
-                let b = projectBudgets[projVal];
-                let r = b - printTotal; 
-                $('#printBudgetAmount').text(b.toLocaleString('th-TH', {minimumFractionDigits:2}));
-                $('#printRemainAmount').text(r.toLocaleString('th-TH', {minimumFractionDigits:2}));
-                $('.single-proj-only').show(); 
-            } else {
-                $('.single-proj-only').hide(); 
-            }
-
-            const currentLen = detailedTableInstance.page.len();
-            detailedTableInstance.page.len(-1).draw(false); 
-
-            setTimeout(() => {
-                window.print();
-                detailedTableInstance.page.len(currentLen).draw(false); 
-                setTableFilter(previousFilter); 
-            }, 800); 
+            if(detailedTableInstance) detailedTableInstance.draw();
         }
 
         function exportToExcel() {
             if (!currentFilteredData || currentFilteredData.length === 0) return alert("ไม่มีข้อมูลสำหรับการดาวน์โหลด");
             const excelData = currentFilteredData.map(item => ({
-                "วันที่": item.dateText,
-                "โครงการ": item.project,
-                "รายละเอียด": item.details,
-                "จำนวนเงิน": item.amount,
-                "หมายเหตุ": item.note,
-                "ประเภท": item.slipType
+                "วันที่": item.dateText, "โครงการ": item.project, "ประเภท (BOQ/งวด)": item.boq,
+                "รายละเอียด": item.details, "จำนวนเงิน": item.amount, "หมายเหตุ": item.note, "ประเภท": item.slipType
             }));
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-            let fileName = "SAENSABAI_Report" + ($('#filterProject').val() ? `_${$('#filterProject').val()}` : "") + ".xlsx";
+            let fileName = "SAENSABAI_Report.xlsx";
             XLSX.writeFile(workbook, fileName);
         }
     </script>
