@@ -202,7 +202,7 @@
             </div>
             <div class="flex items-center justify-center gap-3 w-full sm:w-auto mt-1 sm:mt-0">
                 <button id="toggleDateSort" type="button" class="g-input-sm flex items-center justify-center gap-1 cursor-pointer bg-white px-3 rounded-xl border border-[#e5e5ea]">
-                    <span id="sortIcon" class="text-[11px] text-[#0071e3] font-bold">↑</span><span id="sortLabel" class="text-[12px]">เก่า → ใหม่</span>
+                    <span id="sortIcon" class="text-[11px] text-[#0071e3] font-bold">↓</span><span id="sortLabel" class="text-[12px]">ใหม่ → เก่า</span>
                 </button>
                 <button id="resetFilters" class="text-[13px] sm:text-[11px] text-[#ff3b30] hover:text-[#d70015] font-semibold transition-colors px-2 py-1">ล้างค่า</button>
             </div>
@@ -225,12 +225,12 @@
                         <div id="kpiTotalBudget" class="text-[16px] md:text-2xl font-bold text-[#af52de] tracking-tight">...</div>
                     </div>
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
-                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
-                        <div id="kpiTotal" class="text-[16px] md:text-2xl font-bold text-[#ff3b30] tracking-tight">...</div>
-                    </div>
-                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดรายรับรวม</h3>
                         <div id="kpiTotalIncome" class="text-[16px] md:text-2xl font-bold text-[#34c759] tracking-tight">...</div>
+                    </div>
+                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
+                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
+                        <div id="kpiTotal" class="text-[16px] md:text-2xl font-bold text-[#ff3b30] tracking-tight">...</div>
                     </div>
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดคงเหลือรวม</h3>
@@ -293,10 +293,10 @@
                                     <tr>
                                         <th class="text-left">โครงการ</th>
                                         <th class="text-right">งบประมาณ</th>
+                                        <th class="text-right text-[#0071e3]">รายรับ</th>
                                         <th class="text-right text-[#ff3b30]">ใช้ไปแล้ว</th>
                                         <th class="text-right text-[#34c759]">เหลืองบ</th>
                                         <th class="text-right">% ใช้ไป</th>
-                                        <th class="text-right text-[#0071e3]">รายรับ</th>
                                         <th class="text-right font-bold text-[#1d1d1f]">คงเหลือในมือ</th>
                                     </tr>
                                 </thead>
@@ -382,7 +382,9 @@
         let detailedTableInstance = null;
         let monthlyTableInstance = null;
         let chartInstance = null;
-        let dateSortAsc = true;
+        
+        // 📌 ตั้งค่าเริ่มต้นเป็น false (หมายถึงแสดง ใหม่ -> เก่า เป็นค่าปริยายบนหน้าเว็บ)
+        let dateSortAsc = false;
         
         const themeColors = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA', '#38BDF8', '#FB7185', '#2DD4BF', '#FB923C', '#818CF8', '#A3E635', '#F472B6'];
 
@@ -846,13 +848,14 @@
                 let pExpense = p.sumExpense || 0;
                 let cashOnHand = pIncome - pExpense;
 
+                // 📌 สลับตัวแปร รายรับ (pIncome) มาแสดงเป็น Index 2 แทนที่ pExpense
                 summaryTableInstance.row.add([
                     `<span class="font-medium text-[13px]">${p.name}</span>`,
                     `<span class="text-[13px]">${budgetStr}</span>`,
+                    `<span class="text-[13px] text-[#0071e3]">${pIncome.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[13px] text-[#ff3b30]">${pExpense.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[13px] text-[#34c759]">${remainStr}</span>`,
                     `<span class="text-[13px] text-[#86868b]">${pctStr}</span>`,
-                    `<span class="text-[13px] text-[#0071e3]">${pIncome.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[13px] font-bold text-[#1d1d1f]">${cashOnHand.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`
                 ]);
             });
@@ -861,11 +864,13 @@
             if (detailedTableInstance) { detailedTableInstance.clear(); } 
             else {
                 detailedTableInstance = $('#detailedTable').DataTable({
-                    pageLength: 20, lengthMenu: [10, 20, 50, 100, 500, 5000], order: [[0, 'asc']], 
+                    pageLength: 20, lengthMenu: [10, 20, 50, 100, 500, 5000], 
+                    // 📌 (สั่งปิด order ตรงนี้เพราะการ sort ทั้งหมดถูกจัดการที่ array filteredData ของเราด้านบนครับ)
+                    order: [], 
+                    ordering: false,
                     language: { search: "", searchPlaceholder: "ค้นหารายรายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
-                    ordering: false,
                     createdRow: function(row, data, dataIndex) {
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
@@ -962,7 +967,16 @@
 
             if (!detailedTableInstance) return;
 
+            // 📌 เริ่มเข้าโหมดเตรียมปริ้น
             let previousFilter = currentTableFilter;
+            let previousSort = dateSortAsc; // เก็บสถานะการเรียงล่าสุดไว้
+
+            // 1. บังคับเปลี่ยนตัวแปรให้เป็น "เก่า -> ใหม่" (true) ชั่วคราวสำหรับการปริ้น
+            if (dateSortAsc === false) {
+                dateSortAsc = true;
+                applyGlobalFilters(); // สั่งรีโหลดตารางเพื่อให้ข้อมูลกลับหัว
+            }
+            
             setTableFilter('all'); 
             
             printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 15mm !important; } }';
@@ -992,11 +1006,21 @@
             }
 
             const currentLen = detailedTableInstance.page.len();
+            // เปิดแสดงข้อมูลทั้งหมดทุกบรรทัดก่อนปริ้น
             detailedTableInstance.page.len(-1).draw(false); 
 
+            // 2. สั่งปริ้น 
             setTimeout(() => {
                 window.print();
+                
+                // 3. หลังจากปริ้นเสร็จ คืนค่าทุกอย่างให้กลับไปเป็นเหมือนเดิมก่อนปริ้น (ดึงสถานะที่เก็บไว้กลับมา)
                 detailedTableInstance.page.len(currentLen).draw(false); 
+                
+                if (previousSort === false) {
+                    dateSortAsc = false;
+                    applyGlobalFilters(); // สั่งรีโหลดตารางเพื่อให้กลับเป็น "ใหม่ -> เก่า" แบบเดิม
+                }
+                
                 setTableFilter(previousFilter); 
             }, 800); 
         }
