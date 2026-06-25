@@ -92,7 +92,7 @@
         }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS (BLACK & WHITE ONLY)
+           ⭐ THE ULTIMATE PRINT CSS
            ========================================== */
         @media print {
             * {
@@ -101,7 +101,7 @@
             }
 
             body, html { display: block !important; background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
-            main { display: block !important; height: auto !important; overflow: visible !important; }
+            main { display: block !important; height: auto !important; overflow: visible !important; padding: 0 !important;}
             .flex, .flex-col, .h-screen, .flex-1, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden, .ios-scroll { display: block !important; height: auto !important; overflow: visible !important; position: static !important; }
 
             .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
@@ -112,10 +112,13 @@
             table.dataTable tr.child { display: none !important; }
             .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
 
-            body:not(.print-monthly) .print-hidden-section { display: none !important; }
-            body:not(.print-monthly) #monthlyContainer { display: none !important; }
-            body:not(.print-monthly) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
+            /* Dashboard Print */
+            body:not(.print-monthly):not(.print-allprojects) .print-hidden-section { display: none !important; }
+            body:not(.print-monthly):not(.print-allprojects) #monthlyContainer,
+            body:not(.print-monthly):not(.print-allprojects) #allProjectsContainer { display: none !important; }
+            body:not(.print-monthly):not(.print-allprojects) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
             
+            /* General Print Headers & Tables */
             .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
             .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
             .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important; font-weight: normal !important;}
@@ -140,25 +143,42 @@
             table.dataTable tbody { display: table-row-group !important; }
             table.dataTable tr { page-break-inside: auto !important; }
             table.dataTable td, table.dataTable th { page-break-inside: avoid !important; }
-            
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
             table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
 
+            /* Detailed Table Layout inside Dashboard */
             #detailedTable { table-layout: fixed !important; }
             #detailedTable th:nth-child(1), #detailedTable td:nth-child(1) { width: 15% !important; text-align: center !important; }
             #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 53% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
             #detailedTable th:nth-child(4), #detailedTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; }
             #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 14% !important; text-align: center !important; }
 
+            /* Monthly Print */
             body.print-monthly #dashboardContainer { display: none !important; }
+            body.print-monthly #allProjectsContainer { display: none !important; }
             body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
             body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
-
             #monthlyTable { table-layout: auto !important; width: 100% !important;}
             #monthlyTable th, #monthlyTable td { white-space: nowrap !important; font-size: 8pt !important; padding: 4px 6px !important; text-align: right !important; vertical-align: middle !important; }
             #monthlyTable th:first-child, #monthlyTable td:first-child { white-space: normal !important; text-align: left !important; min-width: 120px !important; max-width: 250px !important; }
             #monthlyTable thead th { text-align: center !important; }
             #monthlyTotalsTop th { border-bottom: 2px solid #000000 !important; background-color: #f5f5f7 !important;}
+
+            /* All Projects Print (Page Break Logic) */
+            body.print-allprojects #dashboardContainer { display: none !important; }
+            body.print-allprojects #monthlyContainer { display: none !important; }
+            body.print-allprojects #allProjectsContainer { display: block !important; width: 100% !important; overflow: visible !important; }
+            
+            .project-page { page-break-after: always !important; display: block !important; width: 100% !important; margin-bottom: 20px !important;}
+            .project-page:last-child { page-break-after: auto !important; }
+            .project-page h2 { font-size: 18pt !important; font-weight: bold !important; border-bottom: 2px solid #000 !important; padding-bottom: 5px !important; margin-bottom: 15px !important; }
+            .project-summary-grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; margin-bottom: 15px !important; }
+            .project-summary-box { border: 1px solid #000 !important; padding: 10px !important; text-align: center !important; flex: 1 !important; min-width: 120px !important;}
+            .project-summary-box .title { font-size: 9pt !important; font-weight: bold !important; margin-bottom: 5px !important; }
+            .project-summary-box .value { font-size: 12pt !important; font-weight: bold !important; }
+            .project-page table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; margin-bottom: 10px !important;}
+            .project-page th, .project-page td { border: 1px solid #000 !important; padding: 6px !important; font-size: 10pt !important; }
+            .project-page th { background-color: #f0f0f0 !important; font-weight: bold !important; text-align: center !important; }
         }
     </style>
 </head>
@@ -171,11 +191,11 @@
             <div class="flex bg-[#e8e8ed] p-1 rounded-lg">
                 <button id="tabDashboard" onclick="switchTab('dashboard')" class="px-3 py-1 rounded-md bg-white shadow-sm text-[#1d1d1f] text-[12px] font-semibold transition-all">สรุปงบประมาณ</button>
                 <button id="tabMonthly" onclick="switchTab('monthly')" class="px-3 py-1 rounded-md text-[#86868b] hover:text-[#1d1d1f] text-[12px] font-medium transition-all">รายเดือน</button>
+                <button id="tabAllProjects" onclick="switchTab('allprojects')" class="px-3 py-1 rounded-md text-[#86868b] hover:text-[#1d1d1f] text-[12px] font-medium transition-all">สรุปทุกโครงการ</button>
             </div>
         </div>
 
         <div id="filterSection" class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 md:gap-3 flex-1 w-full xl:w-auto">
-            
             <div class="flex items-center gap-1 w-full sm:w-auto justify-between sm:justify-start bg-white sm:bg-transparent p-1.5 sm:p-0 rounded-xl border sm:border-0 border-[#e5e5ea]">
                 <span class="text-[11px] font-bold text-[#86868b] uppercase px-1">ปี:</span>
                 <select id="filterYear" class="g-input-sm w-[100px] sm:w-[80px] cursor-pointer bg-transparent">
@@ -232,8 +252,8 @@
                         <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดเงินใช้จ่ายรวม</h3>
                         <div id="kpiTotal" class="text-[16px] md:text-2xl font-bold text-[#ff3b30] tracking-tight">...</div>
                     </div>
-                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
-                        <h3 class="text-[10px] md:text-[12px] font-semibold text-[#86868b] uppercase tracking-wider mb-1 line-clamp-1">ยอดคงเหลือรวม</h3>
+                    <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28 border border-[#0071e3] bg-[#f0f8ff]">
+                        <h3 class="text-[10px] md:text-[12px] font-bold text-[#0071e3] uppercase tracking-wider mb-1 line-clamp-1">กระแสเงินสดรวม</h3>
                         <div id="kpiTotalBalance" class="text-[16px] md:text-2xl font-bold text-[#0071e3] tracking-tight">...</div>
                     </div>
                     <div class="apple-card p-3 md:p-5 text-center flex flex-col justify-center items-center h-20 md:h-28">
@@ -266,8 +286,7 @@
                         </div>
                         <div class="md:w-2/3 flex flex-col">
                             <h4 class="text-[13px] font-semibold text-[#86868b] uppercase tracking-wider mb-3">แยกตามโครงการ (กดเพื่อดูรายละเอียด):</h4>
-                            <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2">
-                                </div>
+                            <div id="sum-projects" class="flex flex-col gap-2 text-[13px] ios-scroll overflow-y-auto max-h-[160px] pr-2 pb-2"></div>
                         </div>
                     </div>
                 </div>
@@ -297,7 +316,7 @@
                                         <th class="text-right text-[#ff3b30]">ใช้ไปแล้ว</th>
                                         <th class="text-right text-[#34c759]">เหลืองบ</th>
                                         <th class="text-right">% ใช้ไป</th>
-                                        <th class="text-right font-bold text-[#1d1d1f]">คงเหลือในมือ</th>
+                                        <th class="text-right font-bold text-[#1d1d1f]">กระแสเงินสด</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -313,7 +332,7 @@
                     <tr><td class="print-header-label">โครงการ</td><td>: <span id="printProjectName">ทุกโครงการ</span></td></tr>
                     <tr><td class="print-header-label">รายจ่าย</td><td>: <span id="printTotalAmount">0.00</span> บาท</td></tr>
                     <tr class="single-proj-only"><td class="print-header-label">งบประมาณ</td><td>: <span id="printBudgetAmount">0.00</span> บาท</td></tr>
-                    <tr class="single-proj-only"><td class="print-header-label">เหลือใช้</td><td>: <span id="printRemainAmount">0.00</span> บาท</td></tr>
+                    <tr class="single-proj-only"><td class="print-header-label">เหลืองบ</td><td>: <span id="printRemainAmount">0.00</span> บาท</td></tr>
                 </table>
             </div>
 
@@ -342,7 +361,7 @@
         </div>
 
         <div id="monthlyContainer" class="hidden w-full mx-auto space-y-4 md:space-y-8">
-            <div id="printMonthlyHeader" class="hidden print-header-monthly">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
+            <div id="printMonthlyHeader" class="hidden print-header-monthly text-center text-[18pt] font-bold mb-4">รายงานสรุปค่าใช้จ่ายรายเดือนแยกตามโครงการ</div>
             <div class="apple-card p-0 overflow-hidden">
                 <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0 no-print">
                     <h3 id="monthlyTitle" class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปค่าใช้จ่ายรายเดือน</h3>
@@ -365,6 +384,10 @@
                 </div>
             </div>
         </div>
+
+        <div id="allProjectsContainer" class="hidden w-full mx-auto space-y-4 md:space-y-6">
+            </div>
+
     </main>
 
     <script>
@@ -425,28 +448,31 @@
                 var rowType = $(settings.aoData[dataIndex].nTr).attr('data-sliptype') || 'มีสลิป';
                 if (currentTableFilter === 'slip' && rowType === 'มีสลิป') return true;
                 if (currentTableFilter === 'noslip' && rowType === 'ไม่มีสลิป') return true;
-                if (currentTableFilter === 'income' && rowType === 'รายรับ') return true; // 📌 รองรับ Filter รายรับ
+                if (currentTableFilter === 'income' && rowType === 'รายรับ') return true; 
                 return false;
             });
         });
 
+        // 📌 ฟังก์ชันสลับ Tab ควบคุมการแสดงผล
         function switchTab(tabName) {
             currentView = tabName;
+            $('#dashboardContainer, #monthlyContainer, #allProjectsContainer').hide();
+            $('#tabDashboard, #tabMonthly, #tabAllProjects').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
+            
             if (tabName === 'dashboard') {
                 $('#dashboardContainer').fadeIn();
-                $('#monthlyContainer').hide();
                 $('#tabDashboard').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
-                $('#tabMonthly').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-                
                 $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').show();
-            } else {
-                $('#dashboardContainer').hide();
+            } else if (tabName === 'monthly') {
                 $('#monthlyContainer').fadeIn();
                 $('#tabMonthly').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
-                $('#tabDashboard').removeClass('bg-white shadow-sm text-[#1d1d1f]').addClass('text-[#86868b]');
-                
                 $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').hide();
                 generateMonthlyTable();
+            } else if (tabName === 'allprojects') {
+                $('#allProjectsContainer').fadeIn();
+                $('#tabAllProjects').removeClass('text-[#86868b]').addClass('bg-white shadow-sm text-[#1d1d1f]');
+                $('#dateFilterGroup, #dateFilterDivider, #toggleDateSort').hide();
+                generateAllProjectsReport();
             }
         }
 
@@ -461,7 +487,6 @@
 
             rawData.forEach(item => {
                 if (item.exactDateTime && item.exactDateTime > startTime && item.exactDateTime <= endTime) {
-                    // 📌 ไม่เอารายการ "ไม่มีสลิป" และ "รายรับ" มานับในสรุปรายจ่ายวันนี้
                     if (item.slipType === "ไม่มีสลิป" || item.slipType === "รายรับ") return;
 
                     totalAmount += item.amount;
@@ -506,7 +531,6 @@
                         </div>`;
                     });
 
-                    // 📌 Accordion มีอยู่แล้ว
                     projectHtml += `
                     <div class="bg-white rounded-[12px] border border-[#e5e5ea] shadow-sm mb-2 overflow-hidden w-full">
                         <button onclick="toggleSummaryDrop('${safeId}')" class="w-full px-3 py-2.5 flex justify-between items-center bg-white hover:bg-[#f9f9fb] transition-colors focus:outline-none">
@@ -541,7 +565,6 @@
 
         function setTableFilter(filterType) {
             currentTableFilter = filterType;
-            // 📌 เพิ่ม 'income' เข้าไปใน loop สลับสถานะปุ่ม
             ['all', 'slip', 'noslip', 'income'].forEach(type => {
                 const btnId = 'dtFilter' + (type === 'all' ? 'All' : type === 'slip' ? 'Slip' : type === 'noslip' ? 'NoSlip' : 'Income');
                 const btn = document.getElementById(btnId);
@@ -665,7 +688,6 @@
             }
 
             let combinedProjects = [...Object.keys(projectBudgets), ...rawData.map(item => item.project)];
-            // 📌 นำเงื่อนไขการกรอง "ไม่ระบุโครงการ" ออกเพื่อให้มีให้เลือกใน Dropdown
             const uniqueProjects = [...new Set(combinedProjects)].filter(p => p !== '' && !p.startsWith('ID-')).sort();
             
             const projectFilter = document.getElementById('filterProject');
@@ -708,12 +730,14 @@
             
             if (currentView === 'monthly') {
                 generateMonthlyTable();
+            } else if (currentView === 'allprojects') {
+                generateAllProjectsReport();
             }
         }
 
         function updateDashboards(data) {
-            let totalAmountKPI = 0; // ยอดรายจ่าย
-            let totalIncomeKPI = 0; // ยอดรายรับ
+            let totalAmountKPI = 0; 
+            let totalIncomeKPI = 0; 
             const projectStats = {};
             
             data.forEach(item => {
@@ -722,7 +746,6 @@
                 
                 if (!projectStats[item.project]) projectStats[item.project] = { sumExpense: 0, sumIncome: 0, count: 0 };
                 
-                // 📌 แยกแยะระหว่างรายรับและรายจ่าย
                 if (isIncome) {
                     totalIncomeKPI += item.amount;
                     projectStats[item.project].sumIncome += item.amount;
@@ -736,7 +759,6 @@
                 projectStats[item.project].count += 1;
             });
             
-            // 📌 อัปเดตกล่องยอดเงินต่างๆ
             $('#kpiTotal').text(totalAmountKPI.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
             $('#kpiTotalIncome').text(totalIncomeKPI.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
             $('#kpiTotalBalance').text((totalIncomeKPI - totalAmountKPI).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
@@ -761,7 +783,6 @@
 
             const chartWrapper = document.getElementById('chartWrapper');
             if (window.innerWidth < 1024) {
-                // 📌 ล็อกความกว้างขั้นต่ำของตัว Canvas กราฟ (850px) เพื่อไม่ให้แท่งกราฟโดนบีบ และให้ปัดซ้ายขวาได้
                 const minCalculatedWidth = Math.max(850, chartLabels.length * 60);
                 chartWrapper.style.width = minCalculatedWidth + 'px';
             } else {
@@ -822,7 +843,6 @@
                             }
                         }
                     },
-                    // 📌 ปรับ layout.padding.bottom ให้เพิ่มขึ้น เพื่อให้ชื่อโครงการที่เอียง 45 องศามีพื้นที่แสดงผลครบถ้วนไม่หลุดขอบ
                     layout: { padding: { top: 24, bottom: 25 } }
                 }
             });
@@ -832,7 +852,6 @@
                 summaryTableInstance = $('#summaryTable').DataTable({ 
                     paging: false, info: false, searching: false, order: [[2, 'desc']], 
                     language: { emptyTable: "ไม่มีข้อมูลในตารางสรุป" }, 
-                    // 📌 กำหนดคอลัมน์ใหม่ จัดชิดขวา
                     columnDefs: [ { className: "dt-right", targets: [1, 2, 3, 4, 5, 6] } ] 
                 }); 
             }
@@ -840,15 +859,17 @@
             projectArray.forEach(p => {
                 let budget = projectBudgets[p.name];
                 let budgetStr = (budget == null) ? `<span class="text-[#86868b] text-[12px]">ว่าง</span>` : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
-                let remainStr = (budget == null) ? "-" : (budget - p.sumExpense).toLocaleString('th-TH', {minimumFractionDigits:2});
-                let pctStr = (budget == null || budget === 0) ? "-" : ((p.sumExpense / budget) * 100).toFixed(2) + "%";
                 
-                // 📌 คำนวณรายรับและคงเหลือในมือ
                 let pIncome = p.sumIncome || 0;
                 let pExpense = p.sumExpense || 0;
-                let cashOnHand = pIncome - pExpense;
+                
+                // 📌 สูตรใหม่
+                let remainStr = (budget == null) ? "-" : (budget - pExpense).toLocaleString('th-TH', {minimumFractionDigits:2});
+                let cashOnHand = pIncome - pExpense; // กระแสเงินสด
 
-                // 📌 สลับตัวแปร รายรับ (pIncome) มาแสดงเป็น Index 2 แทนที่ pExpense
+                let pctStr = (budget == null || budget === 0) ? "-" : ((pExpense / budget) * 100).toFixed(2) + "%";
+
+                // 📌 สลับคอลัมน์ รายรับ มาไว้ข้างงบประมาณ
                 summaryTableInstance.row.add([
                     `<span class="font-medium text-[13px]">${p.name}</span>`,
                     `<span class="text-[13px]">${budgetStr}</span>`,
@@ -865,10 +886,9 @@
             else {
                 detailedTableInstance = $('#detailedTable').DataTable({
                     pageLength: 20, lengthMenu: [10, 20, 50, 100, 500, 5000], 
-                    // 📌 (สั่งปิด order ตรงนี้เพราะการ sort ทั้งหมดถูกจัดการที่ array filteredData ของเราด้านบนครับ)
                     order: [], 
                     ordering: false,
-                    language: { search: "", searchPlaceholder: "ค้นหารายรายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
+                    language: { search: "", searchPlaceholder: "ค้นหารายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
                     createdRow: function(row, data, dataIndex) {
@@ -883,11 +903,9 @@
             data.forEach(item => {
                 let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
                 
-                // 📌 แสดง Tag รายรับ สีเขียว
                 let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ไม่มีสลิป</span>` : 
                                item.slipType === "รายรับ" ? ` <span class="bg-green-100 text-[#34c759] text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">รายรับ</span>` : ``;
                 
-                // สลับสีจำนวนเงินถ้าเป็นรายรับ
                 let amountColorClass = item.slipType === "รายรับ" ? "text-[#34c759] font-semibold" : "";
 
                 let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
@@ -910,7 +928,6 @@
             currentFilteredData.forEach(item => {
                 if (!item.dateObj) return;
                 
-                // 📌 ไม่เอารายรับและรายการไม่มีสลิปมาสรุปในค่าใช้จ่ายรายเดือน
                 if (item.slipType === "ไม่มีสลิป" || item.slipType === "รายรับ") return; 
                 
                 let m = item.dateObj.getMonth(); 
@@ -955,6 +972,117 @@
             $('#monthlyContainer .dataTables_filter input').addClass('g-input w-full sm:w-64');
         }
 
+        // 📌 ฟังก์ชันใหม่ สร้างหน้ารายงานแยกทุกโครงการแบบยาวต่อกัน
+        function generateAllProjectsReport() {
+            const container = $('#allProjectsContainer');
+            container.empty();
+
+            let projectGroups = {};
+            
+            Object.keys(projectBudgets).forEach(p => {
+                if(!projectGroups[p]) projectGroups[p] = { items: [], expense: 0, income: 0 };
+            });
+
+            currentFilteredData.forEach(item => {
+                if (!projectGroups[item.project]) projectGroups[item.project] = { items: [], expense: 0, income: 0 };
+                projectGroups[item.project].items.push(item);
+                
+                if (item.slipType === "รายรับ") {
+                    projectGroups[item.project].income += item.amount;
+                } else if (item.slipType !== "ไม่มีสลิป") {
+                    projectGroups[item.project].expense += item.amount;
+                }
+            });
+
+            let html = `<div class="no-print text-[#1d1d1f] text-[18px] md:text-[22px] font-bold bg-white p-4 rounded-xl border border-[#e5e5ea] mb-4 shadow-sm flex items-center gap-2">
+                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
+                รายงานสรุปทุกโครงการแบบละเอียด
+            </div>`;
+            
+            Object.keys(projectGroups).sort().forEach(proj => {
+                let data = projectGroups[proj];
+                let budget = projectBudgets[proj] || 0;
+                let expense = data.expense;
+                let income = data.income;
+                let remain = budget - expense;
+                let cashflow = income - expense;
+                
+                // ไม่แสดงถ้าโครงการว่างเปล่า
+                if (budget === 0 && data.items.length === 0) return;
+
+                // 📌 จัดเรียงบิลเก่า->ใหม่ เสมอสำหรับหน้าเล่มรายงาน
+                let sortedItems = [...data.items].sort((a, b) => {
+                    if(!a.dateObj) return -1; if(!b.dateObj) return 1;
+                    return a.dateObj - b.dateObj; 
+                });
+
+                let rowsHtml = '';
+                if(sortedItems.length === 0) {
+                    rowsHtml = `<tr><td colspan="4" class="text-center text-[#86868b] py-6">ไม่มีรายการเดินบัญชี</td></tr>`;
+                } else {
+                    sortedItems.forEach(item => {
+                        let amountClass = item.slipType === "รายรับ" ? "text-[#34c759] font-bold" : "";
+                        let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ไม่มีสลิป</span>` : 
+                               item.slipType === "รายรับ" ? ` <span class="bg-green-100 text-[#34c759] text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">รายรับ</span>` : ``;
+                        
+                        rowsHtml += `
+                        <tr class="border-b border-[#e5e5ea] last:border-0 hover:bg-[#f9f9fb] transition-colors">
+                            <td class="text-center py-2">${item.dateText}</td>
+                            <td class="text-left py-2"><div class="flex items-center justify-between gap-1"><span>${item.details}</span>${extraTag}</div></td>
+                            <td class="text-right py-2 ${amountClass}">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                            <td class="text-center py-2">${item.note}</td>
+                        </tr>`;
+                    });
+                }
+
+                html += `
+                <div class="project-page bg-white rounded-[18px] shadow-sm border border-[#e5e5ea] p-4 md:p-6 mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-[#1d1d1f] mb-4 border-b border-[#e5e5ea] pb-3 text-[#0071e3]">โครงการ: ${proj}</h2>
+                    
+                    <div class="project-summary-grid grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mb-6">
+                        <div class="project-summary-box bg-[#f5f5f7] p-3 md:p-4 rounded-[12px] text-center border border-[#e5e5ea]">
+                            <div class="title text-[11px] md:text-[12px] text-[#86868b] uppercase font-bold mb-1">งบประมาณ</div>
+                            <div class="value text-[15px] md:text-[18px] font-bold text-[#1d1d1f]">${budget > 0 ? budget.toLocaleString('th-TH', {minimumFractionDigits:2}) : '-'}</div>
+                        </div>
+                        <div class="project-summary-box bg-[#f5f5f7] p-3 md:p-4 rounded-[12px] text-center border border-[#e5e5ea]">
+                            <div class="title text-[11px] md:text-[12px] text-[#86868b] uppercase font-bold mb-1">รายรับ</div>
+                            <div class="value text-[15px] md:text-[18px] font-bold text-[#0071e3]">${income.toLocaleString('th-TH', {minimumFractionDigits:2})}</div>
+                        </div>
+                        <div class="project-summary-box bg-[#f5f5f7] p-3 md:p-4 rounded-[12px] text-center border border-[#e5e5ea]">
+                            <div class="title text-[11px] md:text-[12px] text-[#86868b] uppercase font-bold mb-1">ใช้ไปแล้ว</div>
+                            <div class="value text-[15px] md:text-[18px] font-bold text-[#ff3b30]">${expense.toLocaleString('th-TH', {minimumFractionDigits:2})}</div>
+                        </div>
+                        <div class="project-summary-box bg-[#f5f5f7] p-3 md:p-4 rounded-[12px] text-center border border-[#e5e5ea]">
+                            <div class="title text-[11px] md:text-[12px] text-[#86868b] uppercase font-bold mb-1">เหลืองบ</div>
+                            <div class="value text-[15px] md:text-[18px] font-bold text-[#34c759]">${(budget > 0 ? remain : 0).toLocaleString('th-TH', {minimumFractionDigits:2})}</div>
+                        </div>
+                        <div class="project-summary-box bg-[#e8f4fc] p-3 md:p-4 rounded-[12px] text-center border border-[#0071e3]">
+                            <div class="title text-[11px] md:text-[12px] text-[#0071e3] uppercase font-bold mb-1">กระแสเงินสด</div>
+                            <div class="value text-[15px] md:text-[18px] font-bold text-[#1d1d1f]">${cashflow.toLocaleString('th-TH', {minimumFractionDigits:2})}</div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left" style="min-width: 600px;">
+                            <thead>
+                                <tr class="bg-[#f5f5f7]">
+                                    <th class="py-3 px-2 text-center text-[13px] font-bold text-[#86868b] rounded-l-lg w-[120px]">วันที่</th>
+                                    <th class="py-3 px-2 text-left text-[13px] font-bold text-[#86868b]">รายละเอียด</th>
+                                    <th class="py-3 px-2 text-right text-[13px] font-bold text-[#86868b] w-[150px]">จำนวนเงิน</th>
+                                    <th class="py-3 px-2 text-center text-[13px] font-bold text-[#86868b] rounded-r-lg w-[150px]">หมายเหตุ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[14px]">
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            });
+
+            container.html(html);
+        }
+
         function exportFormalReport() {
             const printStyle = document.getElementById('dynamicPrintStyle');
 
@@ -965,16 +1093,24 @@
                 return;
             }
 
-            if (!detailedTableInstance) return;
+            // 📌 ถ้าอยู่หน้า All Projects จะใช้ Layout พิเศษ และขึ้นกระดาษใหม่ทีละโครงการ
+            if (currentView === 'allprojects') {
+                printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 10mm !important; } }';
+                $('body').addClass('print-allprojects');
+                setTimeout(() => { window.print(); $('body').removeClass('print-allprojects'); }, 500);
+                return;
+            }
 
-            // 📌 เริ่มเข้าโหมดเตรียมปริ้น
+            // 📌 เริ่มเข้าโหมดเตรียมปริ้นสำหรับหน้าหลัก Dashboard
+            if (!detailedTableInstance) return;
+            
             let previousFilter = currentTableFilter;
-            let previousSort = dateSortAsc; // เก็บสถานะการเรียงล่าสุดไว้
+            let previousSort = dateSortAsc; 
 
             // 1. บังคับเปลี่ยนตัวแปรให้เป็น "เก่า -> ใหม่" (true) ชั่วคราวสำหรับการปริ้น
             if (dateSortAsc === false) {
                 dateSortAsc = true;
-                applyGlobalFilters(); // สั่งรีโหลดตารางเพื่อให้ข้อมูลกลับหัว
+                applyGlobalFilters(); 
             }
             
             setTableFilter('all'); 
@@ -985,7 +1121,6 @@
             
             let printTotal = 0;
             if (projVal) {
-                // 📌 คิดเฉพาะรายจ่ายสำหรับการพิมพ์สรุป
                 printTotal = currentFilteredData.reduce((sum, item) => sum + (item.slipType !== 'รายรับ' && item.slipType !== 'ไม่มีสลิป' ? item.amount : 0), 0);
             } else {
                 const totalUsedRaw = $('#kpiTotal').text().replace(/,/g, '');
@@ -1006,19 +1141,18 @@
             }
 
             const currentLen = detailedTableInstance.page.len();
-            // เปิดแสดงข้อมูลทั้งหมดทุกบรรทัดก่อนปริ้น
             detailedTableInstance.page.len(-1).draw(false); 
 
             // 2. สั่งปริ้น 
             setTimeout(() => {
                 window.print();
                 
-                // 3. หลังจากปริ้นเสร็จ คืนค่าทุกอย่างให้กลับไปเป็นเหมือนเดิมก่อนปริ้น (ดึงสถานะที่เก็บไว้กลับมา)
+                // 3. คืนค่าการทำงานกลับไปเหมือนเดิม
                 detailedTableInstance.page.len(currentLen).draw(false); 
                 
                 if (previousSort === false) {
                     dateSortAsc = false;
-                    applyGlobalFilters(); // สั่งรีโหลดตารางเพื่อให้กลับเป็น "ใหม่ -> เก่า" แบบเดิม
+                    applyGlobalFilters(); 
                 }
                 
                 setTableFilter(previousFilter); 
