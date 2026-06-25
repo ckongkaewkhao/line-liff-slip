@@ -291,10 +291,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] xl:h-[450px]">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
+                    <div class="apple-card p-4 md:p-6 flex flex-col min-h-[300px] xl:h-[450px] xl:col-span-1">
                         <div class="flex justify-between items-center mb-2 md:mb-6 shrink-0">
-                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">เปอร์เซ็นต์การใช้จ่ายเทียบกับงบประมาณ</h3>
+                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">การใช้จ่ายเทียบกับงบประมาณ</h3>
                         </div>
                         <div class="flex-1 overflow-x-auto w-full ios-scroll relative min-h-0 pt-2 pb-2">
                             <div id="chartWrapper" class="h-[250px] md:h-full relative">
@@ -302,20 +302,21 @@
                             </div>
                         </div>
                     </div>
-                    <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[250px] xl:h-[450px]">
+                    <div class="apple-card p-0 flex flex-col overflow-hidden min-h-[250px] xl:h-[450px] xl:col-span-2">
                         <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0">
-                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปงบประมาณและยอดใช้จ่าย</h3>
+                            <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปงบประมาณและแยกประเภทรายจ่าย</h3>
                         </div>
-                        <div class="px-2 pb-2 flex-1 overflow-y-auto bg-white ios-scroll">
+                        <div class="px-2 pb-2 flex-1 overflow-auto bg-white ios-scroll">
                             <table id="summaryTable" class="w-full text-left display nowrap" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th class="text-left">โครงการ</th>
                                         <th class="text-right">งบประมาณ</th>
                                         <th class="text-right text-[#0071e3]">รายรับ</th>
-                                        <th class="text-right text-[#ff3b30]">ใช้ไปแล้ว</th>
+                                        <th class="text-right text-[#ff453a]">ใช้ไป (มีสลิป)</th>
+                                        <th class="text-right text-[#ff9f0a]">ใช้ไป (ไม่มีสลิป)</th>
+                                        <th class="text-right text-[#ff3b30] font-bold">รวมใช้ไป</th>
                                         <th class="text-right text-[#34c759]">เหลืองบ</th>
-                                        <th class="text-right">% ใช้ไป</th>
                                         <th class="text-right font-bold text-[#1d1d1f]">กระแสเงินสด</th>
                                     </tr>
                                 </thead>
@@ -406,7 +407,6 @@
         let monthlyTableInstance = null;
         let chartInstance = null;
         
-        // 📌 ตั้งค่าเริ่มต้นเป็น false (หมายถึงแสดง ใหม่ -> เก่า เป็นค่าปริยายบนหน้าเว็บ)
         let dateSortAsc = false;
         
         const themeColors = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA', '#38BDF8', '#FB7185', '#2DD4BF', '#FB923C', '#818CF8', '#A3E635', '#F472B6'];
@@ -453,7 +453,6 @@
             });
         });
 
-        // 📌 ฟังก์ชันสลับ Tab ควบคุมการแสดงผล
         function switchTab(tabName) {
             currentView = tabName;
             $('#dashboardContainer, #monthlyContainer, #allProjectsContainer').hide();
@@ -742,18 +741,24 @@
             
             data.forEach(item => {
                 let isIncome = (item.slipType === "รายรับ");
-                let isExcludedFromExpense = (item.slipType === "ไม่มีสลิป");
+                let isNoSlip = (item.slipType === "ไม่มีสลิป");
                 
-                if (!projectStats[item.project]) projectStats[item.project] = { sumExpense: 0, sumIncome: 0, count: 0 };
+                if (!projectStats[item.project]) {
+                    projectStats[item.project] = { sumExpenseSlip: 0, sumExpenseNoSlip: 0, sumExpenseTotal: 0, sumIncome: 0, count: 0 };
+                }
                 
                 if (isIncome) {
                     totalIncomeKPI += item.amount;
                     projectStats[item.project].sumIncome += item.amount;
                 } else {
-                    if (!isExcludedFromExpense) {
-                        totalAmountKPI += item.amount;
+                    if (isNoSlip) {
+                        projectStats[item.project].sumExpenseNoSlip += item.amount;
+                    } else {
+                        totalAmountKPI += item.amount; // ยอดใช้จ่ายรวม (มีสลิป) สำหรับ KPI Card
+                        projectStats[item.project].sumExpenseSlip += item.amount;
                     }
-                    projectStats[item.project].sumExpense += item.amount;
+                    // รวมทั้งมีสลิปและไม่มีสลิปเข้าด้วยกัน
+                    projectStats[item.project].sumExpenseTotal += item.amount;
                 }
                 
                 projectStats[item.project].count += 1;
@@ -768,9 +773,11 @@
 
             const projectArray = Object.keys(projectStats).map(proj => ({ 
                 name: proj, 
-                sumExpense: projectStats[proj].sumExpense,
+                sumExpenseSlip: projectStats[proj].sumExpenseSlip,
+                sumExpenseNoSlip: projectStats[proj].sumExpenseNoSlip,
+                sumExpenseTotal: projectStats[proj].sumExpenseTotal,
                 sumIncome: projectStats[proj].sumIncome 
-            })).sort((a, b) => b.sumExpense - a.sumExpense);
+            })).sort((a, b) => b.sumExpenseTotal - a.sumExpenseTotal);
 
             let sumBudget = 0;
             projectArray.forEach(p => { if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name]; });
@@ -778,7 +785,7 @@
 
             let budgetedProjects = projectArray.filter(p => projectBudgets[p.name] != null && projectBudgets[p.name] > 0);
             let chartLabels = budgetedProjects.map(p => p.name);
-            let chartData = budgetedProjects.map(p => ((p.sumExpense / projectBudgets[p.name]) * 100).toFixed(2));
+            let chartData = budgetedProjects.map(p => ((p.sumExpenseTotal / projectBudgets[p.name]) * 100).toFixed(2));
             let barColors = budgetedProjects.map((_, i) => themeColors[i % themeColors.length]);
 
             const chartWrapper = document.getElementById('chartWrapper');
@@ -820,8 +827,8 @@
                                     let projName = c.label;
                                     let pData = budgetedProjects.find(p => p.name === projName);
                                     let budget = projectBudgets[projName];
-                                    let used = pData ? pData.sumExpense : 0;
-                                    return ` ใช้ไป: ${c.raw}% (${used.toLocaleString('th-TH', {minimumFractionDigits: 2})} / ${budget.toLocaleString('th-TH', {minimumFractionDigits: 2})} บ.)`;
+                                    let used = pData ? pData.sumExpenseTotal : 0;
+                                    return ` ใช้ไปรวม: ${c.raw}% (${used.toLocaleString('th-TH', {minimumFractionDigits: 2})} / ${budget.toLocaleString('th-TH', {minimumFractionDigits: 2})} บ.)`;
                                 } 
                             } 
                         }
@@ -852,7 +859,7 @@
                 summaryTableInstance = $('#summaryTable').DataTable({ 
                     paging: false, info: false, searching: false, order: [[2, 'desc']], 
                     language: { emptyTable: "ไม่มีข้อมูลในตารางสรุป" }, 
-                    columnDefs: [ { className: "dt-right", targets: [1, 2, 3, 4, 5, 6] } ] 
+                    columnDefs: [ { className: "dt-right", targets: [1, 2, 3, 4, 5, 6, 7] } ] 
                 }); 
             }
 
@@ -861,22 +868,22 @@
                 let budgetStr = (budget == null) ? `<span class="text-[#86868b] text-[12px]">ว่าง</span>` : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
                 
                 let pIncome = p.sumIncome || 0;
-                let pExpense = p.sumExpense || 0;
+                let pExpenseSlip = p.sumExpenseSlip || 0;
+                let pExpenseNoSlip = p.sumExpenseNoSlip || 0;
+                let pExpenseTotal = p.sumExpenseTotal || 0;
                 
-                // 📌 สูตรใหม่
-                let remainStr = (budget == null) ? "-" : (budget - pExpense).toLocaleString('th-TH', {minimumFractionDigits:2});
-                let cashOnHand = pIncome - pExpense; // กระแสเงินสด
+                let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
+                let cashOnHand = pIncome - pExpenseTotal; 
 
-                let pctStr = (budget == null || budget === 0) ? "-" : ((pExpense / budget) * 100).toFixed(2) + "%";
-
-                // 📌 สลับคอลัมน์ รายรับ มาไว้ข้างงบประมาณ
+                // 📌 อัปเดตการแสดงผลคอลัมน์ แตกย่อยประเภทบิลเรียงต่อกัน
                 summaryTableInstance.row.add([
                     `<span class="font-medium text-[13px]">${p.name}</span>`,
                     `<span class="text-[13px]">${budgetStr}</span>`,
                     `<span class="text-[13px] text-[#0071e3]">${pIncome.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
-                    `<span class="text-[13px] text-[#ff3b30]">${pExpense.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
+                    `<span class="text-[13px] text-[#ff453a]">${pExpenseSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
+                    `<span class="text-[13px] text-[#ff9f0a]">${pExpenseNoSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
+                    `<span class="text-[13px] font-bold text-[#ff3b30]">${pExpenseTotal.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[13px] text-[#34c759]">${remainStr}</span>`,
-                    `<span class="text-[13px] text-[#86868b]">${pctStr}</span>`,
                     `<span class="text-[13px] font-bold text-[#1d1d1f]">${cashOnHand.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`
                 ]);
             });
@@ -972,7 +979,6 @@
             $('#monthlyContainer .dataTables_filter input').addClass('g-input w-full sm:w-64');
         }
 
-        // 📌 ฟังก์ชันใหม่ สร้างหน้ารายงานแยกทุกโครงการแบบยาวต่อกัน
         function generateAllProjectsReport() {
             const container = $('#allProjectsContainer');
             container.empty();
@@ -1007,10 +1013,8 @@
                 let remain = budget - expense;
                 let cashflow = income - expense;
                 
-                // ไม่แสดงถ้าโครงการว่างเปล่า
                 if (budget === 0 && data.items.length === 0) return;
 
-                // 📌 จัดเรียงบิลเก่า->ใหม่ เสมอสำหรับหน้าเล่มรายงาน
                 let sortedItems = [...data.items].sort((a, b) => {
                     if(!a.dateObj) return -1; if(!b.dateObj) return 1;
                     return a.dateObj - b.dateObj; 
@@ -1093,7 +1097,6 @@
                 return;
             }
 
-            // 📌 ถ้าอยู่หน้า All Projects จะใช้ Layout พิเศษ และขึ้นกระดาษใหม่ทีละโครงการ
             if (currentView === 'allprojects') {
                 printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 10mm !important; } }';
                 $('body').addClass('print-allprojects');
@@ -1101,13 +1104,11 @@
                 return;
             }
 
-            // 📌 เริ่มเข้าโหมดเตรียมปริ้นสำหรับหน้าหลัก Dashboard
             if (!detailedTableInstance) return;
             
             let previousFilter = currentTableFilter;
             let previousSort = dateSortAsc; 
 
-            // 1. บังคับเปลี่ยนตัวแปรให้เป็น "เก่า -> ใหม่" (true) ชั่วคราวสำหรับการปริ้น
             if (dateSortAsc === false) {
                 dateSortAsc = true;
                 applyGlobalFilters(); 
@@ -1143,11 +1144,8 @@
             const currentLen = detailedTableInstance.page.len();
             detailedTableInstance.page.len(-1).draw(false); 
 
-            // 2. สั่งปริ้น 
             setTimeout(() => {
                 window.print();
-                
-                // 3. คืนค่าการทำงานกลับไปเหมือนเดิม
                 detailedTableInstance.page.len(currentLen).draw(false); 
                 
                 if (previousSort === false) {
