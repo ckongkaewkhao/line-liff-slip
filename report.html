@@ -10,9 +10,9 @@
     <meta name="apple-mobile-web-app-title" content="SAENSABAI 1978">
     <title>SAENSABAI 1978 - รายงานสรุปค่าใช้จ่าย</title>
     
-    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+    <link class="no-print" rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    <link class="no-print" rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link class="no-print" rel="icon" type="image/png" sizes="16x16" href="logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -645,19 +645,29 @@
                     totalIncomeKPI += item.amount;
                     projectStats[item.project].sumIncome += item.amount;
                 } else {
-                    // หากไม่เป็นค่าใช้จ่ายแฝง ถึงจะเอามาบวกในยอดใช้จ่ายรวมต่างๆ
+                    // 📌 1. สำหรับกล่อง KPI ด้านบน (แสดงเหมือนเดิม: ห้ามรวมค่าใช้จ่ายแฝง)
                     if (!isHiddenCost) {
-                        if (isNoSlip) {
-                            projectStats[item.project].sumExpenseNoSlip += item.amount;
-                        } else {
+                        totalAmountKPI += item.amount; 
+                    }
+
+                    // 📌 2. สำหรับตารางสรุปด้านล่าง
+                    if (isNoSlip) {
+                        // ช่อง "ใช้ไป (ไม่มีสลิป)" ในวงกลม: ให้รวมทุกประเภท (ไม่ต้องตัดค่าใช้จ่ายแฝงออก)
+                        projectStats[item.project].sumExpenseNoSlip += item.amount;
+                    } else {
+                        // ช่อง "ใช้ไป (มีสลิป)" แสดงเหมือนเดิม (ไม่รวมค่าใช้จ่ายแฝง)
+                        if (!isHiddenCost) {
                             projectStats[item.project].sumExpenseSlip += item.amount;
                         }
-                        totalAmountKPI += item.amount; 
-                        projectStats[item.project].sumExpenseTotal += item.amount;
                     }
                 }
                 
                 projectStats[item.project].count += 1;
+            });
+
+            // 📌 3. คำนวณยอดรวมใช้ไปของแต่ละโครงการในตาราง ให้สอดคล้องกับคอลัมน์ย่อยที่ปรับปรุงใหม่
+            Object.keys(projectStats).forEach(proj => {
+                projectStats[proj].sumExpenseTotal = projectStats[proj].sumExpenseSlip + projectStats[proj].sumExpenseNoSlip;
             });
             
             $('#kpiTotal').text(totalAmountKPI.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
@@ -808,7 +818,6 @@
                 let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ไม่มีสลิป</span>` : 
                                item.slipType === "รายรับ" ? ` <span class="bg-green-100 text-[#34c759] text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">รายรับ</span>` : ``;
                 
-                // 📌 แสดง Tag ค่าใช้จ่ายแฝงให้สังเกตง่ายขึ้นในตารางรายละเอียด
                 let boqStrCheck = item.boq ? item.boq.replace(/\s/g, '') : '';
                 if(boqStrCheck.includes('ค่าใช้จ่ายแฝง') || boqStrCheck.includes('ค่าใช้จ่ายเเฝง')) {
                     extraTag += ` <span class="bg-purple-100 text-purple-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ค่าใช้จ่ายแฝง</span>`;
@@ -836,7 +845,6 @@
             currentFilteredData.forEach(item => {
                 if (!item.dateObj) return;
                 
-                // 📌 ตัดค่าใช้จ่ายแฝง และรายรับ/ไม่มีสลิป ออกจากสรุปรายเดือนด้วย
                 let isHiddenCost = false;
                 if (item.boq) {
                     let boqStr = item.boq.replace(/\s/g, '');
@@ -913,9 +921,15 @@
 
                 if (item.slipType === "รายรับ") {
                     projectGroups[item.project].income += item.amount;
-                } else if (!isHiddenCost) {
-                    // 📌 รวมรายจ่ายทั้งมีสลิปและไม่มีสลิป (ที่ไม่ใช่ค่าใช้จ่ายแฝง) ตามสูตรเดียวกัน
-                    projectGroups[item.project].expense += item.amount;
+                } else {
+                    // 📌 ปรับปรุงให้ดึงยอดสอดคล้องตามหน้าแรก (ไม่มีสลิปดึงเต็ม / มีสลิปหักแฝงออก)
+                    if (item.slipType === "ไม่มีสลิป") {
+                        projectGroups[item.project].expense += item.amount;
+                    } else {
+                        if (!isHiddenCost) {
+                            projectGroups[item.project].expense += item.amount;
+                        }
+                    }
                 }
             });
 
@@ -1054,8 +1068,12 @@
                             isHiddenCost = true;
                         }
                     }
-                    if (item.slipType !== 'รายรับ' && !isHiddenCost) {
-                        return sum + item.amount;
+                    if (item.slipType !== 'รายรับ') {
+                        if (item.slipType === 'ไม่มีสลิป') {
+                            return sum + item.amount;
+                        } else {
+                            if (!isHiddenCost) return sum + item.amount;
+                        }
                     }
                     return sum;
                 }, 0);
