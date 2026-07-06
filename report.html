@@ -1025,7 +1025,7 @@
             container.html(html);
         }
 
-        function exportFormalReport() {
+       function exportFormalReport() {
             const printStyle = document.getElementById('dynamicPrintStyle');
 
             if (currentView === 'monthly') {
@@ -1044,7 +1044,6 @@
 
             if (!detailedTableInstance) return;
             
-            let previousFilter = currentTableFilter;
             let previousSort = dateSortAsc; 
 
             if (dateSortAsc === false) {
@@ -1052,35 +1051,45 @@
                 applyGlobalFilters(); 
             }
             
-            setTableFilter('all'); 
+            // ❌ เอาคำสั่ง setTableFilter('all'); ออกเพื่อให้ระบบจำปุ่มที่คุณกดไว้
             
             printStyle.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 15mm !important; } }';
 
             const projVal = $('#filterProject').val();
             
-            let printTotal = 0;
-            if (projVal) {
-                printTotal = currentFilteredData.reduce((sum, item) => {
-                    let isHiddenCost = false;
-                    if (item.boq) {
-                        let boqStr = item.boq.replace(/\s/g, '');
-                        if (boqStr.includes('ค่าใช้จ่ายแฝง') || boqStr.includes('ค่าใช้จ่ายเเฝง')) {
-                            isHiddenCost = true;
-                        }
+            // ✅ คำนวณยอดรวมใหม่ เพื่อให้ตัวเลขในหน้าพิมพ์ตรงกับปุ่มที่ถูกกด
+            let printTotal = currentFilteredData.reduce((sum, item) => {
+                let isHiddenCost = false;
+                if (item.boq) {
+                    let boqStr = item.boq.replace(/\s/g, '');
+                    if (boqStr.includes('ค่าใช้จ่ายแฝง') || boqStr.includes('ค่าใช้จ่ายเเฝง')) {
+                        isHiddenCost = true;
                     }
-                    if (item.slipType !== 'รายรับ') {
-                        if (item.slipType === 'ไม่มีสลิป') {
-                            return sum + item.amount;
-                        } else {
-                            if (!isHiddenCost) return sum + item.amount;
-                        }
+                }
+
+                // เช็คว่ารายการตรงกับปุ่มที่กดหรือไม่ ถ้าไม่ตรงให้ข้ามไป
+                if (currentTableFilter === 'slip' && item.slipType !== 'มีสลิป') return sum;
+                if (currentTableFilter === 'noslip' && item.slipType !== 'ไม่มีสลิป') return sum;
+                if (currentTableFilter === 'income' && item.slipType !== 'รายรับ') return sum;
+
+                // ถ้าระบุปุ่ม 'เฉพาะรายรับ' ให้รวมเป็นยอดรายรับ
+                if (currentTableFilter === 'income' && item.slipType === 'รายรับ') {
+                    return sum + item.amount;
+                }
+
+                // กรณีปุ่มรายจ่าย (มีสลิป/ไม่มีสลิป/ทั้งหมด)
+                if (item.slipType !== 'รายรับ') {
+                    if (item.slipType === 'ไม่มีสลิป') {
+                        return sum + item.amount;
+                    } else {
+                        if (!isHiddenCost) return sum + item.amount;
                     }
-                    return sum;
-                }, 0);
-            } else {
-                const totalUsedRaw = $('#kpiTotal').text().replace(/,/g, '');
-                printTotal = parseFloat(totalUsedRaw) || 0;
-            }
+                }
+                return sum;
+            }, 0);
+
+            // เปลี่ยนหัวข้อจาก "รายจ่ายรวม" เป็น "รายรับรวม" ถ้ากำลังกดดูปุ่มเฉพาะรายรับ
+            $('#printHeader .print-header-table tr').eq(1).find('.print-header-label').text(currentTableFilter === 'income' ? 'รายรับรวม' : 'รายจ่ายรวม');
 
             $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
             $('#printTotalAmount').text(printTotal.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
@@ -1096,6 +1105,7 @@
             }
 
             const currentLen = detailedTableInstance.page.len();
+            // สั่งให้โชว์ทุกแถวที่ "ผ่านการกรองมาแล้ว"
             detailedTableInstance.page.len(-1).draw(false); 
 
             setTimeout(() => {
@@ -1106,11 +1116,8 @@
                     dateSortAsc = false;
                     applyGlobalFilters(); 
                 }
-                
-                setTableFilter(previousFilter); 
             }, 800); 
         }
-
         function exportToExcel() {
             if (!currentFilteredData || currentFilteredData.length === 0) return alert("ไม่มีข้อมูลสำหรับการดาวน์โหลด");
             const excelData = currentFilteredData.map(item => ({
