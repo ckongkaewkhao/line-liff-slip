@@ -86,7 +86,7 @@
         }
 
         /* ==========================================
-           📱 MOBILE BANKING APP STYLE (Cards layout)
+           📱 MOBILE BANKING APP STYLE (Cards layout) - FIX UPDATE
            ========================================== */
         @media (max-width: 768px) {
             .dataTables_wrapper .dataTables_length, 
@@ -102,53 +102,76 @@
             #summaryTable thead { display: none; } /* ซ่อน Header */
             
             #summaryTable tr { 
-                background: #ffffff; border: 1px solid #e5e5ea; border-radius: 16px; margin-bottom: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+                background: #ffffff; border: 1px solid #e5e5ea; border-radius: 16px; margin-bottom: 16px; padding: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden;
             }
             #summaryTable td { 
-                text-align: right !important; padding: 6px 0 !important; border: none !important; font-size: 14px; display: flex; justify-content: space-between; align-items: center;
+                text-align: right !important; padding: 8px 16px !important; border: none !important; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: none;
             }
             
-            /* กำหนด Label อัตโนมัติให้แต่ละบรรทัด */
-            #summaryTable td:nth-of-type(1) { justify-content: flex-start; border-bottom: 1px solid #f5f5f7 !important; padding-bottom: 12px !important; margin-bottom: 8px; font-size: 16px; font-weight: bold; color: #0071e3;}
-            #summaryTable td:nth-of-type(1)::before { content: "โครงการ"; margin-right: 8px; color: #86868b; font-weight: normal; font-size: 12px; background: #f5f5f7; padding: 2px 8px; border-radius: 12px;}
+            /* Header การ์ดสรุปงบ */
+            #summaryTable td:nth-of-type(1) { 
+                justify-content: flex-start; background: #f0f4f8 !important; border-bottom: 1px solid #e5e5ea !important; padding: 12px 16px !important; font-size: 15px; font-weight: bold; color: #0071e3;
+            }
+            #summaryTable td:nth-of-type(1)::before { content: "📋"; margin-right: 6px; font-size: 14px;}
+            
+            /* ข้อมูลด้านใน */
             #summaryTable td:nth-of-type(2)::before { content: "งบประมาณ"; color: #86868b; font-size: 13px; }
             #summaryTable td:nth-of-type(3)::before { content: "รายรับ"; color: #86868b; font-size: 13px; }
             #summaryTable td:nth-of-type(4)::before { content: "ใช้ไป (มีสลิป)"; color: #86868b; font-size: 13px; }
             #summaryTable td:nth-of-type(5)::before { content: "ใช้ไป (ไม่มีสลิป)"; color: #86868b; font-size: 13px; }
+            
             #summaryTable td:nth-of-type(6)::before { content: "รวมใช้ไป"; color: #1d1d1f; font-weight: bold; font-size: 13px; }
-            #summaryTable td:nth-of-type(6) { border-top: 1px dashed #d2d2d7 !important; padding-top: 10px !important; margin-top: 4px;}
+            #summaryTable td:nth-of-type(6) { border-top: 1px dashed #d2d2d7 !important; padding-top: 12px !important; margin-top: 4px;}
+            
             #summaryTable td:nth-of-type(7)::before { content: "เหลืองบ"; color: #86868b; font-size: 13px; }
-            #summaryTable td:nth-of-type(8)::before { content: "กระแสเงินสด"; color: #0071e3; font-weight: bold; font-size: 13px; }
-            #summaryTable td:nth-of-type(8) { background: #f0f8ff; padding: 8px 12px !important; border-radius: 8px; margin-top: 8px; }
+            
+            /* Footer การ์ดสรุปงบ (กระแสเงินสด) */
+            #summaryTable td:nth-of-type(8)::before { content: "กระแสเงินสด"; color: #0071e3; font-weight: bold; font-size: 14px; }
+            #summaryTable td:nth-of-type(8) { background: #e8f4fc !important; padding: 12px 16px !important; margin-top: 4px; border-top: 1px solid #cce5ff !important;}
 
             /* --- 2. Detailed Table (Transaction Cards) --- */
             #detailedTable, #detailedTable tbody, #detailedTable tr, #detailedTable td { display: block; width: 100%; }
             #detailedTable thead { display: none; } /* ซ่อน Header */
             
             #detailedTable tr { 
-                background: #ffffff; border: 1px solid #e5e5ea; border-radius: 16px; margin-bottom: 12px; padding: 16px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+                background: #ffffff; border: 1px solid #e5e5ea; border-radius: 12px; margin-bottom: 12px; padding: 12px 16px 16px 16px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
             }
-            #detailedTable td { border: none !important; padding: 0 !important; text-align: left !important; }
+            #detailedTable td { border: none !important; padding: 0 !important; text-align: left !important; background: none !important; }
             
-            /* วันที่ */
-            #detailedTable td:nth-of-type(1) { margin-bottom: 8px; } 
+            /* วันที่ (ซ้ายบน) */
+            #detailedTable td:nth-of-type(1) { margin-bottom: 6px; } 
             
-            /* รายละเอียด (กันที่ด้านขวาไว้ให้ตัวเลขจำนวนเงิน) */
-            #detailedTable td:nth-of-type(3) { margin-bottom: 12px; padding-right: 100px !important; } 
+            /* จำนวนเงิน (ขวาบน ลอยตัว) */
+            #detailedTable td:nth-of-type(4) { position: absolute; right: 16px; top: 12px; font-size: 16px; font-weight: bold; text-align: right !important; } 
             
-            /* จำนวนเงิน (จัดตำแหน่งลอยไว้มุมขวาบน) */
-            #detailedTable td:nth-of-type(4) { position: absolute; right: 16px; top: 16px; font-size: 16px; font-weight: bold; text-align: right !important; } 
+            /* รายละเอียด (กันที่ขวาไว้ไม่ให้ทับตัวเลข) */
+            #detailedTable td:nth-of-type(3) { margin-bottom: 12px; padding-right: 90px !important; margin-top: 4px; } 
             
-            /* ชื่อโครงการ */
-            #detailedTable td:nth-of-type(2) { display: inline-block !important; font-size: 11px; color: #0071e3; background: #e8f4fc; padding: 4px 8px !important; border-radius: 6px; margin-right: 6px; font-weight: 500;} 
+            /* ชื่อโครงการ (ทำเป็นป้าย Tag พอดีคำ ไม่ยืด) */
+            #detailedTable td:nth-of-type(2) { 
+                display: inline-flex !important; /* บังคับไม่ให้ยืดเต็มจอ */
+                align-items: center;
+                background: #f0f4f8 !important; 
+                color: #555555; 
+                padding: 4px 8px !important; 
+                border-radius: 6px; 
+                margin-right: 6px; 
+                margin-bottom: 4px;
+                font-size: 11px; 
+                font-weight: 500;
+                width: max-content; /* แก้ปัญหาแถบสียืด */
+                max-width: 100%;
+            } 
+            #detailedTable td:nth-of-type(2)::before { content: "📁"; margin-right: 4px; font-size: 10px;}
             
             /* หมายเหตุ */
-            #detailedTable td:nth-of-type(5) { display: inline-block !important; font-size: 12px; color: #86868b; }
+            #detailedTable td:nth-of-type(5) { display: block !important; font-size: 11px; color: #86868b; margin-top: 4px; border-top: 1px solid #f5f5f7; padding-top: 6px !important; }
+            #detailedTable td:nth-of-type(5):empty { display: none !important; } /* ซ่อนถ้าไม่มีหมายเหตุ */
             
-            /* สีขอบด้านซ้าย (แถบสีสถานะ) สำหรับมือถือ */
-            #detailedTable tr.row-income { border-left: 4px solid #34c759 !important; border-top-left-radius: 16px; border-bottom-left-radius: 16px;}
-            #detailedTable tr.row-noslip { border-left: 4px solid #ff9f0a !important; border-top-left-radius: 16px; border-bottom-left-radius: 16px;}
-            #detailedTable tr.row-hidden-cost { border-left: 4px solid #af52de !important; border-top-left-radius: 16px; border-bottom-left-radius: 16px;}
+            /* สีขอบด้านซ้าย (แถบสีสถานะ) */
+            #detailedTable tr.row-income { border-left: 4px solid #34c759 !important;}
+            #detailedTable tr.row-noslip { border-left: 4px solid #ff9f0a !important;}
+            #detailedTable tr.row-hidden-cost { border-left: 4px solid #af52de !important;}
         }
 
         /* ==========================================
@@ -342,7 +365,7 @@
                         <div class="p-4 md:p-6 border-b border-[#f5f5f7] flex justify-between items-center bg-white shrink-0">
                             <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปงบประมาณและแยกประเภทรายจ่าย</h3>
                         </div>
-                        <div class="px-2 pb-2 flex-1 overflow-auto bg-white ios-scroll">
+                        <div class="px-2 md:px-6 pb-2 flex-1 overflow-auto bg-[#f5f5f7] md:bg-white ios-scroll pt-2">
                             <table id="summaryTable" class="w-full text-left display nowrap" style="width:100%">
                                 <thead>
                                     <tr>
@@ -380,7 +403,7 @@
                     <button id="dtFilterNoSlip" onclick="setTableFilter('noslip')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#86868b] hover:bg-[#d2d2d7] transition-colors shrink-0">รายการไม่มีสลิป</button>
                     <button id="dtFilterIncome" onclick="setTableFilter('income')" class="px-4 py-1.5 rounded-[20px] text-[13px] font-semibold bg-[#e8e8ed] text-[#34c759] hover:bg-[#d2d2d7] transition-colors shrink-0">เฉพาะรายรับ</button>
                 </div>
-                <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
+                <div class="p-2 md:p-6 bg-[#f5f5f7] md:bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                         <thead>
                             <tr>
@@ -838,14 +861,14 @@
                 let cashOnHand = pIncome - pExpenseTotal; 
 
                 summaryTableInstance.row.add([
-                    `<span class="font-medium">${p.name}</span>`,
+                    `${p.name}`,
                     `<span>${budgetStr}</span>`,
                     `<span class="text-[#0071e3]">${pIncome.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[#ff453a]">${pExpenseSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[#ff9f0a]">${pExpenseNoSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="font-bold text-[#ff3b30]">${pExpenseTotal.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[#34c759]">${remainStr}</span>`,
-                    `<span class="font-bold text-[#1d1d1f]">${cashOnHand.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`
+                    `<span class="font-bold text-[#0071e3]">${cashOnHand.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`
                 ]);
             });
             summaryTableInstance.draw();
@@ -863,7 +886,6 @@
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
                         
-                        // แอดคลาสตามสถานะเพื่อทำแถบสีหรือกล่องสีบนมือถือ/คอม
                         if (typeVal === 'รายรับ') {
                             $(row).addClass('row-income'); 
                         } else if (typeVal === 'ไม่มีสลิป') {
@@ -892,8 +914,7 @@
 
                 let amountColorClass = item.slipType === "รายรับ" ? "text-[#34c759] font-semibold" : "";
 
-                let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[11px] md:text-[13px] font-medium block md:inline">${item.dateText}</span>`;
-                // แยกรายละเอียดและ Tag เป็น 2 บรรทัด (รองรับการ์ดบนมือถือ)
+                let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[12px] md:text-[13px] font-medium block md:inline">${item.dateText}</span>`;
                 let detailHtml = `<div class="text-[14px] leading-snug font-medium text-[#1d1d1f]">${item.details}</div><div class="flex flex-wrap gap-1 mt-1.5">${extraTag}</div>`;
                 let amountHtml = `<span class="${amountColorClass}">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`;
 
