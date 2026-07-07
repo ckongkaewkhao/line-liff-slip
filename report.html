@@ -97,6 +97,20 @@
                 margin-left: 0 !important;
                 box-sizing: border-box;
             }
+            /* ซ่อน UI ดั้งเดิมของ DataTable บนมือถือเพื่อใช้โมเดลกล่องของตนเองแทน */
+            #detailedTable, #summaryTable { border: none !important; }
+            #detailedTable thead, #summaryTable thead { display: none !important; }
+            #detailedTable tbody td, #summaryTable tbody td { display: block !important; width: 100% !important; border: none !important; padding: 0 !important; }
+        }
+
+        /* คลาสสไตล์กล่องธนาคารสำหรับมือถือ */
+        .bank-noti-box {
+            background: #ffffff;
+            border: 1px solid #e5e5ea;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
 
         /* ==========================================
@@ -115,7 +129,15 @@
             .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
             
-            table.dataTable th, table.dataTable td { display: table-cell !important; background-color: #ffffff !important; } /* ลบสีพื้นหลังตารางตอนปริ้น */
+            /* แสดงหัวตารางและโครงสร้างตารางปกติเมื่อปริ้น */
+            #detailedTable thead, #summaryTable thead { display: table-header-group !important; }
+            #detailedTable tbody tr, #summaryTable tbody tr { display: table-row !important; }
+            #detailedTable tbody td, #summaryTable tbody td { display: table-cell !important; padding: 8px 12px !important; border: 1px solid #000000 !important; }
+
+            .mobile-summary-view, .mobile-noti-view { display: none !important; }
+            .desktop-table-view { display: table-cell !important; }
+
+            table.dataTable th, table.dataTable td { display: table-cell !important; background-color: #ffffff !important; } 
             .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; } 
             table.dataTable tr.child { display: none !important; }
             .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
@@ -134,7 +156,7 @@
 
             .dataTables_wrapper { display: block !important; width: 100% !important; overflow: visible !important; }
             
-            table.dataTable, #detailedTable, #monthlyTable {
+            table.dataTable, #detailedTable, #summaryTable, #monthlyTable {
                 display: table !important; border-collapse: collapse !important; border-spacing: 0 !important;
                 width: 100% !important; max-width: 100% !important; margin-top: 10pt !important; 
                 border: 1px solid #000000 !important; background-color: #ffffff !important; 
@@ -142,6 +164,7 @@
 
             table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
             #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr,
+            #summaryTable, #summaryTable th, #summaryTable td, #summaryTable tr,
             #monthlyTable, #monthlyTable th, #monthlyTable td, #monthlyTable tr { 
                 border-width: 1px !important; border-style: solid !important; border-color: #000000 !important;
                 background-color: #ffffff !important; box-shadow: none !important; padding: 8px 12px !important; 
@@ -159,33 +182,6 @@
             #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 53% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
             #detailedTable th:nth-child(4), #detailedTable td:nth-child(4) { width: 18% !important; text-align: right !important; white-space: nowrap !important; }
             #detailedTable th:nth-child(5), #detailedTable td:nth-child(5) { width: 14% !important; text-align: center !important; }
-
-            /* Monthly Print */
-            body.print-monthly #dashboardContainer { display: none !important; }
-            body.print-monthly #allProjectsContainer { display: none !important; }
-            body.print-monthly #printMonthlyHeader { display: block !important; text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 20px; }
-            body.print-monthly #monthlyContainer { display: block !important; width: 100% !important; overflow: visible !important; }
-            #monthlyTable { table-layout: auto !important; width: 100% !important;}
-            #monthlyTable th, #monthlyTable td { white-space: nowrap !important; font-size: 8pt !important; padding: 4px 6px !important; text-align: right !important; vertical-align: middle !important; }
-            #monthlyTable th:first-child, #monthlyTable td:first-child { white-space: normal !important; text-align: left !important; min-width: 120px !important; max-width: 250px !important; }
-            #monthlyTable thead th { text-align: center !important; }
-            #monthlyTotalsTop th { border-bottom: 2px solid #000000 !important; background-color: #f5f5f7 !important;}
-
-            /* All Projects Print (Page Break Logic) */
-            body.print-allprojects #dashboardContainer { display: none !important; }
-            body.print-allprojects #monthlyContainer { display: none !important; }
-            body.print-allprojects #allProjectsContainer { display: block !important; width: 100% !important; overflow: visible !important; }
-            
-            .project-page { page-break-after: always !important; display: block !important; width: 100% !important; margin-bottom: 20px !important;}
-            .project-page:last-child { page-break-after: auto !important; }
-            .project-page h2 { font-size: 18pt !important; font-weight: bold !important; border-bottom: 2px solid #000 !important; padding-bottom: 5px !important; margin-bottom: 15px !important; }
-            .project-summary-grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; margin-bottom: 15px !important; }
-            .project-summary-box { border: 1px solid #000 !important; padding: 10px !important; text-align: center !important; flex: 1 !important; min-width: 120px !important;}
-            .project-summary-box .title { font-size: 9pt !important; font-weight: bold !important; margin-bottom: 5px !important; }
-            .project-summary-box .value { font-size: 12pt !important; font-weight: bold !important; }
-            .project-page table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; margin-bottom: 10px !important;}
-            .project-page th, .project-page td { border: 1px solid #000 !important; padding: 6px !important; font-size: 10pt !important; }
-            .project-page th { background-color: #f0f0f0 !important; font-weight: bold !important; text-align: center !important; }
         }
     </style>
 </head>
@@ -296,7 +292,7 @@
                         </div>
                         <div class="px-2 pb-2 flex-1 overflow-auto bg-white ios-scroll">
                             <table id="summaryTable" class="w-full text-left display nowrap" style="width:100%">
-                                <thead>
+                                <thead class="hidden md:table-header-group">
                                     <tr>
                                         <th class="text-left">โครงการ</th>
                                         <th class="text-right">งบประมาณ</th>
@@ -334,7 +330,7 @@
                 </div>
                 <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
-                        <thead>
+                        <thead class="hidden md:table-header-group">
                             <tr>
                                 <th class="text-center">วันที่</th>
                                 <th class="web-only-col text-left">โครงการ</th> 
@@ -633,6 +629,11 @@
             }
         }
 
+        // ฟังก์ชันสลับการเปิด-ปิดกล่องสรุปงบประมาณโครงการบนมือถือ
+        function toggleMobileSummary(index) {
+            $(`#mobile-summary-detail-${index}`).slideToggle('fast');
+        }
+
         function updateDashboards(data) {
             let totalAmountKPI = 0; 
             let totalIncomeKPI = 0; 
@@ -777,7 +778,7 @@
                 }); 
             }
 
-            projectArray.forEach(p => {
+            projectArray.forEach((p, idx) => {
                 let budget = projectBudgets[p.name];
                 let budgetStr = (budget == null) ? `<span class="text-[#86868b] text-[12px]">ว่าง</span>` : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
                 
@@ -789,8 +790,56 @@
                 let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
                 let cashOnHand = pIncome - pExpenseTotal; 
 
+                // 📌 จัดหน้าสรุปงบประมาณ: สลับมุมมองตาม Device (PC เป็นตาราง / มือถือเป็นกล่องย่อ-ขยายแบบคลีนตามคำสั่ง)
+                let rowContent = `
+                    <!-- จอมอนิเตอร์ / ใบเสร็จสั่งปริ้น -->
+                    <div class="hidden md:flex justify-between w-full desktop-table-view">
+                        <span class="font-medium text-[13px]">${p.name}</span>
+                    </div>
+                    <!-- จอมือถือ (แสดงเป็นกล่องคลีนย่อ-ขยาย ไร้สีหลังข้อความ) -->
+                    <div class="block md:hidden w-full mobile-summary-view bg-white border border-[#e5e5ea] rounded-xl mb-2 overflow-hidden shadow-sm">
+                        <div onclick="toggleMobileSummary(${idx})" class="p-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 active:bg-gray-100">
+                            <span class="font-bold text-[14px] text-[#0071e3] truncate pr-2">${p.name}</span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span class="text-[13px] font-bold text-[#ff3b30]">${pExpenseTotal.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
+                                <span class="text-[12px] text-[#86868b]">▼</span>
+                            </div>
+                        </div>
+                        <div id="mobile-summary-detail-${idx}" class="hidden p-3 border-t border-[#f5f5f7] space-y-2 text-[13px]">
+                            <div class="flex justify-between">
+                                <span class="text-[#86868b]">งบประมาณ:</span>
+                                <span class="font-medium text-[#1d1d1f]">${budgetStr}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[#86868b]">รายรับ:</span>
+                                <span class="font-medium text-[#0071e3]">${pIncome.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[#86868b]">ใช้ไป (มีสลิป):</span>
+                                <span class="font-medium text-[#ff453a]">${pExpenseSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[#86868b]">ใช้ไป (ไม่มีสลิป):</span>
+                                <span class="font-medium text-[#ff9f0a]">${pExpenseNoSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[#86868b]">รวมใช้ไปทั้งหมด:</span>
+                                <span class="font-bold text-[#ff3b30]">${pExpenseTotal.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[#86868b]">เหลืองบ:</span>
+                                <span class="font-medium text-[#34c759]">${remainStr}</span>
+                            </div>
+                            <div class="flex justify-between pt-1 border-t border-dashed border-[#e5e5ea]">
+                                <span class="text-[#86868b] font-semibold">กระแสเงินสด:</span>
+                                <span class="font-bold text-[#1d1d1f]">${cashOnHand.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
                 summaryTableInstance.row.add([
-                    `<span class="font-medium text-[13px]">${p.name}</span>`,
+                    rowContent,
                     `<span class="text-[13px]">${budgetStr}</span>`,
                     `<span class="text-[13px] text-[#0071e3]">${pIncome.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
                     `<span class="text-[13px] text-[#ff453a]">${pExpenseSlip.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`,
@@ -811,20 +860,12 @@
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
-                    // ✅ เพิ่มไฮไลท์สีพื้นหลังของแต่ละ Row อิงตามประเภทสลิป
                     createdRow: function(row, data, dataIndex) {
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
                         
-                        if (typeVal === 'รายรับ') {
-                            $(row).addClass('bg-[#e8f5e9]'); 
-                        } else if (typeVal === 'ไม่มีสลิป') {
-                            $(row).addClass('bg-[#fff3e0]'); 
-                        }
-                        
-                        if (data[2].includes('ค่าใช้จ่ายแฝง')) {
-                            $(row).addClass('bg-[#f3e5f5]'); 
-                        }
+                        // ยกเลิกสีพื้นหลังไฮไลท์ของแถวบนจอคอมพิวเตอร์ตามที่สั่ง เพื่อความคลีน (ยกเว้นตอนพิมพ์ที่จะเป็นสากลปกติ)
+                        $(row).addClass('bg-white');
                     }
                 });
                 $('.dataTables_filter input').addClass('g-input w-full').css('border-radius', '12px').css('padding', '8px 16px');
@@ -834,18 +875,45 @@
             data.forEach(item => {
                 let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
                 
-                let extraTag = item.slipType === "ไม่มีสลิป" ? ` <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ไม่มีสลิป</span>` : 
-                               item.slipType === "รายรับ" ? ` <span class="bg-green-100 text-[#34c759] text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">รายรับ</span>` : ``;
+                // คอนฟิกสีของตัวอักษรแยกประเภท (คลีนสุด ๆ ไม่มีสีแถบหลังข้อความ)
+                let typeLabelColor = "text-[#ff453a]"; // รายจ่ายปกติ
+                if (item.slipType === "ไม่มีสลิป") typeLabelColor = "text-[#ff9f0a]";
+                if (item.slipType === "รายรับ") typeLabelColor = "text-[#34c759]";
                 
                 let boqStrCheck = item.boq ? item.boq.replace(/\s/g, '') : '';
-                if(boqStrCheck.includes('ค่าใช้จ่ายแฝง') || boqStrCheck.includes('ค่าใช้จ่ายเเฝง')) {
-                    extraTag += ` <span class="bg-purple-100 text-purple-600 text-[10px] px-2 py-0.5 rounded font-bold ml-1 shrink-0">ค่าใช้จ่ายแฝง</span>`;
-                }
+                let isHiddenCost = boqStrCheck.includes('ค่าใช้จ่ายแฝง') || boqStrCheck.includes('ค่าใช้จ่ายเเฝง');
+                if (isHiddenCost) typeLabelColor = "text-[#af52de]";
 
-                let amountColorClass = item.slipType === "รายรับ" ? "text-[#34c759] font-semibold" : "";
+                let extraTagText = item.slipType;
+                if (isHiddenCost) extraTagText = "ค่าใช้จ่ายแฝง";
+
+                let amountColorClass = item.slipType === "รายรับ" ? "text-[#34c759] font-semibold" : "text-[#ff3b30]";
 
                 let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
-                let detailHtml = `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1"><span class="break-words">${item.details}</span>${extraTag}</div>`;
+                
+                // 📌 จัดหน้าแสดงรายการรายละเอียดบิล: บนคอมเป็นตารางธรรมดา / บนมือถือปรับเป็นรูปแบบกล่องธนาคารขนาดพอดีเนื้อหาและแยกสีตัวอักษร
+                let detailHtml = `
+                    <!-- สำหรับ Desktop & ปริ้น -->
+                    <div class="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-1 desktop-table-view">
+                        <span class="break-words">${item.details}</span>
+                        <span class="text-[11px] font-bold ${typeLabelColor} ml-1 shrink-0">(${extraTagText})</span>
+                    </div>
+                    
+                    <!-- สำหรับโทรศัพท์มือถือ (โมเดลกล่องธนาคาร คลีน กระชับตามข้อความ) -->
+                    <div class="block md:hidden mobile-noti-view bank-noti-box">
+                        <div class="flex justify-between items-start gap-2 mb-1">
+                            <span class="text-[11px] font-semibold text-[#86868b]">${item.dateText}</span>
+                            <span class="text-[11px] font-bold ${typeLabelColor}">${extraTagText}</span>
+                        </div>
+                        <div class="text-[12px] text-[#86868b] font-medium truncate mb-1.5">โครงการ: ${item.project}</div>
+                        <div class="text-[14px] text-[#1d1d1f] font-normal break-words mb-2 leading-relaxed h-auto">${item.details}</div>
+                        <div class="flex justify-between items-center pt-1.5 border-t border-[#f5f5f7]">
+                            <span class="text-[11px] text-[#86868b] italic truncate max-w-[60%]">${item.note ? 'มหมายเหตุ: ' + item.note : ''}</span>
+                            <span class="text-[15px] font-bold ${amountColorClass}">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
+                        </div>
+                    </div>
+                `;
+                
                 let amountHtml = `<span class="${amountColorClass}">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>`;
 
                 detailedTableInstance.row.add([ dateHtml, item.project, detailHtml, amountHtml, item.note ]);
@@ -1043,7 +1111,6 @@
             container.html(html);
         }
 
-        // ✅ ฟังก์ชันพิมพ์รายงานแบบอิงตามตัวกรอง
         function exportFormalReport() {
             const printStyle = document.getElementById('dynamicPrintStyle');
 
