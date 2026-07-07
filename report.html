@@ -66,7 +66,6 @@
         }
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #e5e5ea; font-size: 14px; color: #1d1d1f; }
         
-        /* ✅ ตรึงหัวตารางทั้ง 2 อัน */
         #summaryTable thead th, #monthlyTable thead th, #detailedTable thead th { 
             position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; 
         }
@@ -75,33 +74,9 @@
         .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         
-        /* ✅ ซ่อน Scrollbar แนวนอนเพื่อความสะอาดตาบนมือถือ */
         .ios-scroll { -webkit-overflow-scrolling: touch; }
         .ios-scroll::-webkit-scrollbar { display: none; }
         .ios-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-
-        @media (max-width: 640px) {
-            .dataTables_wrapper .dataTables_length, 
-            .dataTables_wrapper .dataTables_filter {
-                width: 100% !important;
-                text-align: left !important;
-                margin-bottom: 8px;
-            }
-            .dataTables_wrapper .dataTables_filter input {
-                width: 100% !important;
-                margin-left: 0 !important;
-                box-sizing: border-box;
-            }
-            .dataTables_wrapper .dataTables_length select {
-                width: 100% !important;
-                margin-left: 0 !important;
-                box-sizing: border-box;
-            }
-            /* ซ่อน UI ดั้งเดิมของ DataTable บนมือถือเพื่อใช้โมเดลกล่องของตนเองแทน */
-            #detailedTable, #summaryTable { border: none !important; }
-            #detailedTable thead, #summaryTable thead { display: none !important; }
-            #detailedTable tbody td, #summaryTable tbody td { display: block !important; width: 100% !important; border: none !important; padding: 0 !important; }
-        }
 
         /* คลาสสไตล์กล่องธนาคารสำหรับมือถือ */
         .bank-noti-box {
@@ -114,7 +89,33 @@
         }
 
         /* ==========================================
-           ⭐ THE ULTIMATE PRINT CSS
+           📱 MOBILE OVERRIDES (แก้ปัญหาตัวเลขล้น/เกิน บนมือถือ)
+           ========================================== */
+        @media (max-width: 767px) {
+            .dataTables_wrapper .dataTables_length, 
+            .dataTables_wrapper .dataTables_filter { width: 100% !important; text-align: left !important; margin-bottom: 8px; }
+            .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { width: 100% !important; margin-left: 0 !important; box-sizing: border-box; }
+            
+            /* ซ่อนหัวตารางบนมือถือ */
+            #summaryTable thead, #detailedTable thead { display: none !important; }
+            
+            /* แปลงแถวตารางให้เป็นรูปแบบ Block (ไม่มีกรอบ) */
+            #summaryTable tbody tr, #detailedTable tbody tr { 
+                display: block !important; border: none !important; margin-bottom: 0px !important; background-color: transparent !important;
+            }
+            
+            /* 🔴 หัวใจสำคัญ: ซ่อนคอลัมน์ทั้งหมด ยกเว้นคอลัมน์ที่มีกล่อง Mobile Layout เพื่อไม่ให้ตัวเลขเก่าล้นออกมา */
+            #summaryTable tbody td:not(:first-child) { display: none !important; } /* ซ่อนคอลัมน์ยอดเงินบนตารางสรุป */
+            #detailedTable tbody td:not(:nth-child(3)) { display: none !important; } /* ซ่อน วันที่, โครงการ, ยอดเงิน, หมายเหตุ เดิมทิ้งไป ให้เหลือแต่กล่องในคอลัมน์ 3 */
+            
+            /* ลบ Padding เดิมของตาราง เพื่อให้กล่องเราชิดขอบสวยงาม */
+            #summaryTable tbody td, #detailedTable tbody td { 
+                display: block !important; width: 100% !important; border: none !important; padding: 0 !important; 
+            }
+        }
+
+        /* ==========================================
+           ⭐ THE ULTIMATE PRINT CSS (ตารางดั้งเดิม 100%)
            ========================================== */
         @media print {
             * {
@@ -129,15 +130,18 @@
             .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
             
+            /* ซ่อนกล่อง Layout มือถือทั้งหมดตอนปริ้น และโชว์ข้อมูลตารางปกติ */
+            .mobile-view { display: none !important; }
+            .desktop-view { display: flex !important; }
+            .desktop-view-block { display: block !important; }
+
             /* แสดงหัวตารางและโครงสร้างตารางปกติเมื่อปริ้น */
             #detailedTable thead, #summaryTable thead { display: table-header-group !important; }
             #detailedTable tbody tr, #summaryTable tbody tr { display: table-row !important; }
-            #detailedTable tbody td, #summaryTable tbody td { display: table-cell !important; padding: 8px 12px !important; border: 1px solid #000000 !important; }
+            #detailedTable tbody td, #summaryTable tbody td { display: table-cell !important; padding: 8px 12px !important; border: 1px solid #000000 !important; width: auto !important; }
+            #summaryTable tbody td:not(:first-child), #detailedTable tbody td:not(:nth-child(3)) { display: table-cell !important; } /* เอาคอลัมน์ที่ซ่อนบนมือถือกลับมาตอนปริ้น */
 
-            .mobile-summary-view, .mobile-noti-view { display: none !important; }
-            .desktop-table-view { display: table-cell !important; }
-
-            table.dataTable th, table.dataTable td { display: table-cell !important; background-color: #ffffff !important; } 
+            table.dataTable th, table.dataTable td { background-color: #ffffff !important; } 
             .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; } 
             table.dataTable tr.child { display: none !important; }
             .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
@@ -170,10 +174,6 @@
                 background-color: #ffffff !important; box-shadow: none !important; padding: 8px 12px !important; 
             }
 
-            table.dataTable thead { display: table-header-group !important; }
-            table.dataTable tbody { display: table-row-group !important; }
-            table.dataTable tr { page-break-inside: auto !important; }
-            table.dataTable td, table.dataTable th { page-break-inside: avoid !important; }
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
             table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
 
@@ -292,7 +292,7 @@
                         </div>
                         <div class="px-2 pb-2 flex-1 overflow-auto bg-white ios-scroll">
                             <table id="summaryTable" class="w-full text-left display nowrap" style="width:100%">
-                                <thead class="hidden md:table-header-group">
+                                <thead>
                                     <tr>
                                         <th class="text-left">โครงการ</th>
                                         <th class="text-right">งบประมาณ</th>
@@ -330,7 +330,7 @@
                 </div>
                 <div class="p-2 md:p-6 bg-white overflow-x-auto ios-scroll">
                     <table id="detailedTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
-                        <thead class="hidden md:table-header-group">
+                        <thead>
                             <tr>
                                 <th class="text-center">วันที่</th>
                                 <th class="web-only-col text-left">โครงการ</th> 
@@ -629,7 +629,6 @@
             }
         }
 
-        // ฟังก์ชันสลับการเปิด-ปิดกล่องสรุปงบประมาณโครงการบนมือถือ
         function toggleMobileSummary(index) {
             $(`#mobile-summary-detail-${index}`).slideToggle('fast');
         }
@@ -790,14 +789,12 @@
                 let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
                 let cashOnHand = pIncome - pExpenseTotal; 
 
-                // 📌 จัดหน้าสรุปงบประมาณ: สลับมุมมองตาม Device (PC เป็นตาราง / มือถือเป็นกล่องย่อ-ขยายแบบคลีนตามคำสั่ง)
+                // แยก Layout: ใช้คลาส desktop-view-block โชว์บนคอม/ตอนปริ้น และ mobile-view โชว์บนมือถือ
                 let rowContent = `
-                    <!-- จอมอนิเตอร์ / ใบเสร็จสั่งปริ้น -->
-                    <div class="hidden md:flex justify-between w-full desktop-table-view">
+                    <div class="desktop-view-block hidden md:block w-full">
                         <span class="font-medium text-[13px]">${p.name}</span>
                     </div>
-                    <!-- จอมือถือ (แสดงเป็นกล่องคลีนย่อ-ขยาย ไร้สีหลังข้อความ) -->
-                    <div class="block md:hidden w-full mobile-summary-view bg-white border border-[#e5e5ea] rounded-xl mb-2 overflow-hidden shadow-sm">
+                    <div class="mobile-view block md:hidden w-full bg-white border border-[#e5e5ea] rounded-xl mb-2 overflow-hidden shadow-sm">
                         <div onclick="toggleMobileSummary(${idx})" class="p-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 active:bg-gray-100">
                             <span class="font-bold text-[14px] text-[#0071e3] truncate pr-2">${p.name}</span>
                             <div class="flex items-center gap-1 shrink-0">
@@ -863,8 +860,6 @@
                     createdRow: function(row, data, dataIndex) {
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
-                        
-                        // ยกเลิกสีพื้นหลังไฮไลท์ของแถวบนจอคอมพิวเตอร์ตามที่สั่ง เพื่อความคลีน (ยกเว้นตอนพิมพ์ที่จะเป็นสากลปกติ)
                         $(row).addClass('bg-white');
                     }
                 });
@@ -875,8 +870,7 @@
             data.forEach(item => {
                 let sortKey = item.dateObj ? item.dateObj.getFullYear().toString() + String(item.dateObj.getMonth() + 1).padStart(2, '0') + String(item.dateObj.getDate()).padStart(2, '0') : "00000000";
                 
-                // คอนฟิกสีของตัวอักษรแยกประเภท (คลีนสุด ๆ ไม่มีสีแถบหลังข้อความ)
-                let typeLabelColor = "text-[#ff453a]"; // รายจ่ายปกติ
+                let typeLabelColor = "text-[#ff453a]";
                 if (item.slipType === "ไม่มีสลิป") typeLabelColor = "text-[#ff9f0a]";
                 if (item.slipType === "รายรับ") typeLabelColor = "text-[#34c759]";
                 
@@ -891,16 +885,14 @@
 
                 let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
                 
-                // 📌 จัดหน้าแสดงรายการรายละเอียดบิล: บนคอมเป็นตารางธรรมดา / บนมือถือปรับเป็นรูปแบบกล่องธนาคารขนาดพอดีเนื้อหาและแยกสีตัวอักษร
+                // ใช้คลาสแยกมุมมองเช่นเดิม
                 let detailHtml = `
-                    <!-- สำหรับ Desktop & ปริ้น -->
-                    <div class="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-1 desktop-table-view">
+                    <div class="desktop-view hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full">
                         <span class="break-words">${item.details}</span>
                         <span class="text-[11px] font-bold ${typeLabelColor} ml-1 shrink-0">(${extraTagText})</span>
                     </div>
                     
-                    <!-- สำหรับโทรศัพท์มือถือ (โมเดลกล่องธนาคาร คลีน กระชับตามข้อความ) -->
-                    <div class="block md:hidden mobile-noti-view bank-noti-box">
+                    <div class="mobile-view block md:hidden w-full bank-noti-box">
                         <div class="flex justify-between items-start gap-2 mb-1">
                             <span class="text-[11px] font-semibold text-[#86868b]">${item.dateText}</span>
                             <span class="text-[11px] font-bold ${typeLabelColor}">${extraTagText}</span>
@@ -908,7 +900,7 @@
                         <div class="text-[12px] text-[#86868b] font-medium truncate mb-1.5">โครงการ: ${item.project}</div>
                         <div class="text-[14px] text-[#1d1d1f] font-normal break-words mb-2 leading-relaxed h-auto">${item.details}</div>
                         <div class="flex justify-between items-center pt-1.5 border-t border-[#f5f5f7]">
-                            <span class="text-[11px] text-[#86868b] italic truncate max-w-[60%]">${item.note ? 'มหมายเหตุ: ' + item.note : ''}</span>
+                            <span class="text-[11px] text-[#86868b] italic truncate max-w-[60%]">${item.note ? 'หมายเหตุ: ' + item.note : ''}</span>
                             <span class="text-[15px] font-bold ${amountColorClass}">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
                         </div>
                     </div>
