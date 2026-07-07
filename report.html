@@ -108,7 +108,7 @@
                 display: block !important; border: none !important; margin-bottom: 0px !important; background-color: transparent !important;
             }
             
-            /* 🔴 บังคับซ่อนทุกคอลัมน์ที่ไม่จำเป็นบนมือถือ เพื่อป้องกันตารางพังหรือตัวเลขล้น */
+            /* บังคับซ่อนทุกคอลัมน์ที่ไม่จำเป็นบนมือถือ เพื่อป้องกันตารางพังหรือตัวเลขล้น */
             #summaryTable tbody td, #detailedTable tbody td { display: none !important; }
             
             /* แสดงเฉพาะคอลัมน์ที่เราฝังกล่อง Mobile Layout ไว้เท่านั้น */
@@ -132,18 +132,27 @@
             .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
             
-            /* ✅ ซ่อนกล่อง Layout มือถือทั้งหมดตอนปริ้น และโชว์ข้อมูลตารางปกติ */
+            /* ซ่อนกล่อง Layout มือถือทั้งหมดตอนปริ้น และโชว์ข้อมูลตารางปกติ */
             .mobile-view { display: none !important; }
             .desktop-view { display: flex !important; }
             .desktop-view-block { display: block !important; }
 
-            /* ✅ แสดงหัวตารางและโครงสร้างตารางปกติเมื่อปริ้น */
+            /* แสดงหัวตารางและโครงสร้างตารางปกติเมื่อปริ้น */
             #detailedTable thead, #summaryTable thead { display: table-header-group !important; }
             #detailedTable tbody tr, #summaryTable tbody tr { display: table-row !important; }
             #detailedTable tbody td, #summaryTable tbody td { display: table-cell !important; padding: 8px 12px !important; border: 1px solid #000000 !important; width: auto !important; }
             
-            /* 🔴 หัวใจสำคัญของการปริ้น: จัดการซ่อนคอลัมน์ Project โดยไม่ทำให้ช่องอื่นเลื่อนผิด */
-            .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; width: 0 !important; padding: 0 !important; border: none !important; }
+            /* 🔴 หัวใจสำคัญของการปริ้น: บังคับซ่อนคอลัมน์ Project อย่างเด็ดขาด เพื่อป้องกันช่องเลื่อน/สลับกัน */
+            #detailedTable thead th.web-only-col,
+            #detailedTable tbody td.web-only-col,
+            #detailedTable thead th:nth-child(2),
+            #detailedTable tbody td:nth-child(2) { 
+                display: none !important; 
+                width: 0 !important; 
+                padding: 0 !important; 
+                border: none !important; 
+            }
+
             table.dataTable tr.child { display: none !important; }
             .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
 
@@ -912,7 +921,6 @@
 
                 let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
                 
-                // ✅ จัดหน้าใหม่สำหรับส่วนแสดงรายการ: บังคับยอดยกเงินและสถานะลงบรรทัดล่างไม่ให้ซ้อนทับข้อความยาว 
                 let detailHtml = `
                     <div class="desktop-view hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full">
                         <span class="break-words">${item.details}</span>
@@ -928,7 +936,6 @@
                         <div class="text-[14px] text-[#1d1d1f] font-normal break-words whitespace-normal leading-relaxed mb-3">
                             ${item.details}
                         </div>
-                        <!-- จุดแก้ไขสำคัญ: ปัดยอดเงินและหมายเหตุลงมาเป็น Block ไม่ให้ตีกับข้อความยาวๆ -->
                         <div class="flex flex-col border-t border-[#f5f5f7] pt-2 gap-1.5">
                             <div class="text-[11px] text-[#86868b] italic break-words w-full">${item.note ? 'หมายเหตุ: ' + item.note : ''}</div>
                             <div class="text-[15px] font-bold ${amountColorClass} self-end whitespace-nowrap">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</div>
