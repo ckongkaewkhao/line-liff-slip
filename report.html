@@ -66,6 +66,7 @@
         }
         table.dataTable tbody td { padding: 12px 16px !important; border-bottom: 1px solid #e5e5ea; font-size: 14px; color: #1d1d1f; }
         
+        /* ตรึงหัวตารางทั้ง 2 อัน */
         #summaryTable thead th, #monthlyTable thead th, #detailedTable thead th { 
             position: sticky; top: 0; z-index: 10; background-color: #ffffff; box-shadow: inset 0 -1px 0 #d2d2d7; border-bottom: none !important; 
         }
@@ -74,6 +75,7 @@
         .btn-primary { background-color: #0071e3; color: white; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         .btn-secondary { background-color: #e8e8ed; color: #1d1d1f; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;}
         
+        /* ซ่อน Scrollbar แนวนอนเพื่อความสะอาดตาบนมือถือ */
         .ios-scroll { -webkit-overflow-scrolling: touch; }
         .ios-scroll::-webkit-scrollbar { display: none; }
         .ios-scroll { -ms-overflow-style: none; scrollbar-width: none; }
@@ -86,29 +88,32 @@
             padding: 14px;
             margin-bottom: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
         }
 
         /* ==========================================
-           📱 MOBILE OVERRIDES (บังคับโครงสร้างบนมือถือ)
+           📱 MOBILE OVERRIDES (เฉพาะหน้าจอโทรศัพท์)
            ========================================== */
-        @media (max-width: 767px) {
+        @media screen and (max-width: 767px) {
             .dataTables_wrapper .dataTables_length, 
             .dataTables_wrapper .dataTables_filter { width: 100% !important; text-align: left !important; margin-bottom: 8px; }
             .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { width: 100% !important; margin-left: 0 !important; box-sizing: border-box; }
             
+            /* ซ่อนหัวตารางบนมือถือ */
             #summaryTable thead, #detailedTable thead { display: none !important; }
             
+            /* แปลงแถวตารางให้เป็นรูปแบบ Block (ไม่มีกรอบ) */
             #summaryTable tbody tr, #detailedTable tbody tr { 
                 display: block !important; border: none !important; margin-bottom: 0px !important; background-color: transparent !important;
             }
             
-            /* ซ่อนคอลัมน์ที่ไม่จำเป็นบนมือถือ เพื่อไม่ให้ข้อมูลล้นกรอบ */
-            #summaryTable tbody td:not(:first-child) { display: none !important; } 
-            #detailedTable tbody td:not(:nth-child(3)) { display: none !important; } 
+            /* 🔴 บังคับซ่อนทุกคอลัมน์ที่ไม่จำเป็นบนมือถือ เพื่อป้องกันตารางพังหรือตัวเลขล้น */
+            #summaryTable tbody td, #detailedTable tbody td { display: none !important; }
             
-            #summaryTable tbody td, #detailedTable tbody td { 
-                display: block !important; width: 100% !important; border: none !important; padding: 0 !important; 
-            }
+            /* แสดงเฉพาะคอลัมน์ที่เราฝังกล่อง Mobile Layout ไว้เท่านั้น */
+            #summaryTable tbody td:nth-child(1) { display: block !important; width: 100% !important; border: none !important; padding: 0 !important; }
+            #detailedTable tbody td:nth-child(3) { display: block !important; width: 100% !important; border: none !important; padding: 0 !important; }
         }
 
         /* ==========================================
@@ -127,36 +132,28 @@
             .no-print, .glass-nav, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
             .apple-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; overflow: visible !important; }
             
-            /* สลับมุมมองกลับมาเป็น Desktop/Print */
+            /* ✅ ซ่อนกล่อง Layout มือถือทั้งหมดตอนปริ้น และโชว์ข้อมูลตารางปกติ */
             .mobile-view { display: none !important; }
             .desktop-view { display: flex !important; }
             .desktop-view-block { display: block !important; }
 
+            /* ✅ แสดงหัวตารางและโครงสร้างตารางปกติเมื่อปริ้น */
             #detailedTable thead, #summaryTable thead { display: table-header-group !important; }
             #detailedTable tbody tr, #summaryTable tbody tr { display: table-row !important; }
+            #detailedTable tbody td, #summaryTable tbody td { display: table-cell !important; padding: 8px 12px !important; border: 1px solid #000000 !important; width: auto !important; }
             
-            table.dataTable th, table.dataTable td,
-            #detailedTable th, #detailedTable td,
-            #summaryTable th, #summaryTable td { 
-                display: table-cell !important; background-color: #ffffff !important; 
-                border: 1px solid #000000 !important; padding: 8px 12px !important;
-            }
-
-            /* 🔥 หัวใจสำคัญ: บังคับซ่อนคอลัมน์โครงการเฉพาะตอนปริ้น ไม่ให้มันดันช่องอื่นจนเบี้ยว 🔥 */
-            #detailedTable th.web-only-col, #detailedTable td.web-only-col { display: none !important; border: none !important; padding: 0 !important; }
-
-            /* ดึงคอลัมน์ที่ถูกซ่อนบนมือถือกลับมาตอนปริ้น */
-            #summaryTable tbody td:not(:first-child), #detailedTable tbody td:not(:nth-child(3)) { display: table-cell !important; } 
-
+            /* 🔴 หัวใจสำคัญของการปริ้น: จัดการซ่อนคอลัมน์ Project โดยไม่ทำให้ช่องอื่นเลื่อนผิด */
+            .web-only-col, table.dataTable th.web-only-col, table.dataTable td.web-only-col { display: none !important; width: 0 !important; padding: 0 !important; border: none !important; }
             table.dataTable tr.child { display: none !important; }
             .sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { display: none !important; content: "" !important; }
 
-            /* Dashboard Print Headers */
+            /* Dashboard Print */
             body:not(.print-monthly):not(.print-allprojects) .print-hidden-section { display: none !important; }
             body:not(.print-monthly):not(.print-allprojects) #monthlyContainer,
             body:not(.print-monthly):not(.print-allprojects) #allProjectsContainer { display: none !important; }
             body:not(.print-monthly):not(.print-allprojects) #printHeader { display: block !important; margin-bottom: 25px !important; page-break-after: avoid !important; width: 100% !important; }
             
+            /* General Print Headers & Tables */
             .print-header-title { text-align: left !important; font-size: 22pt !important; font-weight: bold !important; margin-bottom: 20px !important; margin-top: 0 !important;}
             .print-header-table { width: auto !important; border-collapse: collapse !important; border: none !important; margin-bottom: 20px !important; }
             .print-header-table td { border: none !important; padding: 6px 0 !important; font-size: 14pt !important; text-align: left !important; vertical-align: middle !important; font-weight: normal !important;}
@@ -170,10 +167,18 @@
                 border: 1px solid #000000 !important; background-color: #ffffff !important; 
             }
 
+            table.dataTable, table.dataTable th, table.dataTable td, table.dataTable tr,
+            #detailedTable, #detailedTable th, #detailedTable td, #detailedTable tr,
+            #summaryTable, #summaryTable th, #summaryTable td, #summaryTable tr,
+            #monthlyTable, #monthlyTable th, #monthlyTable td, #monthlyTable tr { 
+                border-width: 1px !important; border-style: solid !important; border-color: #000000 !important;
+                background-color: #ffffff !important; box-shadow: none !important; padding: 8px 12px !important; 
+            }
+
             table.dataTable thead th { font-weight: bold !important; font-size: 11pt !important; text-align: center !important; vertical-align: middle !important; color: #000000 !important; }
             table.dataTable tbody td { font-size: 10pt !important; vertical-align: top !important; color: #000000 !important; }
 
-            /* จัดขนาดความกว้างคอลัมน์คลังบิลตอนปริ้นให้พอดีกระดาษ 4 ช่อง */
+            /* ควบคุมความกว้างคอลัมน์ตอนปริ้นให้คงที่เหมือนเดิม */
             #detailedTable { table-layout: fixed !important; }
             #detailedTable th:nth-child(1), #detailedTable td:nth-child(1) { width: 15% !important; text-align: center !important; }
             #detailedTable th:nth-child(3), #detailedTable td:nth-child(3) { width: 53% !important; text-align: left !important; white-space: normal !important; word-break: break-word !important; }
@@ -315,7 +320,7 @@
                             <h3 class="text-[15px] md:text-lg font-semibold text-[#1d1d1f]">สรุปงบประมาณและแยกประเภทรายจ่าย</h3>
                         </div>
                         <div class="px-2 pb-2 flex-1 overflow-auto bg-white ios-scroll">
-                            <table id="summaryTable" class="w-full text-left display nowrap" style="width:100%">
+                            <table id="summaryTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th class="text-left">โครงการ</th>
@@ -394,8 +399,7 @@
             </div>
         </div>
 
-        <div id="allProjectsContainer" class="hidden w-full mx-auto space-y-4 md:space-y-6">
-            </div>
+        <div id="allProjectsContainer" class="hidden w-full mx-auto space-y-4 md:space-y-6"></div>
 
     </main>
 
@@ -819,10 +823,10 @@
                     </div>
                     <div class="mobile-view block md:hidden w-full bg-white border border-[#e5e5ea] rounded-xl mb-2 overflow-hidden shadow-sm">
                         <div onclick="toggleMobileSummary(${idx})" class="p-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 active:bg-gray-100">
-                            <span class="font-bold text-[14px] text-[#0071e3] truncate pr-2">${p.name}</span>
-                            <div class="flex items-center gap-1 shrink-0">
+                            <span class="font-bold text-[14px] text-[#0071e3] break-words pr-2 leading-tight flex-1">${p.name}</span>
+                            <div class="flex items-center gap-1 shrink-0 pl-2">
                                 <span class="text-[13px] font-bold text-[#ff3b30]">${pExpenseTotal.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</span>
-                                <span class="text-[12px] text-[#86868b]">▼</span>
+                                <span class="text-[12px] text-[#86868b] ml-1">▼</span>
                             </div>
                         </div>
                         <div id="mobile-summary-detail-${idx}" class="hidden p-3 border-t border-[#f5f5f7] space-y-2 text-[13px]">
@@ -908,7 +912,7 @@
 
                 let dateHtml = `<span style="display:none;" data-sliptype="${item.slipType}">${sortKey}</span><span class="text-[#86868b] text-[13px]">${item.dateText}</span>`;
                 
-                // 🔥 จัดโครงสร้าง Layout มือถือใหม่: ตัดข้อความยาวลงบรรทัดอิสระ ปัดยอดเงินลงบรรทัดล่างสุด ไม่ทับกัน 100%
+                // ✅ จัดหน้าใหม่สำหรับส่วนแสดงรายการ: บังคับยอดยกเงินและสถานะลงบรรทัดล่างไม่ให้ซ้อนทับข้อความยาว 
                 let detailHtml = `
                     <div class="desktop-view hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-1 w-full">
                         <span class="break-words">${item.details}</span>
@@ -916,20 +920,18 @@
                     </div>
                     
                     <div class="mobile-view block md:hidden w-full bank-noti-box">
-                        <div class="flex justify-between items-start gap-2 mb-1">
-                            <span class="text-[11px] font-semibold text-[#86868b]">${item.dateText}</span>
-                            <span class="text-[11px] font-bold ${typeLabelColor}">${extraTagText}</span>
+                        <div class="flex justify-between items-start gap-2 mb-2">
+                            <span class="text-[11px] font-semibold text-[#86868b] shrink-0">${item.dateText}</span>
+                            <span class="text-[11px] font-bold ${typeLabelColor} shrink-0 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">${extraTagText}</span>
                         </div>
-                        <div class="text-[12px] text-[#86868b] font-medium truncate mb-1">โครงการ: ${item.project}</div>
-                        <!-- รายละเอียดให้ตัดบรรทัดอิสระตามความยาวจริง ไม่โดนบัง -->
-                        <div class="text-[14px] text-[#1d1d1f] font-normal break-words leading-relaxed mb-2">${item.details}</div>
-                        
-                        <!-- ปัดหมายเหตุและจำนวนเงินลงมาบรรทัดล่างสุดเสมอ ป้องกันการโดนทับ -->
-                        <div class="flex flex-col gap-1 pt-2 border-t border-[#f5f5f7]">
-                            ${item.note ? `<div class="text-[11px] text-[#86868b] italic break-words">หมายเหตุ: ${item.note}</div>` : ''}
-                            <div class="text-right mt-1">
-                                <span class="text-[16px] font-bold ${amountColorClass}">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
-                            </div>
+                        <div class="text-[12px] text-[#0071e3] font-bold mb-1 break-words">โครงการ: ${item.project}</div>
+                        <div class="text-[14px] text-[#1d1d1f] font-normal break-words whitespace-normal leading-relaxed mb-3">
+                            ${item.details}
+                        </div>
+                        <!-- จุดแก้ไขสำคัญ: ปัดยอดเงินและหมายเหตุลงมาเป็น Block ไม่ให้ตีกับข้อความยาวๆ -->
+                        <div class="flex flex-col border-t border-[#f5f5f7] pt-2 gap-1.5">
+                            <div class="text-[11px] text-[#86868b] italic break-words w-full">${item.note ? 'หมายเหตุ: ' + item.note : ''}</div>
+                            <div class="text-[15px] font-bold ${amountColorClass} self-end whitespace-nowrap">${item.amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</div>
                         </div>
                     </div>
                 `;
@@ -1040,7 +1042,7 @@
             });
 
             let html = `<div class="no-print text-[#1d1d1f] text-[18px] md:text-[22px] font-bold bg-white p-4 rounded-xl border border-[#e5e5ea] mb-4 shadow-sm flex items-center gap-2">
-                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
+                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
                 รายงานสรุปทุกโครงการแบบละเอียด
             </div>`;
             
@@ -1131,6 +1133,7 @@
             container.html(html);
         }
 
+        // ✅ ฟังก์ชันพิมพ์รายงาน
         function exportFormalReport() {
             const printStyle = document.getElementById('dynamicPrintStyle');
 
