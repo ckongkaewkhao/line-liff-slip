@@ -142,7 +142,7 @@
             #detailedTable tbody tr, #summaryTable tbody tr { display: table-row !important; }
             #detailedTable tbody td, #summaryTable tbody td { display: table-cell !important; padding: 8px 12px !important; border: 1px solid #000000 !important; width: auto !important; }
             
-            /* 🔴 หัวใจสำคัญของการปริ้น: บังคับซ่อนคอลัมน์ Project อย่างเด็ดขาด เพื่อป้องกันช่องเลื่อน/สลับกัน */
+            /* บังคับซ่อนคอลัมน์ Project อย่างเด็ดขาด เพื่อป้องกันช่องเลื่อน/สลับกัน */
             #detailedTable thead th.web-only-col,
             #detailedTable tbody td.web-only-col,
             #detailedTable thead th:nth-child(2),
@@ -511,27 +511,20 @@
             if(detailedTableInstance) detailedTableInstance.draw();
         }
 
-        // ฟังก์ชันคำนวณจำนวนวันคงเหลือ (นำวันสิ้นสุดมาลบกับวันปัจจุบัน)
-        function calculateRemainingDays(endDateStr) {
-            if(!endDateStr || endDateStr === '-' || endDateStr === '') return null;
+        // ✅ ฟังก์ชันช่วยแปลงข้อความวันที่เป็น Object สำหรับใช้เปรียบเทียบ
+        function parseDateStr(dateStr) {
+            if(!dateStr || dateStr === '-' || dateStr === '') return null;
             let parts, day, month, year;
-            if(endDateStr.includes('/')) {
-                 parts = endDateStr.split(' ')[0].split('/');
+            if(dateStr.includes('/')) {
+                 parts = dateStr.split(' ')[0].split('/');
                  day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]);
                  if(year > 2500) year -= 543; // แปลง พ.ศ. เป็น ค.ศ.
-            } else if (endDateStr.includes('-')) {
-                 parts = endDateStr.split(' ')[0].split('-');
+            } else if (dateStr.includes('-')) {
+                 parts = dateStr.split(' ')[0].split('-');
                  year = parseInt(parts[0]); month = parseInt(parts[1]) - 1; day = parseInt(parts[2]);
-                 if(year > 2500) year -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+                 if(year > 2500) year -= 543;
             } else { return null; }
-            
-            let end = new Date(year, month, day);
-            let today = new Date();
-            today.setHours(0,0,0,0);
-            
-            let diffTime = end - today;
-            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
+            return new Date(year, month, day);
         }
 
         function fetchGoogleSheetData() {
@@ -548,16 +541,18 @@
                             let pName = String(projResults.data[i][0] || '').trim();
                             let pBudgetRaw = String(projResults.data[i][1] || '').replace(/,/g, '').trim();
                             
-                            // ดึงข้อมูลวันที่เริ่ม (คอลัมน์ F / Index 5) และสิ้นสุด (คอลัมน์ G / Index 6)
+                            // ดึงคอลัมน์: F=เริ่ม(5), G=สิ้นสุด(6), H=ส่งงาน(7)
                             let sDate = projResults.data[i].length > 5 ? String(projResults.data[i][5] || '').trim() : '';
                             let eDate = projResults.data[i].length > 6 ? String(projResults.data[i][6] || '').trim() : '';
+                            let subDate = projResults.data[i].length > 7 ? String(projResults.data[i][7] || '').trim() : '';
 
                             if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.startsWith('ID-')) {
                                 let pBudget = parseFloat(pBudgetRaw);
                                 projectBudgets[pName] = {
                                     budget: isNaN(pBudget) ? null : pBudget,
                                     startDate: sDate,
-                                    endDate: eDate
+                                    endDate: eDate,
+                                    submitDate: subDate
                                 };
                             }
                         }
@@ -854,6 +849,7 @@
                 let budget = projInfo.budget;
                 let sDate = projInfo.startDate || '-';
                 let eDate = projInfo.endDate || '-';
+                let subDate = projInfo.submitDate || '';
 
                 let budgetStr = (budget == null) ? `<span class="text-[#86868b] text-[12px]">ว่าง</span>` : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
                 
@@ -865,13 +861,39 @@
                 let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
                 let cashOnHand = pIncome - pExpenseTotal; 
 
-                // คำนวณวันคงเหลือ + แบ่งสีกรณีวันใกล้หมด
-                let remDays = calculateRemainingDays(eDate);
+                // ✅ คำนวณลอจิก: ตรวจสอบ "วันส่งงาน" (คอลัมน์ H)
                 let colorClass = "text-[#86868b]";
                 let remDaysStr = "";
 
-                if (eDate !== '-' && sDate !== '') {
-                    if (remDays !== null) {
+                if (subDate !== '' && subDate !== '-') {
+                    // กรณีที่ 1: มีการส่งงานแล้ว (เสร็จสิ้น)
+                    let eObj = parseDateStr(eDate);
+                    let subObj = parseDateStr(subDate);
+                    
+                    if (eObj && subObj) {
+                        let diffTime = subObj - eObj;
+                        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays > 0) {
+                            colorClass = "text-[#ff3b30]"; // ส่งงานล่าช้า -> สีแดง
+                            remDaysStr = "(เสร็จสิ้นเลยมา " + diffDays + " วัน)";
+                        } else {
+                            colorClass = "text-[#0071e3]"; // ส่งงานตรงเวลา/ก่อน -> สีน้ำเงิน
+                            remDaysStr = "(เสร็จสิ้น)";
+                        }
+                    } else {
+                        colorClass = "text-[#0071e3]";
+                        remDaysStr = "(เสร็จสิ้น)";
+                    }
+                } else if (eDate !== '-' && sDate !== '') {
+                    // กรณีที่ 2: ยังไม่ส่งงาน (นับเวลาถอยหลัง)
+                    let eObj = parseDateStr(eDate);
+                    if (eObj) {
+                        let today = new Date();
+                        today.setHours(0,0,0,0);
+                        let diffTime = eObj - today;
+                        let remDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
                         if (remDays < 0) {
                              colorClass = "text-[#ff3b30]"; // แดง (เกินกำหนด)
                              remDaysStr = "(เกินกำหนด " + Math.abs(remDays) + " วัน)";
@@ -888,11 +910,11 @@
                     }
                 }
 
-                // สำหรับจอมอนิเตอร์และสั่งปริ้น
+                // การแสดงผลวันที่สำหรับ Desktop และการปริ้น
                 let dateDisplayDesktop = (sDate === '-' && eDate === '-') ? '' : 
                     `<div class="text-[11px] mt-0.5 whitespace-nowrap"><span class="text-[#86868b]">เริ่ม: ${sDate} - สิ้นสุด: ${eDate}</span> <span class="font-bold ml-1 ${colorClass}">${remDaysStr}</span></div>`;
                 
-                // สำหรับมือถือ
+                // การแสดงผลวันที่สำหรับ Mobile
                 let dateDisplayMobile = (sDate === '-' && eDate === '-') ? '' :
                     `<div class="flex justify-between items-start border-b border-dashed border-[#e5e5ea] pb-2 mb-2">
                         <span class="text-[#86868b]">ระยะเวลา:</span>
@@ -971,7 +993,6 @@
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
-                    // ✅ เพิ่มไฮไลท์สีพื้นหลังของแต่ละ Row อิงตามประเภทสลิป
                     createdRow: function(row, data, dataIndex) {
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
@@ -1137,7 +1158,7 @@
             });
 
             let html = `<div class="no-print text-[#1d1d1f] text-[18px] md:text-[22px] font-bold bg-white p-4 rounded-xl border border-[#e5e5ea] mb-4 shadow-sm flex items-center gap-2">
-                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
+                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
                 รายงานสรุปทุกโครงการแบบละเอียด
             </div>`;
             
@@ -1147,6 +1168,7 @@
                 let budget = projInfo.budget || 0;
                 let sDate = projInfo.startDate || '-';
                 let eDate = projInfo.endDate || '-';
+                let subDate = projInfo.submitDate || '';
                 
                 let expense = data.expense;
                 let income = data.income;
@@ -1155,22 +1177,44 @@
                 
                 if (budget === 0 && data.items.length === 0) return;
 
-                // เพิ่มระยะเวลาในหัวข้อโปรเจกต์
+                // ✅ เพิ่มลอจิก วันส่งงาน ในหน้า "ทุกโครงการ"
                 let dateHeaderHtml = '';
                 if (sDate !== '-' || eDate !== '-') {
-                    let remDays = calculateRemainingDays(eDate);
                     let colorClass = "text-[#86868b]";
                     let remDaysStr = "";
 
-                    if (remDays !== null) {
-                        if (remDays < 0) {
-                             colorClass = "text-[#ff3b30]"; remDaysStr = "(เกินกำหนด " + Math.abs(remDays) + " วัน)";
-                        } else if (remDays <= 30) {
-                             colorClass = "text-[#ff3b30]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
-                        } else if (remDays <= 60) {
-                             colorClass = "text-[#FF9500]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                    if (subDate !== '' && subDate !== '-') {
+                        // ส่งงานแล้ว
+                        let eObj = parseDateStr(eDate);
+                        let subObj = parseDateStr(subDate);
+                        if (eObj && subObj) {
+                            let diffTime = subObj - eObj;
+                            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            if (diffDays > 0) {
+                                colorClass = "text-[#ff3b30]"; remDaysStr = "(เสร็จสิ้นเลยมา " + diffDays + " วัน)";
+                            } else {
+                                colorClass = "text-[#0071e3]"; remDaysStr = "(เสร็จสิ้น)";
+                            }
                         } else {
-                             colorClass = "text-[#34c759]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                            colorClass = "text-[#0071e3]"; remDaysStr = "(เสร็จสิ้น)";
+                        }
+                    } else {
+                        // ยังไม่ส่ง นัับถอยหลัง
+                        let eObj = parseDateStr(eDate);
+                        if (eObj) {
+                            let today = new Date(); today.setHours(0,0,0,0);
+                            let diffTime = eObj - today;
+                            let remDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            
+                            if (remDays < 0) {
+                                 colorClass = "text-[#ff3b30]"; remDaysStr = "(เกินกำหนด " + Math.abs(remDays) + " วัน)";
+                            } else if (remDays <= 30) {
+                                 colorClass = "text-[#ff3b30]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                            } else if (remDays <= 60) {
+                                 colorClass = "text-[#FF9500]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                            } else {
+                                 colorClass = "text-[#34c759]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                            }
                         }
                     }
                     dateHeaderHtml = `<div class="text-[13px] font-normal text-[#86868b] mt-1.5 block">ระยะเวลางาน: ${sDate} - ${eDate} <span class="font-bold ml-1 ${colorClass}">${remDaysStr}</span></div>`;
@@ -1256,7 +1300,7 @@
             container.html(html);
         }
 
-        // ✅ ฟังก์ชันพิมพ์รายงาน
+        // ฟังก์ชันพิมพ์รายงาน
         function exportFormalReport() {
             const printStyle = document.getElementById('dynamicPrintStyle');
 
