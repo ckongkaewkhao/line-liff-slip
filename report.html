@@ -511,6 +511,29 @@
             if(detailedTableInstance) detailedTableInstance.draw();
         }
 
+        // ฟังก์ชันคำนวณจำนวนวันคงเหลือ (นำวันสิ้นสุดมาลบกับวันปัจจุบัน)
+        function calculateRemainingDays(endDateStr) {
+            if(!endDateStr || endDateStr === '-' || endDateStr === '') return null;
+            let parts, day, month, year;
+            if(endDateStr.includes('/')) {
+                 parts = endDateStr.split(' ')[0].split('/');
+                 day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]);
+                 if(year > 2500) year -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+            } else if (endDateStr.includes('-')) {
+                 parts = endDateStr.split(' ')[0].split('-');
+                 year = parseInt(parts[0]); month = parseInt(parts[1]) - 1; day = parseInt(parts[2]);
+                 if(year > 2500) year -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+            } else { return null; }
+            
+            let end = new Date(year, month, day);
+            let today = new Date();
+            today.setHours(0,0,0,0);
+            
+            let diffTime = end - today;
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
         function fetchGoogleSheetData() {
             $('#kpiTotalBudget, #kpiTotal, #kpiTotalIncome, #kpiTotalBalance, #sum-total').text('กำลังโหลด...');
             $('#kpiProjects, #kpiTransactions').text('-');
@@ -524,9 +547,18 @@
                         for (let i = 1; i < projResults.data.length; i++) {
                             let pName = String(projResults.data[i][0] || '').trim();
                             let pBudgetRaw = String(projResults.data[i][1] || '').replace(/,/g, '').trim();
+                            
+                            // ดึงข้อมูลวันที่เริ่ม (คอลัมน์ F / Index 5) และสิ้นสุด (คอลัมน์ G / Index 6)
+                            let sDate = projResults.data[i].length > 5 ? String(projResults.data[i][5] || '').trim() : '';
+                            let eDate = projResults.data[i].length > 6 ? String(projResults.data[i][6] || '').trim() : '';
+
                             if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.startsWith('ID-')) {
                                 let pBudget = parseFloat(pBudgetRaw);
-                                projectBudgets[pName] = isNaN(pBudget) ? null : pBudget;
+                                projectBudgets[pName] = {
+                                    budget: isNaN(pBudget) ? null : pBudget,
+                                    startDate: sDate,
+                                    endDate: eDate
+                                };
                             }
                         }
                     }
@@ -731,12 +763,15 @@
             })).sort((a, b) => b.sumExpenseTotal - a.sumExpenseTotal);
 
             let sumBudget = 0;
-            projectArray.forEach(p => { if (projectBudgets[p.name]) sumBudget += projectBudgets[p.name]; });
+            projectArray.forEach(p => { 
+                let bVal = projectBudgets[p.name]?.budget;
+                if (bVal) sumBudget += bVal; 
+            });
             $('#kpiTotalBudget').text(sumBudget > 0 ? sumBudget.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
 
-            let budgetedProjects = projectArray.filter(p => projectBudgets[p.name] != null && projectBudgets[p.name] > 0);
+            let budgetedProjects = projectArray.filter(p => projectBudgets[p.name]?.budget != null && projectBudgets[p.name]?.budget > 0);
             let chartLabels = budgetedProjects.map(p => p.name);
-            let chartData = budgetedProjects.map(p => ((p.sumExpenseTotal / projectBudgets[p.name]) * 100).toFixed(2));
+            let chartData = budgetedProjects.map(p => ((p.sumExpenseTotal / projectBudgets[p.name].budget) * 100).toFixed(2));
             let barColors = budgetedProjects.map((_, i) => themeColors[i % themeColors.length]);
 
             const chartWrapper = document.getElementById('chartWrapper');
@@ -777,7 +812,7 @@
                                 label: (c) => {
                                     let projName = c.label;
                                     let pData = budgetedProjects.find(p => p.name === projName);
-                                    let budget = projectBudgets[projName];
+                                    let budget = projectBudgets[projName].budget;
                                     let used = pData ? pData.sumExpenseTotal : 0;
                                     return ` ใช้ไปรวม: ${c.raw}% (${used.toLocaleString('th-TH', {minimumFractionDigits: 2})} / ${budget.toLocaleString('th-TH', {minimumFractionDigits: 2})} บ.)`;
                                 } 
@@ -815,7 +850,11 @@
             }
 
             projectArray.forEach((p, idx) => {
-                let budget = projectBudgets[p.name];
+                let projInfo = projectBudgets[p.name] || {};
+                let budget = projInfo.budget;
+                let sDate = projInfo.startDate || '-';
+                let eDate = projInfo.endDate || '-';
+
                 let budgetStr = (budget == null) ? `<span class="text-[#86868b] text-[12px]">ว่าง</span>` : budget.toLocaleString('th-TH', {minimumFractionDigits:2});
                 
                 let pIncome = p.sumIncome || 0;
@@ -826,9 +865,47 @@
                 let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
                 let cashOnHand = pIncome - pExpenseTotal; 
 
+                // คำนวณวันคงเหลือ + แบ่งสีกรณีวันใกล้หมด
+                let remDays = calculateRemainingDays(eDate);
+                let colorClass = "text-[#86868b]";
+                let remDaysStr = "";
+
+                if (eDate !== '-' && sDate !== '') {
+                    if (remDays !== null) {
+                        if (remDays < 0) {
+                             colorClass = "text-[#ff3b30]"; // แดง (เกินกำหนด)
+                             remDaysStr = "(เกินกำหนด " + Math.abs(remDays) + " วัน)";
+                        } else if (remDays <= 30) {
+                             colorClass = "text-[#ff3b30]"; // แดง (ใกล้งวด < 30)
+                             remDaysStr = "(เหลือ " + remDays + " วัน)";
+                        } else if (remDays <= 60) {
+                             colorClass = "text-[#FF9500]"; // ส้มเหลือง (30 - 60 วัน)
+                             remDaysStr = "(เหลือ " + remDays + " วัน)";
+                        } else {
+                             colorClass = "text-[#34c759]"; // เขียว (> 60 วัน)
+                             remDaysStr = "(เหลือ " + remDays + " วัน)";
+                        }
+                    }
+                }
+
+                // สำหรับจอมอนิเตอร์และสั่งปริ้น
+                let dateDisplayDesktop = (sDate === '-' && eDate === '-') ? '' : 
+                    `<div class="text-[11px] mt-0.5 whitespace-nowrap"><span class="text-[#86868b]">เริ่ม: ${sDate} - สิ้นสุด: ${eDate}</span> <span class="font-bold ml-1 ${colorClass}">${remDaysStr}</span></div>`;
+                
+                // สำหรับมือถือ
+                let dateDisplayMobile = (sDate === '-' && eDate === '-') ? '' :
+                    `<div class="flex justify-between items-start border-b border-dashed border-[#e5e5ea] pb-2 mb-2">
+                        <span class="text-[#86868b]">ระยะเวลา:</span>
+                        <div class="text-right">
+                            <span class="font-medium text-[#1d1d1f] block text-[12px]">${sDate} - ${eDate}</span>
+                            <span class="font-bold text-[12px] ${colorClass}">${remDaysStr}</span>
+                        </div>
+                    </div>`;
+
                 let rowContent = `
                     <div class="desktop-view-block hidden md:block w-full">
-                        <span class="font-medium text-[13px]">${p.name}</span>
+                        <span class="font-medium text-[13px] block">${p.name}</span>
+                        ${dateDisplayDesktop}
                     </div>
                     <div class="mobile-view block md:hidden w-full bg-white border border-[#e5e5ea] rounded-xl mb-2 overflow-hidden shadow-sm">
                         <div onclick="toggleMobileSummary(${idx})" class="p-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 active:bg-gray-100">
@@ -839,6 +916,7 @@
                             </div>
                         </div>
                         <div id="mobile-summary-detail-${idx}" class="hidden p-3 border-t border-[#f5f5f7] space-y-2 text-[13px]">
+                            ${dateDisplayMobile}
                             <div class="flex justify-between">
                                 <span class="text-[#86868b]">งบประมาณ:</span>
                                 <span class="font-medium text-[#1d1d1f]">${budgetStr}</span>
@@ -893,10 +971,20 @@
                     language: { search: "", searchPlaceholder: "ค้นหารายละเอียดบิล...", lengthMenu: "แสดง _MENU_ แถว", info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ", paginate: { previous: "ก่อนหน้า", next: "ถัดไป" }, emptyTable: "ไม่พบข้อมูลที่ค้นหา" },
                     dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-3 no-print"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm text-[#86868b] no-print"ip>',
                     columnDefs: [ { className: "dt-right", targets: [3] }, { className: "web-only-col", targets: [1] } ],
+                    // ✅ เพิ่มไฮไลท์สีพื้นหลังของแต่ละ Row อิงตามประเภทสลิป
                     createdRow: function(row, data, dataIndex) {
                         const typeVal = $(data[0]).attr('data-sliptype');
                         $(row).attr('data-sliptype', typeVal);
-                        $(row).addClass('bg-white');
+                        
+                        if (typeVal === 'รายรับ') {
+                            $(row).addClass('bg-[#e8f5e9]'); 
+                        } else if (typeVal === 'ไม่มีสลิป') {
+                            $(row).addClass('bg-[#fff3e0]'); 
+                        }
+                        
+                        if (data[2].includes('ค่าใช้จ่ายแฝง')) {
+                            $(row).addClass('bg-[#f3e5f5]'); 
+                        }
                     }
                 });
                 $('.dataTables_filter input').addClass('g-input w-full').css('border-radius', '12px').css('padding', '8px 16px');
@@ -1049,19 +1137,44 @@
             });
 
             let html = `<div class="no-print text-[#1d1d1f] text-[18px] md:text-[22px] font-bold bg-white p-4 rounded-xl border border-[#e5e5ea] mb-4 shadow-sm flex items-center gap-2">
-                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
+                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
                 รายงานสรุปทุกโครงการแบบละเอียด
             </div>`;
             
             Object.keys(projectGroups).sort().forEach(proj => {
                 let data = projectGroups[proj];
-                let budget = projectBudgets[proj] || 0;
+                let projInfo = projectBudgets[proj] || {};
+                let budget = projInfo.budget || 0;
+                let sDate = projInfo.startDate || '-';
+                let eDate = projInfo.endDate || '-';
+                
                 let expense = data.expense;
                 let income = data.income;
                 let remain = budget - expense;
                 let cashflow = income - expense;
                 
                 if (budget === 0 && data.items.length === 0) return;
+
+                // เพิ่มระยะเวลาในหัวข้อโปรเจกต์
+                let dateHeaderHtml = '';
+                if (sDate !== '-' || eDate !== '-') {
+                    let remDays = calculateRemainingDays(eDate);
+                    let colorClass = "text-[#86868b]";
+                    let remDaysStr = "";
+
+                    if (remDays !== null) {
+                        if (remDays < 0) {
+                             colorClass = "text-[#ff3b30]"; remDaysStr = "(เกินกำหนด " + Math.abs(remDays) + " วัน)";
+                        } else if (remDays <= 30) {
+                             colorClass = "text-[#ff3b30]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                        } else if (remDays <= 60) {
+                             colorClass = "text-[#FF9500]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                        } else {
+                             colorClass = "text-[#34c759]"; remDaysStr = "(เหลือ " + remDays + " วัน)";
+                        }
+                    }
+                    dateHeaderHtml = `<div class="text-[13px] font-normal text-[#86868b] mt-1.5 block">ระยะเวลางาน: ${sDate} - ${eDate} <span class="font-bold ml-1 ${colorClass}">${remDaysStr}</span></div>`;
+                }
 
                 let sortedItems = [...data.items].sort((a, b) => {
                     if(!a.dateObj) return -1; if(!b.dateObj) return 1;
@@ -1094,7 +1207,10 @@
 
                 html += `
                 <div class="project-page bg-white rounded-[18px] shadow-sm border border-[#e5e5ea] p-4 md:p-6 mb-6">
-                    <h2 class="text-xl md:text-2xl font-bold text-[#1d1d1f] mb-4 border-b border-[#e5e5ea] pb-3 text-[#0071e3]">โครงการ: ${proj}</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-[#1d1d1f] mb-4 border-b border-[#e5e5ea] pb-3 text-[#0071e3]">
+                        โครงการ: ${proj}
+                        ${dateHeaderHtml}
+                    </h2>
                     
                     <div class="project-summary-grid grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mb-6">
                         <div class="project-summary-box bg-[#f5f5f7] p-3 md:p-4 rounded-[12px] text-center border border-[#e5e5ea]">
@@ -1203,8 +1319,8 @@
             $('#printProjectName').text(projVal ? projVal : 'ทุกโครงการ (รวมทั้งหมด)');
             $('#printTotalAmount').text(printTotal.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
-            if (projVal && projectBudgets[projVal] != null) {
-                let b = projectBudgets[projVal];
+            if (projVal && projectBudgets[projVal] != null && projectBudgets[projVal].budget != null) {
+                let b = projectBudgets[projVal].budget;
                 let r = b - printTotal; 
                 $('#printBudgetAmount').text(b.toLocaleString('th-TH', {minimumFractionDigits:2}));
                 $('#printRemainAmount').text(r.toLocaleString('th-TH', {minimumFractionDigits:2}));
