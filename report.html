@@ -332,14 +332,14 @@
                             <table id="summaryTable" class="w-full text-left display nowrap md:whitespace-normal" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th class="text-left">โครงการ</th>
-                                        <th class="text-right">งบประมาณ</th>
-                                        <th class="text-right text-[#0071e3]">รายรับ</th>
-                                        <th class="text-right text-[#ff453a]">ใช้ไป (มีสลิป)</th>
-                                        <th class="text-right text-[#ff9f0a]">ใช้ไป (ไม่มีสลิป)</th>
-                                        <th class="text-right text-[#ff3b30] font-bold">รวมใช้ไป</th>
-                                        <th class="text-right text-[#34c759]">เหลืองบ</th>
-                                        <th class="text-right font-bold text-[#1d1d1f]">กระแสเงินสด</th>
+                                        <th class="text-left cursor-pointer hover:text-[#0071e3]">โครงการ</th>
+                                        <th class="text-right cursor-pointer hover:text-[#0071e3]">งบประมาณ</th>
+                                        <th class="text-right text-[#0071e3] cursor-pointer hover:text-[#1d1d1f]">รายรับ</th>
+                                        <th class="text-right text-[#ff453a] cursor-pointer hover:text-[#1d1d1f]">ใช้ไป (มีสลิป)</th>
+                                        <th class="text-right text-[#ff9f0a] cursor-pointer hover:text-[#1d1d1f]">ใช้ไป (ไม่มีสลิป)</th>
+                                        <th class="text-right text-[#ff3b30] font-bold cursor-pointer hover:text-[#1d1d1f]">รวมใช้ไป</th>
+                                        <th class="text-right text-[#34c759] cursor-pointer hover:text-[#1d1d1f]">เหลืองบ</th>
+                                        <th class="text-right font-bold text-[#1d1d1f] cursor-pointer hover:text-[#0071e3]">กระแสเงินสด</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -511,14 +511,13 @@
             if(detailedTableInstance) detailedTableInstance.draw();
         }
 
-        // ✅ ฟังก์ชันช่วยแปลงข้อความวันที่เป็น Object สำหรับใช้เปรียบเทียบ
         function parseDateStr(dateStr) {
             if(!dateStr || dateStr === '-' || dateStr === '') return null;
             let parts, day, month, year;
             if(dateStr.includes('/')) {
                  parts = dateStr.split(' ')[0].split('/');
                  day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]);
-                 if(year > 2500) year -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+                 if(year > 2500) year -= 543;
             } else if (dateStr.includes('-')) {
                  parts = dateStr.split(' ')[0].split('-');
                  year = parseInt(parts[0]); month = parseInt(parts[1]) - 1; day = parseInt(parts[2]);
@@ -541,7 +540,6 @@
                             let pName = String(projResults.data[i][0] || '').trim();
                             let pBudgetRaw = String(projResults.data[i][1] || '').replace(/,/g, '').trim();
                             
-                            // ดึงคอลัมน์: F=เริ่ม(5), G=สิ้นสุด(6), H=ส่งงาน(7)
                             let sDate = projResults.data[i].length > 5 ? String(projResults.data[i][5] || '').trim() : '';
                             let eDate = projResults.data[i].length > 6 ? String(projResults.data[i][6] || '').trim() : '';
                             let subDate = projResults.data[i].length > 7 ? String(projResults.data[i][7] || '').trim() : '';
@@ -837,8 +835,10 @@
 
             if (summaryTableInstance) { summaryTableInstance.clear(); } 
             else { 
+                // ✅ แก้ไขค่า Default Order ให้มาเรียงที่ Column 0 แทน (เพื่อเรียงตามวันเหลือ)
                 summaryTableInstance = $('#summaryTable').DataTable({ 
-                    paging: false, info: false, searching: false, order: [[2, 'desc']], 
+                    paging: false, info: false, searching: false, 
+                    order: [[0, 'asc']], 
                     language: { emptyTable: "ไม่มีข้อมูลในตารางสรุป" }, 
                     columnDefs: [ { className: "dt-right", targets: [1, 2, 3, 4, 5, 6, 7] } ] 
                 }); 
@@ -861,12 +861,13 @@
                 let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
                 let cashOnHand = pIncome - pExpenseTotal; 
 
-                // ✅ คำนวณลอจิก: ตรวจสอบ "วันส่งงาน" (คอลัมน์ H)
+                // คำนวณวันส่งงาน & วันหมดเขต
                 let colorClass = "text-[#86868b]";
                 let remDaysStr = "";
+                let sortKey = 2000000; // ค่าตั้งต้น งานที่ไม่มีกำหนดส่ง จะโดนดันไปตรงกลางๆ
 
                 if (subDate !== '' && subDate !== '-') {
-                    // กรณีที่ 1: มีการส่งงานแล้ว (เสร็จสิ้น)
+                    sortKey = 3000000; // งานที่เสร็จแล้ว ดันไปไว้ล่างสุด
                     let eObj = parseDateStr(eDate);
                     let subObj = parseDateStr(subDate);
                     
@@ -875,10 +876,10 @@
                         let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         
                         if (diffDays > 0) {
-                            colorClass = "text-[#ff3b30]"; // ส่งงานล่าช้า -> สีแดง
+                            colorClass = "text-[#ff3b30]";
                             remDaysStr = "(เสร็จสิ้นเลยมา " + diffDays + " วัน)";
                         } else {
-                            colorClass = "text-[#0071e3]"; // ส่งงานตรงเวลา/ก่อน -> สีน้ำเงิน
+                            colorClass = "text-[#0071e3]"; 
                             remDaysStr = "(เสร็จสิ้น)";
                         }
                     } else {
@@ -886,7 +887,6 @@
                         remDaysStr = "(เสร็จสิ้น)";
                     }
                 } else if (eDate !== '-' && sDate !== '') {
-                    // กรณีที่ 2: ยังไม่ส่งงาน (นับเวลาถอยหลัง)
                     let eObj = parseDateStr(eDate);
                     if (eObj) {
                         let today = new Date();
@@ -894,27 +894,31 @@
                         let diffTime = eObj - today;
                         let remDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         
+                        // เอา 1,000,000 มาบวก เพื่อให้เลขติดลบ (เกินกำหนด) เรียงขึ้นก่อน ตามด้วยเหลือน้อยไปมาก
+                        sortKey = 1000000 + remDays; 
+                        
                         if (remDays < 0) {
-                             colorClass = "text-[#ff3b30]"; // แดง (เกินกำหนด)
+                             colorClass = "text-[#ff3b30]"; 
                              remDaysStr = "(เกินกำหนด " + Math.abs(remDays) + " วัน)";
                         } else if (remDays <= 30) {
-                             colorClass = "text-[#ff3b30]"; // แดง (ใกล้งวด < 30)
+                             colorClass = "text-[#ff3b30]"; 
                              remDaysStr = "(เหลือ " + remDays + " วัน)";
                         } else if (remDays <= 60) {
-                             colorClass = "text-[#FF9500]"; // ส้มเหลือง (30 - 60 วัน)
+                             colorClass = "text-[#FF9500]"; 
                              remDaysStr = "(เหลือ " + remDays + " วัน)";
                         } else {
-                             colorClass = "text-[#34c759]"; // เขียว (> 60 วัน)
+                             colorClass = "text-[#34c759]"; 
                              remDaysStr = "(เหลือ " + remDays + " วัน)";
                         }
                     }
                 }
 
-                // การแสดงผลวันที่สำหรับ Desktop และการปริ้น
+                // แปลงรหัส Sort Key เป็นข้อความซ่อนไว้ในตาราง เพื่อให้ DataTables ใช้เรียง
+                let sortStr = String(sortKey).padStart(8, '0');
+
                 let dateDisplayDesktop = (sDate === '-' && eDate === '-') ? '' : 
                     `<div class="text-[11px] mt-0.5 whitespace-nowrap"><span class="text-[#86868b]">เริ่ม: ${sDate} - สิ้นสุด: ${eDate}</span> <span class="font-bold ml-1 ${colorClass}">${remDaysStr}</span></div>`;
                 
-                // การแสดงผลวันที่สำหรับ Mobile
                 let dateDisplayMobile = (sDate === '-' && eDate === '-') ? '' :
                     `<div class="flex justify-between items-start border-b border-dashed border-[#e5e5ea] pb-2 mb-2">
                         <span class="text-[#86868b]">ระยะเวลา:</span>
@@ -925,6 +929,7 @@
                     </div>`;
 
                 let rowContent = `
+                    <span class="hidden">${sortStr}</span>
                     <div class="desktop-view-block hidden md:block w-full">
                         <span class="font-medium text-[13px] block">${p.name}</span>
                         ${dateDisplayDesktop}
@@ -1158,7 +1163,7 @@
             });
 
             let html = `<div class="no-print text-[#1d1d1f] text-[18px] md:text-[22px] font-bold bg-white p-4 rounded-xl border border-[#e5e5ea] mb-4 shadow-sm flex items-center gap-2">
-                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
+                <svg class="w-6 h-6 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 002-2V9.5L18.5 7H20"></path></svg>
                 รายงานสรุปทุกโครงการแบบละเอียด
             </div>`;
             
@@ -1177,14 +1182,12 @@
                 
                 if (budget === 0 && data.items.length === 0) return;
 
-                // ✅ เพิ่มลอจิก วันส่งงาน ในหน้า "ทุกโครงการ"
                 let dateHeaderHtml = '';
                 if (sDate !== '-' || eDate !== '-') {
                     let colorClass = "text-[#86868b]";
                     let remDaysStr = "";
 
                     if (subDate !== '' && subDate !== '-') {
-                        // ส่งงานแล้ว
                         let eObj = parseDateStr(eDate);
                         let subObj = parseDateStr(subDate);
                         if (eObj && subObj) {
@@ -1199,7 +1202,6 @@
                             colorClass = "text-[#0071e3]"; remDaysStr = "(เสร็จสิ้น)";
                         }
                     } else {
-                        // ยังไม่ส่ง นัับถอยหลัง
                         let eObj = parseDateStr(eDate);
                         if (eObj) {
                             let today = new Date(); today.setHours(0,0,0,0);
