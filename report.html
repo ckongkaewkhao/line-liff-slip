@@ -276,6 +276,14 @@
             
             <div class="flex gap-2 items-center justify-center shrink-0 w-full xl:w-auto border-t sm:border-0 border-[#f5f5f7] pt-2 sm:pt-0">
                 <button onclick="fetchGoogleSheetData()" class="btn-secondary py-2 px-4 rounded-full text-[13px]"><span class="hidden sm:inline">โหลดข้อมูล</span><span class="sm:hidden">🔄 โหลดข้อมูล</span></button>
+                
+                <!-- ✨ เพิ่มปุ่ม AI ตรงนี้ ✨ -->
+                <button onclick="openAIWeeklyAnalysis()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-[20px] px-4 py-[7px] text-[13px] font-medium inline-flex items-center gap-1 shadow-sm transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>AI วิเคราะห์</span>
+                </button>
+                <!-- ================== -->
+
                 <button onclick="exportToExcel()" class="bg-[#107c41] text-white rounded-[20px] px-4 py-[7px] text-[13px] font-medium inline-flex items-center hover:bg-[#0c5c30] transition-colors shadow-sm"><span>Excel</span></button>
                 <button onclick="exportFormalReport()" class="btn-primary py-2 px-4 rounded-full text-[13px]"><span>พิมพ์รายงาน</span></button>
             </div>
@@ -409,6 +417,33 @@
         </div>
 
         <div id="allProjectsContainer" class="hidden w-full mx-auto space-y-4 md:space-y-6"></div>
+
+        <!-- ✨ AI Analysis Modal ✨ -->
+        <div id="aiModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4 transition-opacity">
+            <div class="bg-white rounded-[24px] max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden transform transition-transform">
+                <div class="px-6 py-4 border-b border-[#f5f5f7] flex justify-between items-center bg-gradient-to-r from-purple-50 to-indigo-50">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-2 rounded-xl">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-[#1d1d1f] text-lg leading-tight">AI วิเคราะห์ข้อมูลและตรวจหาความผิดปกติ</h3>
+                            <p class="text-[12px] text-[#86868b]">Powered by Google Gemini 1.5 Flash</p>
+                        </div>
+                    </div>
+                    <button onclick="$('#aiModal').fadeOut('fast')" class="text-[#86868b] hover:text-[#ff3b30] bg-white rounded-full p-1.5 transition-colors shadow-sm">&times;</button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1 text-[#1d1d1f] text-[14px] leading-relaxed ios-scroll bg-white" id="aiResultContent">
+                    <!-- ข้อความผลลัพธ์จะแสดงตรงนี้ -->
+                </div>
+
+                <div class="px-6 py-4 border-t border-[#f5f5f7] bg-gray-50 flex justify-end gap-2">
+                    <button onclick="$('#aiModal').fadeOut('fast')" class="btn-secondary py-2 px-6 rounded-full text-[14px] font-semibold">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+        <!-- ======================= -->
 
     </main>
 
@@ -835,7 +870,6 @@
 
             if (summaryTableInstance) { summaryTableInstance.clear(); } 
             else { 
-                // ✅ แก้ไขค่า Default Order ให้มาเรียงที่ Column 0 แทน (เพื่อเรียงตามวันเหลือ)
                 summaryTableInstance = $('#summaryTable').DataTable({ 
                     paging: false, info: false, searching: false, 
                     order: [[0, 'asc']], 
@@ -861,13 +895,12 @@
                 let remainStr = (budget == null) ? "-" : (budget - pExpenseTotal).toLocaleString('th-TH', {minimumFractionDigits:2});
                 let cashOnHand = pIncome - pExpenseTotal; 
 
-                // คำนวณวันส่งงาน & วันหมดเขต
                 let colorClass = "text-[#86868b]";
                 let remDaysStr = "";
-                let sortKey = 2000000; // ค่าตั้งต้น งานที่ไม่มีกำหนดส่ง จะโดนดันไปตรงกลางๆ
+                let sortKey = 2000000; 
 
                 if (subDate !== '' && subDate !== '-') {
-                    sortKey = 3000000; // งานที่เสร็จแล้ว ดันไปไว้ล่างสุด
+                    sortKey = 3000000; 
                     let eObj = parseDateStr(eDate);
                     let subObj = parseDateStr(subDate);
                     
@@ -894,7 +927,6 @@
                         let diffTime = eObj - today;
                         let remDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         
-                        // เอา 1,000,000 มาบวก เพื่อให้เลขติดลบ (เกินกำหนด) เรียงขึ้นก่อน ตามด้วยเหลือน้อยไปมาก
                         sortKey = 1000000 + remDays; 
                         
                         if (remDays < 0) {
@@ -913,7 +945,6 @@
                     }
                 }
 
-                // แปลงรหัส Sort Key เป็นข้อความซ่อนไว้ในตาราง เพื่อให้ DataTables ใช้เรียง
                 let sortStr = String(sortKey).padStart(8, '0');
 
                 let dateDisplayDesktop = (sDate === '-' && eDate === '-') ? '' : 
@@ -1404,6 +1435,96 @@
             XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
             let fileName = "SAENSABAI_Report" + ($('#filterProject').val() ? `_${$('#filterProject').val()}` : "") + ".xlsx";
             XLSX.writeFile(workbook, fileName);
+        }
+
+        // ==========================================
+        // ✨ ฟังก์ชันระบบ AI ตรวจสอบและสรุปผล ✨
+        // ==========================================
+        const GEMINI_API_KEY = "AQ.Ab8RN6LPBh-kSh-FpPlcElzlgFOik_-SzyX-EHUelDiagQMr_w"; // นำ API Key จากภาพที่ให้มาใส่ตรงนี้
+
+        async function openAIWeeklyAnalysis() {
+            $('#aiModal').removeClass('hidden').fadeIn('fast');
+            $('#aiResultContent').html(`
+                <div class="flex flex-col items-center justify-center py-12 space-y-4">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#e8e8ed] border-t-purple-600"></div>
+                    <p class="text-[#86868b] font-medium animate-pulse">AI กำลังอ่านบัญชีและวิเคราะห์ความผิดปกติ กรุณารอสักครู่...</p>
+                </div>
+            `);
+
+            // ดึงข้อมูลที่ผ่านการ Filter ปัจจุบันมาวิเคราะห์ (จำกัด 300 รายการล่าสุดเพื่อไม่ให้โหลดหนักเกิน)
+            const activeData = currentFilteredData.slice(0, 300); 
+            
+            if (activeData.length === 0) {
+                $('#aiResultContent').html('<div class="text-center text-[#ff3b30] py-10 font-medium">ไม่พบข้อมูลสำหรับวิเคราะห์ กรุณาตรวจสอบการตั้งค่าตัวกรอง</div>');
+                return;
+            }
+
+            // เตรียมบริบท (Context) ว่าตอนนี้ User ดูข้อมูลอะไรอยู่
+            const currentProject = $('#filterProject').val() || 'ทุกโครงการ';
+            const startDate = $('#filterStartDate').val() || 'ไม่ได้ระบุ';
+            const endDate = $('#filterEndDate').val() || 'ไม่ได้ระบุ';
+
+            // จัดโครงสร้างข้อมูล
+            const dataSummary = activeData.map(d => ({
+                วันที่: d.dateText,
+                โครงการ: d.project,
+                รายการ: d.details,
+                จำนวนเงิน: d.amount,
+                ประเภทสลิป: d.slipType,
+                หมายเหตุ: d.note,
+                ความเสี่ยงเบื้องต้น: (d.boq && d.boq.includes('แฝง')) ? 'ค่าใช้จ่ายแฝง' : 'ปกติ'
+            }));
+
+            const promptText = `
+คุณคือ AI ผู้ช่วยตรวจสอบบัญชีและควบคุมต้นทุนโครงการก่อสร้างของ "SAENSABAI 1978"
+โปรดวิเคราะห์ข้อมูลบัญชีต่อไปนี้ (ข้อมูลที่ถูกเลือก: โครงการ=${currentProject}, ช่วงเวลา=${startDate} ถึง ${endDate})
+
+ข้อมูลรายการบัญชี:
+${JSON.stringify(dataSummary)}
+
+โปรดสรุปผลเป็นภาษาไทยด้วยน้ำเสียงมืออาชีพ กระชับ และตรงประเด็น โดยจัดรูปแบบเป็นข้อๆ ตามนี้:
+1. 📊 สรุปภาพรวม: ยอดรวมรายรับ ยอดรวมรายจ่าย และแนวโน้มการใช้จ่ายในข้อมูลชุดนี้
+2. 🔍 การตรวจสอบความผิดปกติ (สำคัญมาก): 
+   - ให้ระบุเจาะจงว่ามีรายการไหนที่ "ไม่มีสลิป" หรือเป็น "ค่าใช้จ่ายแฝง" และมีมูลค่าสูงผิดปกติหรือไม่
+   - มีรายการไหนน่าสงสัยว่าอาจเกิดการเบิกซ้ำซ้อนหรือลงบัญชีผิดไหม
+3. ⚠️ ความเสี่ยงของงบประมาณ: โครงการใดใช้เงินเยอะผิดปกติในช่วงนี้เมื่อเทียบกับเนื้องาน
+4. 💡 ข้อเสนอแนะ: สิ่งที่แอดมินหรือผู้บริหารควรเร่งดำเนินการตรวจสอบ (Action Items)
+
+ข้อกำหนด: ไม่ต้องเกริ่นนำ ให้ตอบเข้าเรื่องเลย ใช้สัญลักษณ์ Emoji ช่วยให้อ่านง่าย และเน้นข้อความตัวหนาในจุดที่สำคัญ
+`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                });
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content) {
+                    let reply = result.candidates[0].content.parts[0].text;
+                    
+                    // แปลง Markdown จาก AI ให้เป็น HTML
+                    reply = reply
+                        .replace(/^### (.*$)/gim, '<h4 class="font-bold text-[#1d1d1f] text-[16px] mt-5 mb-2 border-b border-[#f5f5f7] pb-1">$1</h4>')
+                        .replace(/^## (.*$)/gim, '<h3 class="font-bold text-purple-700 text-[18px] mt-6 mb-3">$1</h3>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#1d1d1f]">$1</strong>')
+                        .replace(/^\* (.*$)/gim, '<li class="ml-5 list-disc mb-1">$1</li>')
+                        .replace(/\n/g, '<br>');
+
+                    $('#aiResultContent').html(`<div class="space-y-1">${reply}</div>`);
+                } else {
+                    throw new Error(result.error?.message || "ไม่สามารถดึงข้อมูลสรุปได้");
+                }
+            } catch (error) {
+                $('#aiResultContent').html(`
+                    <div class="bg-[#fff0f0] border border-[#ff3b30] text-[#ff3b30] p-4 rounded-xl text-[14px]">
+                        <strong class="block mb-1">❌ เกิดข้อผิดพลาดในการเชื่อมต่อ AI:</strong> ${error.message}<br>
+                        <span class="text-[#86868b] text-[12px] mt-2 block">กรุณาลองใหม่อีกครั้ง หรือตรวจสอบ API Key ว่าเปิดใช้งานแล้วหรือไม่</span>
+                    </div>
+                `);
+            }
         }
     </script>
 </body>
