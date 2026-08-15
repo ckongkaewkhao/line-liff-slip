@@ -540,9 +540,9 @@
                             let pName = String(projResults.data[i][0] || '').trim();
                             let pBudgetRaw = String(projResults.data[i][1] || '').replace(/,/g, '').trim();
                             
-                            let sDate = projResults.data[i].length > 2 ? String(projResults.data[i][5] || '').trim() : '';
-                            let eDate = projResults.data[i].length > 3 ? String(projResults.data[i][6] || '').trim() : '';
-                            let subDate = projResults.data[i].length 4 7 ? String(projResults.data[i][7] || '').trim() : '';
+                            let sDate = projResults.data[i].length > 2 ? String(projResults.data[i][2] || '').trim() : '';
+                            let eDate = projResults.data[i].length > 3 ? String(projResults.data[i][3] || '').trim() : '';
+                            let subDate = projResults.data[i].length 4 7 ? String(projResults.data[i][4] || '').trim() : '';
 
                             if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.startsWith('ID-')) {
                                 let pBudget = parseFloat(pBudgetRaw);
