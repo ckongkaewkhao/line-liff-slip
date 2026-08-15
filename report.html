@@ -542,7 +542,7 @@
                             
                             let sDate = projResults.data[i].length > 5 ? String(projResults.data[i][5] || '').trim() : '';
                             let eDate = projResults.data[i].length > 6 ? String(projResults.data[i][6] || '').trim() : '';
-                            let subDate = projResults.data[i].length > 7  ? String(projResults.data[i][7] || '').trim() : '';
+                            let subDate = projResults.data[i].length > 7 ? String(projResults.data[i][7] || '').trim() : '';
 
                             if (pName && pName !== 'ชื่อโครงการ' && !pName.includes('ตารางที่') && !pName.startsWith('ID-')) {
                                 let pBudget = parseFloat(pBudgetRaw);
